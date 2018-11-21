@@ -5,9 +5,9 @@
 \alias{print.model}
 \title{Create a model object}
 \usage{
-BuildModel(p.map, responses, factors = list(dummy = "1"),
-  match.map = NULL, constants = numeric(0), type = "norm",
-  posdrift = TRUE, verbose = TRUE)
+BuildModel(p.map, responses, factors = list(A = "1"), match.map = NULL,
+  constants = numeric(0), type = "norm", posdrift = TRUE,
+  verbose = TRUE)
 
 \method{print}{model}(x, p.vector = NULL, ...)
 }
@@ -42,8 +42,8 @@ specify a particular model and parameterisation.
 }
 \examples{
 model <- BuildModel(
-        p.map     = list(a = "1", v = "1", z = "1", d = "1", t0 = "1", sv = "1",
-                         sz = "1", st0 = "1"),
+        p.map     = list(a = "1", v = "1", z = "1", d = "1", t0 = "1", 
+                     sv = "1", sz = "1", st0 = "1"),
         constants = c(st0 = 0, d = 0, sz = 0, sv = 0),
         match.map = list(M = list(s1 = "r1", s2 = "r2")),
         factors   = list(S = c("s1", "s2")),

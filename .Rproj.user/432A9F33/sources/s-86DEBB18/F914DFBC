@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1542757244109.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "F914DFBC",
+    "lastKnownWriteTime" : 1542757478,
+    "last_content_update" : 1542757478696,
+    "path" : "/media/yslin/KIWI/Documents/ggdmc/R/model.R",
+    "project_path" : "R/model.R",
+    "properties" : {
+        "cursorPosition" : "101,31",
+        "docOutlineVisible" : "1",
+        "scrollLine" : "75"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

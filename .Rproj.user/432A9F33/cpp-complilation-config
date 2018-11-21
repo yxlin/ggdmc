@@ -1,0 +1,21 @@
+{
+    "args" : [
+        "-I/usr/lib/rstudio/resources/libclang/builtin-headers/3.5",
+        "-I/usr/lib/rstudio/resources/libclang/builtin-headers/libc++/3.5",
+        "-I/usr/local/lib/R/site-library/Rcpp/include",
+        "-I/usr/local/lib/R/site-library/RcppArmadillo/include",
+        "-I/usr/local/lib/R/site-library/BH/include",
+        "-std=gnu++11",
+        "-I/usr/share/R/include",
+        "-DNDEBUG",
+        "-I/media/yslin/KIWI/Documents/ggdmc/inst/include",
+        "-fopenmp",
+        "-fpic",
+        "-fdebug-prefix-map=/build/r-base-oNcpyf/r-base-3.5.1=.",
+        "-fstack-protector-strong",
+        "-D_FORTIFY_SOURCE=2"
+    ],
+    "hash" : "154242336615424233661542423366",
+    "is_cpp" : true,
+    "pch" : "Rcpp"
+}

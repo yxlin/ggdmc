@@ -1,0 +1,1445 @@
+[
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc.hpp",
+        "file_last_write" : 1529961331
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/clba.hpp",
+        "file_last_write" : 1535268262
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/ddm.hpp",
+        "file_last_write" : 1529961331
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/density.hpp",
+        "file_last_write" : 1535268349
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/hyper.hpp",
+        "file_last_write" : 1532839507
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/pda.hpp",
+        "file_last_write" : 1534561242
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/prior.hpp",
+        "file_last_write" : 1529961331
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/tnorm.hpp",
+        "file_last_write" : 1529961331
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/inst/include/ggdmc/utils.hpp",
+        "file_last_write" : 1535271586
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 11,
+                "name" : "pnormP(arma::vec, double, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@pnormP#$@N@arma@C@Col>#d#d#d#d#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 27,
+                "name" : "dnormP(arma::vec, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@dnormP#$@N@arma@C@Col>#d#d#d#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 42,
+                "name" : "remove_t0(arma::vec, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@remove_t0#$@N@arma@C@Col>#d#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 51,
+                "name" : "GetTime2Finish(arma::mat, arma::vec, arma::vec, arma::vec, arma::vec, unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetTime2Finish#$@N@arma@C@Mat>#d#$@N@arma@C@Col>#d#S1_#S1_#S1_#i#i#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 77,
+                "name" : "fptcdf(arma::vec, double, double, double, double, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@fptcdf#$@N@arma@C@Col>#d#d#d#d#d#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 110,
+                "name" : "fptpdf(arma::vec, double, double, double, double, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@fptpdf#$@N@arma@C@Col>#d#d#d#d#d#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 142,
+                "name" : "n1PDFfixedt0(arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDFfixedt0#$@N@arma@C@Col>#d#S0_#S0_#S0_#S0_#S0_#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 176,
+                "name" : "n1PDFfixedt0_pda(arma::vec, double, double, arma::mat, arma::vec, double, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDFfixedt0_pda#$@N@arma@C@Col>#d#d#d#$@N@arma@C@Mat>#d#S0_#d#i#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 215,
+                "name" : "n1PDF_cnorm(arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, double, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_cnorm#$@N@arma@C@Col>#d#S0_#S0_#S0_#S0_#S0_#S0_#d#i#d#b#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 249,
+                "name" : "n1PDF_gpu(arma::vec, double, double, arma::vec, arma::vec, double, int, unsigned int, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_gpu#$@N@arma@C@Col>#d#d#d#S0_#S0_#d#I#i#i#d#b#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 284,
+                "name" : "n1PDF_plba0_gpu(arma::vec, double, double, arma::vec, arma::vec, double, arma::vec, double, double, unsigned int, unsigned int, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_plba0_gpu#$@N@arma@C@Col>#d#d#d#S0_#S0_#d#S0_#d#d#i#i#i#d#b#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 300,
+                "name" : "n1PDF_plba1_gpu(arma::vec, double, double, arma::vec, arma::vec, double, arma::vec, double, double, unsigned int, unsigned int, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_plba1_gpu#$@N@arma@C@Col>#d#d#d#S0_#S0_#d#S0_#d#d#i#i#i#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 316,
+                "name" : "make_r(arma::mat, arma::vec, arma::vec, arma::vec, arma::vec, bool, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@make_r#$@N@arma@C@Mat>#d#$@N@arma@C@Col>#d#S1_#S1_#S1_#b#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 354,
+                "name" : "make_v(unsigned int, arma::mat, arma::vec, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@make_v#i#$@N@arma@C@Mat>#d#$@N@arma@C@Col>#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 376,
+                "name" : "rlba_norm(unsigned int, arma::vec, arma::vec, arma::mat, arma::vec, arma::vec, arma::vec, bool, bool, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@rlba_norm#i#$@N@arma@C@Col>#d#S0_#$@N@arma@C@Mat>#d#S0_#S0_#S0_#b#b#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+                "kind" : 6,
+                "line" : 402,
+                "name" : "make_sigma(unsigned int, arma::vec, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@make_sigma#i#$@N@arma@C@Col>#d#d#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/clba.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 30,
+                "name" : "set_precision(double)",
+                "parent_name" : "",
+                "usr" : "c:@F@set_precision#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 46,
+                "name" : "integrate(double (*)(double, std::vector<double> &), std::vector<double> &, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@integrate#*Fdd&$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#S2_#d#d#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 59,
+                "name" : "g_minus_small_time(double, double, int)",
+                "parent_name" : "",
+                "usr" : "c:@F@g_minus_small_time#d#d#I#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 71,
+                "name" : "g_minus_large_time(double, double, int)",
+                "parent_name" : "",
+                "usr" : "c:@F@g_minus_large_time#d#d#I#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 83,
+                "name" : "g_minus_no_var(double, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@g_minus_no_var#d#d#d#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 120,
+                "name" : "integral_v_g_minus(double, std::vector<double> &)",
+                "parent_name" : "",
+                "usr" : "c:@F@integral_v_g_minus#d#&$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 173,
+                "name" : "integral_z_g_minus(double, std::vector<double> &)",
+                "parent_name" : "",
+                "usr" : "c:@F@integral_z_g_minus#d#&$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 202,
+                "name" : "integral_t0_g_minus(double, std::vector<double> &)",
+                "parent_name" : "",
+                "usr" : "c:@F@integral_t0_g_minus#d#&$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 254,
+                "name" : "g_minus(std::vector<double>)",
+                "parent_name" : "",
+                "usr" : "c:@F@g_minus#$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+                "kind" : 6,
+                "line" : 268,
+                "name" : "g_plus(std::vector<double>)",
+                "parent_name" : "",
+                "usr" : "c:@F@g_plus#$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/ddm.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 6,
+                "name" : "transform_ddm(arma::mat, std::string, std::vector<std::string>, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_ddm#$@N@arma@C@Mat>#d#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@vector>#S1_#$@N@std@N@__1@C@allocator>#S1_#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 15,
+                "name" : "transform_norm(arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_norm#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 21,
+                "name" : "transform_plba0(arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_plba0#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 29,
+                "name" : "transform_plba1(arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_plba1#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 47,
+                "name" : "transform_plba2(arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_plba2#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 54,
+                "name" : "transform_plba3(arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_plba3#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 60,
+                "name" : "transform_cnorm(arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@transform_cnorm#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 97,
+                "name" : "FlipResponse_norm(arma::mat, arma::umat, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::string)",
+                "parent_name" : "",
+                "usr" : "c:@F@FlipResponse_norm#$@N@arma@C@Mat>#d#$@N@arma@C@Mat>#i#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S3_#S2_#S2_#S3_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 129,
+                "name" : "checkddm2(std::vector<double>)",
+                "parent_name" : "",
+                "usr" : "c:@F@checkddm2#$@N@std@N@__1@C@vector>#d#$@N@std@N@__1@C@allocator>#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 172,
+                "name" : "p_df(arma::vec, std::string, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::uvec, arma::umat, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@p_df#$@N@arma@C@Col>#d#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@vector>#S1_#$@N@std@N@__1@C@allocator>#S1_#S0_#S4_#$@N@arma@C@Cube>#i#S1_#S4_#S4_#S4_#$@N@arma@C@Col>#i#$@N@arma@C@Mat>#i#b#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 233,
+                "name" : "getbounds(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@getbounds#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 255,
+                "name" : "density_rd(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_rd#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 300,
+                "name" : "density_norm(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_norm#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 335,
+                "name" : "density_cnorm_pda(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_cnorm_pda#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#i#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 372,
+                "name" : "density_norm_pda(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_norm_pda#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#i#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 409,
+                "name" : "density_norm_gpu(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, unsigned int, double, unsigned int, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_norm_gpu#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#i#d#i#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 448,
+                "name" : "density_plba1(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, unsigned int, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_plba1#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#i#d#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 485,
+                "name" : "density_plba0_gpu(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, unsigned int, double, unsigned int, unsigned int, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_plba0_gpu#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#i#d#i#i#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 547,
+                "name" : "density_plba1_gpu(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, unsigned int, double, unsigned int, unsigned int, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@density_plba1_gpu#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#i#d#i#i#i#b#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 655,
+                "name" : "sumloglike(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@sumloglike#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#b#i#d#i#i#b#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 729,
+                "name" : "profile_rd(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_rd#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 765,
+                "name" : "profile_norm(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_norm#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#b#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 800,
+                "name" : "profile_norm_pda(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, int, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_norm_pda#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#I#d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 833,
+                "name" : "profile_cnorm_pda(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, int, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_cnorm_pda#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#I#d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 869,
+                "name" : "profile_norm_gpu(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, int, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_norm_gpu#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#I#d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 902,
+                "name" : "profile_plba1(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, int, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_plba1#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#I#d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 937,
+                "name" : "profile_plba1_gpu(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, int, double, int, int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_plba1_gpu#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#I#d#I#I#b#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+                "kind" : 6,
+                "line" : 972,
+                "name" : "profile_plba0_gpu(arma::vec, std::vector<std::string>, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, std::string, arma::vec, int, double, int, int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@profile_plba0_gpu#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S1_#$@N@arma@C@Cube>#i#S2_#S1_#S1_#S1_#$@N@arma@C@Mat>#i#$@N@arma@C@Col>#i#S7_#S0_#S8_#S8_#S2_#S0_#I#d#I#I#b#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/density.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 4,
+                "name" : "UpdatePriors(arma::mat, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@UpdatePriors#$@N@arma@C@Mat>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S0_#$@N@arma@C@Col>#d#S6_#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 20,
+                "name" : "UpdatePriors2(arma::cube, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@UpdatePriors2#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#$@N@arma@C@Mat>#d#S6_#$@N@arma@C@Col>#d#S7_#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 58,
+                "name" : "GetTheta0(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetTheta0#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 76,
+                "name" : "GetTheta0_new(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetTheta0_new#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 94,
+                "name" : "GetUsethetas(arma::field<arma::mat>)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetUsethetas#$@N@arma@C@field>#$@N@arma@C@Mat>#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 110,
+                "name" : "sumloghprior(arma::vec, arma::vec, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@sumloghprior#$@N@arma@C@Col>#d#S0_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S1_#S0_#S0_#S0_#S0_#S0_#S0_#S0_#S0_#$@N@arma@C@Col>#i#S6_#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 120,
+                "name" : "sumloghlike(arma::mat, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@sumloghlike#$@N@arma@C@Mat>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#$@N@arma@C@Col>#d#S6_#S6_#S6_#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 133,
+                "name" : "StartIteration(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@StartIteration#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+                "kind" : 6,
+                "line" : 153,
+                "name" : "Get_n(List, unsigned int &, unsigned int &, unsigned int &)",
+                "parent_name" : "",
+                "usr" : "c:@F@Get_n#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#&i#S1_#S1_#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/hyper.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 5,
+                "name" : "init_new(unsigned int, List, List, double, unsigned int, unsigned int, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_new#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#S0_#d#i#i#i#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 80,
+                "name" : "init_old(unsigned int, List, double, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_old#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#d#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 117,
+                "name" : "init_add(unsigned int, List, double, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_add#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#d#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 154,
+                "name" : "init_newnonhier(unsigned int, List, List, double, unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_newnonhier#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#S0_#d#i#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 169,
+                "name" : "init_oldnonhier(unsigned int, List, double, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_oldnonhier#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#d#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 184,
+                "name" : "init_addnonhier(unsigned int, List, double, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_addnonhier#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#d#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 198,
+                "name" : "init_newhier(unsigned int, List, List, List, double, unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_newhier#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#S0_#S0_#d#i#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 299,
+                "name" : "init_oldhier(unsigned int, List, double, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_oldhier#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#d#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+                "kind" : 6,
+                "line" : 359,
+                "name" : "init_addhier(unsigned int, List, double, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@init_addhier#i#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#d#i#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/initialise.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/lnr.cpp",
+                "kind" : 6,
+                "line" : 55,
+                "name" : "rlnr(unsigned int, arma::vec, arma::vec, arma::vec, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rlnr#i#$@N@arma@C@Col>#d#S0_#S0_#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/lnr.cpp",
+                "kind" : 6,
+                "line" : 82,
+                "name" : "rlnrDF(unsigned int, arma::vec, arma::vec, arma::vec, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rlnrDF#i#$@N@arma@C@Col>#d#S0_#S0_#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/lnr.cpp",
+                "kind" : 6,
+                "line" : 113,
+                "name" : "n1PDFfixedt0_lnr1(arma::mat, arma::vec, arma::vec)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDFfixedt0_lnr1#$@N@arma@C@Mat>#d#$@N@arma@C@Col>#d#S1_#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/lnr.cpp",
+                "kind" : 6,
+                "line" : 132,
+                "name" : "n1PDFfixedt0_lnr2(arma::mat, arma::mat, arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDFfixedt0_lnr2#$@N@arma@C@Mat>#d#S0_#S0_#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/lnr.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 13,
+                "name" : "check_finite(arma::vec, arma::vec, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@check_finite#$@N@arma@C@Col>#d#S0_#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 44,
+                "name" : "spdf(arma::vec, arma::vec, unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@spdf#$@N@arma@C@Col>#d#S0_#i#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 112,
+                "name" : "rplba0(unsigned int, arma::vec, arma::vec, double, arma::vec, arma::vec, arma::vec, double, double, int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@rplba0#i#$@N@arma@C@Col>#d#S0_#d#S0_#S0_#S0_#d#d#I#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 164,
+                "name" : "rplba1(unsigned int, arma::vec, arma::vec, double, arma::vec, arma::vec, arma::vec, double, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@rplba1#i#$@N@arma@C@Col>#d#S0_#d#S0_#S0_#S0_#d#d#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 217,
+                "name" : "rplba2(unsigned int, arma::vec, arma::vec, double, arma::vec, arma::vec, arma::vec, arma::vec, double, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@rplba2#i#$@N@arma@C@Col>#d#S0_#d#S0_#S0_#S0_#S0_#d#d#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 264,
+                "name" : "rplba3(unsigned int, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, double, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rplba3#i#$@N@arma@C@Col>#d#S0_#S0_#S0_#S0_#S0_#S0_#d#d#d#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 360,
+                "name" : "n1PDF_plba1(arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, double, arma::vec, double, double, unsigned int, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_plba1#$@N@arma@C@Col>#d#S0_#S0_#S0_#S0_#d#S0_#d#d#i#d#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 376,
+                "name" : "n1PDF_plba2(arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, double, arma::vec, arma::vec, double, double, unsigned int, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_plba2#$@N@arma@C@Col>#d#S0_#S0_#S0_#S0_#d#S0_#S0_#d#d#i#d#i#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+                "kind" : 6,
+                "line" : 391,
+                "name" : "n1PDF_plba3(arma::vec, unsigned int, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, arma::vec, double, double, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@n1PDF_plba3#$@N@arma@C@Col>#d#i#S0_#S0_#S0_#S0_#S0_#S0_#S0_#d#d#d#d#d#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/pda.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 5,
+                "name" : "dprior_(arma::vec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@dprior_#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S0_#S0_#S0_#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 53,
+                "name" : "sumlogprior(arma::vec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@sumlogprior#$@N@arma@C@Col>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S2_#S0_#S0_#S0_#S0_#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 77,
+                "name" : "dprior(NumericVector, List)",
+                "parent_name" : "",
+                "usr" : "c:@F@dprior#$@N@Rcpp@C@Vector>#VI14#@N@Rcpp@CT>1#T@PreserveStorage#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 139,
+                "name" : "rprior_scalar(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@rprior_scalar#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 185,
+                "name" : "rprior_mat(List, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@rprior_mat#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#i#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 202,
+                "name" : "rprior_vec(std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec)",
+                "parent_name" : "",
+                "usr" : "c:@F@rprior_vec#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S1_#$@N@arma@C@Col>#d#S5_#S5_#S5_#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 237,
+                "name" : "rprior(unsigned int, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec)",
+                "parent_name" : "",
+                "usr" : "c:@F@rprior#i#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S1_#$@N@arma@C@Col>#d#S5_#S5_#S5_#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+                "kind" : 6,
+                "line" : 248,
+                "name" : "sumlogpriorNV(arma::vec, List)",
+                "parent_name" : "",
+                "usr" : "c:@F@sumlogpriorNV#$@N@arma@C@Col>#d#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/prior.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 23,
+                "name" : "GetGamma(unsigned int, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetGamma#i#d#b#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 95,
+                "name" : "PickChains(unsigned int, unsigned int, arma::uvec)",
+                "parent_name" : "",
+                "usr" : "c:@F@PickChains#i#i#$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 104,
+                "name" : "GetSubchains(unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetSubchains#i#b#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 126,
+                "name" : "SelectEmigrants(unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@SelectEmigrants#i#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 148,
+                "name" : "MutateDGMCChains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, double, unsigned int, unsigned int, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@MutateDGMCChains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#d#i#i#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 203,
+                "name" : "MutateDGMCHyperchains(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, unsigned int, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@MutateDGMCHyperchains#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S7_#S4_#S4_#$@N@arma@C@Col>#i#S6_#S4_#S4_#S4_#S4_#S11_#S6_#S4_#S4_#S4_#S4_#S11_#i#d#&S11_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 263,
+                "name" : "MutateDGMCDataChains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, unsigned int, double, unsigned int, unsigned int, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@MutateDGMCDataChains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#i#d#i#i#d#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 326,
+                "name" : "CrossoverDGMCHyperchains(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, unsigned int, double, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDGMCHyperchains#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S7_#S4_#S4_#$@N@arma@C@Col>#i#S6_#S4_#S4_#S4_#S4_#S11_#S6_#S4_#S4_#S4_#S4_#S11_#i#d#d#&S11_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 395,
+                "name" : "CrossoverDGMCDatachains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, unsigned int, double, unsigned int, unsigned int, double, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDGMCDatachains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#i#d#i#i#d#d#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 467,
+                "name" : "CrossoverDMCHyperchains(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, double, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDMCHyperchains#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S7_#S4_#S4_#$@N@arma@C@Col>#i#S6_#S4_#S4_#S4_#S4_#S11_#S6_#S4_#S4_#S4_#S4_#S11_#d#d#&S11_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 553,
+                "name" : "CrossoverDMCHyperchains_blocked(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, double, double, arma::uvec &, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDMCHyperchains_blocked#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S7_#S4_#S4_#$@N@arma@C@Col>#i#S6_#S4_#S4_#S4_#S4_#S11_#S6_#S4_#S4_#S4_#S4_#S11_#d#d#&S11_#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 615,
+                "name" : "CrossoverDMCDatachains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, unsigned int, double, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDMCDatachains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#i#d#d#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 685,
+                "name" : "CrossoverDMCDatachains_blocked(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, unsigned int, double, double, arma::uvec &, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDMCDatachains_blocked#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#i#d#d#&S9_#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 776,
+                "name" : "CrossoverDGMCChains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, unsigned int, double, unsigned int, unsigned int, double, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDGMCChains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#i#d#i#i#d#d#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 840,
+                "name" : "CrossoverDMCChains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, double, double, bool, unsigned int, double, unsigned int, unsigned int, bool, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDMCChains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#d#d#b#i#d#i#i#b#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 919,
+                "name" : "CrossoverDMCChains_blocked(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, double, double, bool, unsigned int, double, unsigned int, unsigned int, bool, arma::uvec &, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@CrossoverDMCChains_blocked#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#d#d#b#i#d#i#i#b#&S9_#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 989,
+                "name" : "MigrateDMCHyperchains_old(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, double, arma::uvec &, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDMCHyperchains_old#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S7_#S4_#S4_#$@N@arma@C@Col>#i#S6_#S4_#S4_#S4_#S4_#S11_#S6_#S4_#S4_#S4_#S4_#S11_#d#&S11_#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1073,
+                "name" : "MigrateDMCHyperchains(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, double, arma::uvec &, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDMCHyperchains#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S7_#S4_#S4_#$@N@arma@C@Col>#i#S6_#S4_#S4_#S4_#S4_#S11_#S6_#S4_#S4_#S4_#S4_#S11_#d#&S11_#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1143,
+                "name" : "MigrateDGMCHyperchains(arma::field<arma::mat> &, arma::vec &, arma::vec &, arma::cube &, std::vector<std::string>, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, unsigned int, double, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDGMCHyperchains#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S3_#&$@N@arma@C@Cube>#d#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S8_#S4_#S4_#$@N@arma@C@Col>#i#S7_#S4_#S4_#S4_#S4_#S12_#S7_#S4_#S4_#S4_#S4_#S12_#i#d#&S12_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1221,
+                "name" : "MigrateDGMCDatachains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, double, unsigned int, unsigned int, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDGMCDatachains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#d#i#i#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1293,
+                "name" : "MigrateDMCDatachains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, unsigned int, double, double, arma::uvec &, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDMCDatachains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#i#d#d#&S9_#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1360,
+                "name" : "MigrateDMCDatachains_old(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::mat, arma::mat, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, unsigned int, double, double, arma::uvec &, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDMCDatachains_old#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S1_#S1_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#i#d#d#&S9_#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1443,
+                "name" : "MigrateDGMCChains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, unsigned int, double, unsigned int, double, unsigned int, unsigned int, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDGMCChains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#i#d#i#d#i#i#&S9_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1506,
+                "name" : "MigrateDMCChains(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, double, double, bool, unsigned int, double, unsigned int, unsigned int, arma::uvec &, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDMCChains#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#d#d#b#i#d#i#i#&S9_#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1614,
+                "name" : "MigrateDMCChains_old(arma::mat &, arma::vec &, arma::vec &, std::vector<std::string>, std::vector<std::string>, arma::vec, arma::vec, arma::vec, arma::vec, arma::uvec, arma::vec, std::vector<std::string>, arma::ucube, std::string, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, arma::umat, arma::uvec, arma::umat, arma::vec, arma::uvec, arma::uvec, bool, double, double, bool, unsigned int, double, unsigned int, unsigned int, arma::uvec &, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@MigrateDMCChains_old#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#S2_#$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S5_#S4_#S3_#S3_#S3_#S3_#$@N@arma@C@Col>#i#S3_#S4_#$@N@arma@C@Cube>#i#S5_#S4_#S4_#S4_#$@N@arma@C@Mat>#i#S9_#S11_#S3_#S9_#S9_#b#d#d#b#i#d#i#i#&S9_#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1694,
+                "name" : "run_dgmc(List, arma::uvec, unsigned int, double, double, double, unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@run_dgmc#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#$@N@arma@C@Col>#i#i#d#d#d#i#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1788,
+                "name" : "run_dmc(List, arma::uvec, unsigned int, double, double, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@run_dmc#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#$@N@arma@C@Col>#i#i#d#d#d#i#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 1904,
+                "name" : "run_hyper_dmc(List, unsigned int, double, double, double, double, double, unsigned int, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@run_hyper_dmc#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#i#d#d#d#d#d#i#b#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+                "kind" : 6,
+                "line" : 2126,
+                "name" : "run_hyper_dgmc(List, unsigned int, double, double, double, double, double, unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@run_hyper_dgmc#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#i#d#d#d#d#d#i#i#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/run.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 7,
+                "name" : "set_seed(unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@set_seed#i#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 13,
+                "name" : "rtnorm0(const double, const double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rtnorm0#1d#1d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 24,
+                "name" : "rtnorm1(const double, const double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rtnorm1#1d#1d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 39,
+                "name" : "rtnorm2(const double, const double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rtnorm2#1d#1d#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 54,
+                "name" : "rtnorm3(const double, const double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rtnorm3#1d#1d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 77,
+                "name" : "rtn_scalar(double, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rtn_scalar#d#d#d#d#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 113,
+                "name" : "dtn_scalar(double, double, double, double, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@dtn_scalar#d#d#d#d#d#b#"
+            },
+            {
+                "column" : 8,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 129,
+                "name" : "ptn_scalar(double, double, double, double, double, bool, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@ptn_scalar#d#d#d#d#d#b#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 187,
+                "name" : "dtnorm(arma::vec, double, double, double, double, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@dtnorm#$@N@arma@C@Col>#d#d#d#d#d#b#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 203,
+                "name" : "rtnorm(unsigned int, double, double, double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@rtnorm#i#d#d#d#d#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+                "kind" : 6,
+                "line" : 214,
+                "name" : "ptnorm(arma::vec, double, double, double, double, bool, bool)",
+                "parent_name" : "",
+                "usr" : "c:@F@ptnorm#$@N@arma@C@Col>#d#d#d#d#d#b#b#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/tnorm.cpp",
+        "file_last_write" : 1542423366
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 56,
+                "name" : "GetConstIdx(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetConstIdx#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 82,
+                "name" : "MatchPnames(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@MatchPnames#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 104,
+                "name" : "MatchPPPriorName(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@MatchPPPriorName#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 114,
+                "name" : "InitializeSubjectRJ(List, arma::field<arma::umat> &)",
+                "parent_name" : "",
+                "usr" : "c:@F@InitializeSubjectRJ#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#&$@N@arma@C@field>#$@N@arma@C@Mat>#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 129,
+                "name" : "InitializeOneSubject(List, arma::umat &)",
+                "parent_name" : "",
+                "usr" : "c:@F@InitializeOneSubject#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#&$@N@arma@C@Mat>#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 135,
+                "name" : "TransformSubjects(List, arma::field<arma::cube> &, arma::field<arma::mat> &, arma::field<arma::mat> &, arma::field<arma::vec> &, arma::field<arma::mat> &, arma::field<arma::vec> &, arma::uvec &, std::vector<std::string> &, arma::field<arma::vec> &, arma::field<arma::umat> &, arma::field<arma::uvec> &, arma::field<arma::uvec> &, arma::field<arma::umat> &, arma::field<std::vector<std::string> > &, arma::field<std::vector<std::string> > &, arma::field<std::vector<std::string> > &, arma::field<std::vector<std::string> > &, arma::field<arma::uvec> &, arma::uvec &, arma::field<arma::ucube> &, arma::uvec &, arma::vec &, arma::uvec &, arma::field<arma::vec> &)",
+                "parent_name" : "",
+                "usr" : "c:@F@TransformSubjects#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#&$@N@arma@C@field>#$@N@arma@C@Cube>#d#&$@N@arma@C@field>#$@N@arma@C@Mat>#d#S4_#&$@N@arma@C@field>#$@N@arma@C@Col>#d#S4_#S7_#&$@N@arma@C@Col>#i#&$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S14_#S7_#&$@N@arma@C@field>#$@N@arma@C@Mat>#i#&$@N@arma@C@field>#S11_#S21_#S18_#&$@N@arma@C@field>#S13_#S23_#S23_#S23_#S21_#S10_#&$@N@arma@C@field>#$@N@arma@C@Cube>#i#S10_#&S9_#S10_#S7_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 214,
+                "name" : "GetPrior(List, std::vector<std::string> &, arma::vec &, arma::vec &, arma::vec &, arma::vec &, arma::uvec &)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetPrior#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#&$@N@std@N@__1@C@vector>#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#$@N@std@N@__1@C@allocator>#S3_#&$@N@arma@C@Col>#d#S7_#S7_#S7_#&$@N@arma@C@Col>#i#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 233,
+                "name" : "GetIsR1(NumericVector, std::string)",
+                "parent_name" : "",
+                "usr" : "c:@F@GetIsR1#$@N@Rcpp@C@Vector>#VI14#@N@Rcpp@CT>1#T@PreserveStorage#$@N@std@N@__1@C@basic_string>#C#$@N@std@N@__1@S@char_traits>#C#$@N@std@N@__1@C@allocator>#C#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 260,
+                "name" : "getArmaIdx(NumericVector, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@getArmaIdx#$@N@Rcpp@C@Vector>#VI14#@N@Rcpp@CT>1#T@PreserveStorage#i#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 268,
+                "name" : "CheckPnames(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@CheckPnames#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 6,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 291,
+                "name" : "CheckHyperPnames(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@CheckHyperPnames#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 12,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 375,
+                "name" : "cellIdx2Mat(List)",
+                "parent_name" : "",
+                "usr" : "c:@F@cellIdx2Mat#$@N@Rcpp@C@Vector>#VI19#@N@Rcpp@CT>1#T@PreserveStorage#"
+            },
+            {
+                "column" : 15,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 391,
+                "name" : "na_matrix(unsigned int, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@na_matrix#i#i#"
+            },
+            {
+                "column" : 11,
+                "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+                "kind" : 6,
+                "line" : 399,
+                "name" : "ac_(arma::vec, unsigned int)",
+                "parent_name" : "",
+                "usr" : "c:@F@ac_#$@N@arma@C@Col>#d#i#"
+            }
+        ],
+        "file" : "/media/yslin/KIWI/Documents/ggdmc/src/utils.cpp",
+        "file_last_write" : 1542423366
+    }
+]

@@ -1,0 +1,25 @@
+citHeader("To cite ggdmc in publications use:")
+
+citEntry(entry = "Article",
+         title        = "Dynamic models of choice",
+         author       = personList(as.person("Andrew Heathcote"),
+                                   as.person("Yi-Shin Lin"),
+                                   as.person("Angus Reynolds"),
+                                   as.person("Luke Strickland"),
+                                   as.person("Matthew Gretton"),
+                                   as.person("Dora Matzke")
+                                   ),
+         journal      = "Behavior Research Method",
+         year         = "2018",
+         volume       = "",
+         number       = "",
+         pages        = "",
+         url          = "https://doi.org/10.3758/s13428-018-1067-y",
+         doi          = "10.3758/s13428-018-1067-y",
+
+         textVersion  = paste("Andrew Heathcote, Yi-Shin Lin, Angus Reynolds, Luke Strickland, Matthew Gretton, and Dora Matzke (2018).",
+                              "Dynamic models of choice.",
+                              "Behavior Research Method",
+                              "URL https://doi.org/10.3758/s13428-018-1067-y")
+)
+

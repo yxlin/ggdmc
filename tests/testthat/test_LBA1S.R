@@ -13,19 +13,6 @@ test_that("LBA 1e4", {
     responses = c("r1", "r2"),
     type      = "norm")
 
-  mapinfo <- ggdmc:::check_BuildModel(p.map, responses, factors, match.map,
-                                      constants, type)
-  
-  mapinfo <- ggdmc:::check_BuildModel(
-    p_map     = list(A = "1", B = "1", t0 = "1", mean_v = "M", sd_v = "1",
-                     st0 = "1"),
-    responses = c("r1", "r2"),
-    factors   = list(S = c("s1", "s2")),
-    match_map = list(M = list(s1 = 1, s2 = 2)),
-    constants = c(st0 = 0, sd_v = 1),
-    type      = "norm")
-  
-  
   p.vector <- c(A = .75, B = 1.25, t0 = .15, mean_v.true = 2.5, mean_v.false = 1.5)
   ntrial <- 1e4
   dat <- simulate(model, nsim = ntrial, ps = p.vector)
@@ -51,8 +38,8 @@ test_that("LBA 1e4", {
     if (all(rhat$mpsrf < 1.1)) break
     thin <- thin * 2
   }
-  rhat <- gelman(fit, verbose = TRUE, start = 101)
   cat("Done ", path[1], "\n")
+  setwd("/media/yslin/KIWI/Documents/ggdmc")
   p0 <- plot(fit0)
   p1 <- plot(fit0, start = 101)
   p2 <- plot(fit0, start = 201)
@@ -75,19 +62,19 @@ test_that("LBA 1e4", {
   ## 97.5% Estimate  0.84  1.41         1.55        2.53 0.18
   ## Median-True    -0.03 -0.02        -0.04       -0.03 0.00
   
-  ## problem?
   #                    A    B mean_v.false mean_v.true    t0
   # True            0.75 1.25         1.50        2.50  0.15
-  # 2.5% Estimate   0.10 1.07         1.40       -0.48  0.08
-  # 50% Estimate    0.58 1.35         1.48        1.13  0.13
-  # 97.5% Estimate  0.85 1.70         1.57        2.71  0.19
-  # Median-True    -0.17 0.10        -0.02       -1.37 -0.02
-  #                   A     B mean_v.false mean_v.true   t0
-  # True           0.75  1.25         1.50        2.50 0.15
-  # 2.5% Estimate  0.67  0.89         1.38       -0.54 0.15
-  # 50% Estimate   0.93  1.04         1.45        1.03 0.20
-  # 97.5% Estimate 1.07  1.28         1.53        2.66 0.23
-  # Median-True    0.18 -0.21        -0.05       -1.47 0.05
+  # 2.5% Estimate   0.51 1.21         1.50        2.50  0.08
+  # 50% Estimate    0.71 1.39         1.58        2.57  0.12
+  # 97.5% Estimate  0.86 1.63         1.68        2.64  0.15
+  # Median-True    -0.04 0.14         0.08        0.07 -0.03
+  #                    A    B mean_v.false mean_v.true    t0
+  # True            0.75 1.25         1.50        2.50  0.15
+  # 2.5% Estimate   0.37 1.21         1.44        2.44  0.09
+  # 50% Estimate    0.61 1.40         1.54        2.51  0.12
+  # 97.5% Estimate  0.77 1.65         1.63        2.58  0.15
+  # Median-True    -0.14 0.15         0.04        0.01 -0.03
+  
 })
 
 

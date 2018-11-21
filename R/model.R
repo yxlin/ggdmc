@@ -90,71 +90,11 @@ BuildModel <- function(
   verbose    = TRUE               # Print p.vector, constants and type
   ) {
 
-  # Check requried inputs supplied
-  if (is.null(p.map)) stop("Must supply p.map")
-  if (is.null(factors)) stop("Must supply factors")
-  if (is.null(responses)) stop("Must supply responses")
-
-  # Check factors
-  if ( length(unlist(factors)) != length(unique(unlist(factors))) )
-    stop("All factors levels must be unqiue")
-  if ( any(names(factors) %in% c("1","R", "s")) )
-    stop("Do not use 1, s, or R as a factor name")
-  # Check no parameter names have a dot
-  has.dot <- unlist(lapply(strsplit(names(p.map),".",fixed=TRUE),length))>1
-  if ( any(has.dot) )
-    stop(paste("Dots not allowed in p.map names, fix:",paste(names(p.map)[has.dot])))
-  # Check R last if used
-  if (any(unlist(lapply(p.map,function(x){any(x=="R") && x[length(x)]!="R"}))))
-    stop("R factors must always be last")
-
-  # Check responnses
-  if ( type =="rd" ) {
-    if (is.null(match.map))
-      stop("Must specify supply a match.map for the DDM")
-    if ( length(responses)!=2 )
-      stop("DDM only applicable for two responses")
-  }
-
-  # Check match.map (if supplied)
-  if (!is.null(match.map)) {
-    # Check structure
-    if ( length(match.map)<1 || class(match.map[[1]]) != "list" )
-      stop("match.map must be a list of lists")
-    # Check match.map contains at least name M
-    if ( !any(names(match.map) %in% "M") )
-      stop("match.map must have a list named M")
-    map.names <- names(match.map)[names(match.map)!="M"]
-    map.levels <- unlist(lapply(match.map[names(match.map)!="M"],levels))
-    # convert match.map$M to responses and check
-    if ( is.numeric(unlist(match.map$M)) )
-      match.map$M <- lapply(match.map$M,function(x){responses[x]})
-    if ( !all(unlist(match.map$M) %in% responses) )
-      stop("match.map$M has index or name not in response names")
-    if ( !(all(sort(responses)==sort(unique(unlist(match.map$M))))) )
-      stop("Not all response names are scored by match.map$M")
-    if ( length(match.map)>1 &&
-        !all(lapply(match.map[names(match.map)!="M"],class)=="factor") )
-      stop("Entries in match.map besides M must be factors")
-    if ( length(unlist(map.levels)) != length(unique(unlist(map.levels))) )
-      stop("All match.map levels must be unqiue")
-    # Check factors
-    if ( any(names(factors) == "M") )
-      stop("Do not use M as a factor name")
-    if ( any(names(factors) %in% names(match.map)) )
-      stop(paste(map.names,"used in match.map, can not use as a factor name"))
-    if ( any(unlist(factors) %in% c("true","false")) )
-      stop("\"true\" and \"false\" cannot be used as factor levels")
-    if ( any(map.levels %in% c("true","false")) )
-      stop("\"true\" and \"false\" cannot be used as match.map levels")
-    if ( length(unlist(c(factors,map.levels))) !=
-        length(unique(unlist(c(factors,map.levels)))) )
-      stop("Factor levels cannot overlap match.map levels")
-    # Check M and R are last
-    if (any(unlist(lapply(p.map,function(x){any(x=="M") && x[length(x)]!="M"}))))
-      stop("M factors must always be last")
-
-  }
+  mapinfo <- ggdmc:::check_BuildModel(p.map, responses, factors, match.map,
+                                      constants, type)
+  map.names <- mapinfo[[1]]
+  map.levels <- mapinfo[[2]]
+  match.map <- mapinfo[[3]]
 
   factors.short <- factors
   factors$R <- responses
@@ -240,7 +180,7 @@ BuildModel <- function(
   # col.par = column parameter type (1st name)
   if ( is.null(match.map) )
     col.par.levels <- responses else
-      col.par.levels <- c(responses,"true","false",map.levels)
+      col.par.levels <- c(responses,"true","false", map.levels)
 
   col.par <- strsplit(dimnames(use.par)[[2]],".",fixed=T)
   col.fac <- lapply(col.par,function(x){x[-1]})
@@ -718,47 +658,86 @@ score <- function(x, digits = 2) {
 
 
 ######### Model checks  -----------------------------------
-checknull <- function(p.map, factors, responses) {
-  if (is.null(p.map)) stop("Must supply p.map")
-  if (is.null(factors)) stop("Must supply factors")
+check_BuildModel <- function(p_map, responses, factors, match_map, constants, 
+                          type) {
+  ## Check requried inputs supplied
+  if (is.null(p_map)) stop("Must supply p.map")
   if (is.null(responses)) stop("Must supply responses")
-}
-
-checkmap <- function(match.map, responses) {
-
-  ## Extract essential information
-  nmap      <- length(match.map)
-  mapnames  <- names(match.map)
-  message1 <- "match.map must be a list of lists"
-  message2 <- "match.map has no list named M"
-  message3 <- "match.map$M has index or name not in response names. If you use
-  integers, it must be continuous."
-  message4 <- "Not all response names are scored by match.map$M"
-  message5 <- "Entries in match.map besides M must be factors"
-
-  if (nmap < 1 || class(match.map[[1]]) != "list") stop(message1)
-  if (!any(names(match.map) %in% "M") ) stop(message2)
-  map.names  <- mapnames[mapnames != "M"]
-  umap       <- unlist(match.map$M) ## unlisted match map
-
-  ## We allow the user to enter integers (1, 2, ..., n) to represent
-  ## "response 1", "response 2", ... "response n". If "is.numeric" evaluates to
-  ## TRUE, it means the user enters integers as response types. Hence, we use
-  ## lapply to pick sequentially 1st stimulus type matching to 1st response
-  ## type etc. Response types are stored in another variable "responses"
-  if (is.numeric(umap)) {
-    match.map$M <- lapply(match.map$M, function(x){responses[x]})
-    umap <- unlist(match.map$M)
+  if (is.null(factors)) stop("Must supply factors")
+  
+  ## Check factors
+  keywords <- c("1", "s", "R")
+  if ( length(unlist(factors)) != length(unique(unlist(factors))) )
+    stop("All factors levels must be unqiue")
+  if (any(names(factors) %in% keywords))
+    stop("Do not use 1, s, or R as a factor name")
+  
+  ## Check no parameter names have a dot
+  has_dot <- sapply(strsplit(names(p_map), "[.]"), length) > 1
+  if (any(has_dot)) {
+    stop(paste("Dots not allowed in p.map names, fix:", 
+               paste(names(p_map)[has_dot]), "\n"))
   }
-  if ( !all(umap %in% responses) ) stop(message3)
-  if ( !(all(sort(responses) == sort(unique(umap)))) ) stop(message4)
-  if ( nmap > 1 && !all(lapply(match.map[mapnames != "M"], class)=="factor") )
-    stop(message5)
-  if ( length(match.map)>1 &&
-      !all(lapply(match.map[names(match.map)!="M"], class)=="factor") )
-    stop("Entries in match.map besides M must be factors")
+  
+  ## Check R last if used
+  if (any(sapply(p_map, function(x){any(x=="R") && x[length(x)]!="R"})))
+    stop("R factors must always be last")
+  
+  ## Check responnses
+  if (type == "rd") {
+    if (is.null(match_map)) stop("Must specify supply a match.map for the DDM")
+    if (length(responses) != 2) stop("DDM only applicable for two responses")
+  }
+  
+  ## Check match.map (if supplied)
+  if (!is.null(match_map)) {
+    # Check structure
+    if ( length(match_map) < 1 || class(match_map[[1]]) != "list" )
+      stop("match.map must be a list of lists")
+    # Check match.map contains at least name M
+    if ( !any(names(match_map) %in% "M") )
+      stop("match.map must have a list named M")
+    map_names <- names(match_map)[names(match_map) != "M"]
+    map_levels <- sapply(match_map[names(match_map) != "M"], levels)
+    
+    # convert match.map$M to responses and check
+    if ( is.numeric(unlist(match_map$M)) )
+      match_map$M <- lapply(match_map$M, function(x){responses[x]})
 
+    if ( !all(unlist(match_map$M) %in% responses) )
+      stop("match.map$M has index or name not in response names")
+    if ( !(all(sort(responses)==sort(unique(unlist(match_map$M))))) )
+      stop("Not all response names are scored by match.map$M")
+    if ( length(match_map) > 1 &&
+         !all(lapply(match_map[names(match_map)!="M"], class) == "factor") )
+      stop("Entries in match.map besides M must be factors")
+    if ( length(unlist(map_levels)) != length(unique(unlist(map_levels))) )
+      stop("All match.map levels must be unqiue")
+    # Check factors
+    if ( any(names(factors) == "M") )
+      stop("Do not use M as a factor name")
+    if ( any(names(factors) %in% names(match_map)) )
+      stop(paste(match_map, "used in match.map, can not use as a factor name"))
+    if ( any(unlist(factors) %in% c("true","false")) )
+      stop("\"true\" and \"false\" cannot be used as factor levels")
+    if ( any(map_levels %in% c("true","false")) )
+      stop("\"true\" and \"false\" cannot be used as match.map levels")
+    if ( length(unlist(c(factors, map_levels))) !=
+         length(unique(unlist(c(factors, map_levels)))) )
+      stop("Factor levels cannot overlap match.map levels")
+    
+    # Check M and R are last
+    if (any(sapply(p_map, function(x){any(x=="M") && x[length(x)]!="M"})))
+      stop("M factors must always be last")
+    
+  }
+  
+  ## Must return match_map. This is because the user is allowed to enter
+  ## numberic sequences (1, 2, ...) to represent string response types (r1, r2).
+  ## Internally, string response types are favoured.
+  return(list(map_names, map_levels, match_map))
 }
+
 
 checkddm1 <- function(p.map, responses,  type) {
   nr       <- length(responses)
@@ -804,63 +783,6 @@ checkddm3 <- function(pmat, i, model, p.prior, debug = FALSE) {
   return(pmat)
 }
 
-checkfacresp <- function(p.map, match.map, factors, responses) {
-
-
-  mapnames   <- names(match.map)
-  map.names  <- mapnames[mapnames != "M"]
-  map.levels <- unlist(map.names, levels)
-
-  ufac <- unlist(factors)    ## unlisted factors
-  uml  <- unlist(map.levels) ## unlisted map.levels
-  reservednames <- c("1", "R", "R2", "M", "s")
-  tfnames       <- c("true", "false")
-  ufacmaplv     <- unlist(c(factors, map.levels))
-
-  message1 <- "Do not use s, M, R, R2 or 1 as a factor name"
-  message2 <- paste(map.names,"used in match.map, can not use as a factor name")
-  message3 <- "All factors levels must be unqiue"
-  message4 <- "All match.map levels must be unqiue"
-  message5 <- "\"true\" and \"false\" cannot be used as factor levels"
-  message6 <- "\"true\" and \"false\" cannot be used as match.map levels"
-  message7 <- "Factor levels cannot overlap match.map levels"
-
-  # Check factors and add responses
-  if ( any(names(factors) %in% reservednames) ) { stop(message1) }
-  if ( any(names(factors) %in% mapnames) ) {      stop(message2) }
-  if ( length(ufac) != length(unique(ufac)) ) {   stop(message3) }
-  if ( length(uml) != length(unique(uml)) ) {     stop(message4) }
-  if ( any(ufac %in% tfnames) ) {                 stop(message5) }
-  if ( any(map.levels %in% tfnames) ) {           stop(message6) }
-  if ( length(ufacmaplv) != length(unique(ufacmaplv)) ) { stop(message7) }
-}
-
-checkpmap    <- function(p.map) {
-  pmapnames <- names(p.map)
-  has.dot   <- unlist(lapply(strsplit(pmapnames, "[.]"), length)) > 1
-  message1 <- paste("Dots not allowed in p.map names, fix:", pmapnames[has.dot])
-  if (any(has.dot)) stop(message1)
-
-  # Check M and R are last
-  if (any(unlist(lapply(p.map, function(x){any(x == "M") && x[length(x)]!="M"}))))
-    stop("M factors must always be last")
-  if (any(unlist(lapply(p.map, function(x){any(x == "R") && x[length(x)]!="R"}))))
-    stop("R factors must always be last")
-}
-
-addmap2facs  <- function(match.map, factors, responses) {
-  umap <- unlist(match.map$M)
-  if (is.numeric(umap)) match.map$M <- lapply(match.map$M, function(x){responses[x]})
-  mapnames   <- names(match.map)
-  map.names  <- mapnames[mapnames != "M"]
-
-  factors$R     <- responses
-  if (!is.null(match.map)) {
-    factors$M <- c("true", "false")
-    for (i in map.names) factors[[i]] <- levels(match.map[[i]])
-  }
-  return(factors)
-}
 
 getparnames  <- function(p.map, factors) {
   ## Make parameter names

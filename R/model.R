@@ -72,8 +72,8 @@ grepl_dot <- function(pattern, x) {
 ##' @export
 ##' @examples
 ##' model <- BuildModel(
-##'         p.map     = list(a = "1", v = "1", z = "1", d = "1", t0 = "1", sv = "1",
-##'                          sz = "1", st0 = "1"),
+##'         p.map     = list(a = "1", v = "1", z = "1", d = "1", t0 = "1", 
+##'                      sv = "1", sz = "1", st0 = "1"),
 ##'         constants = c(st0 = 0, d = 0, sz = 0, sv = 0),
 ##'         match.map = list(M = list(s1 = "r1", s2 = "r2")),
 ##'         factors   = list(S = c("s1", "s2")),
@@ -82,14 +82,13 @@ grepl_dot <- function(pattern, x) {
 BuildModel <- function(
   p.map,                          # list factors and constants for parameters
   responses,                      # Response (accumulator) names
-  factors    = list(dummy = "1"), # Factor names and levels
+  factors    = list(A = "1"), # Factor names and levels
   match.map  = NULL,              # Scores responses
   constants  = numeric(0),        # Parameters set to constant value
   type       = "norm",            # model type
   posdrift   = TRUE,              # only used by norm
   verbose    = TRUE               # Print p.vector, constants and type
   ) {
-
   mapinfo <- ggdmc:::check_BuildModel(p.map, responses, factors, match.map,
                                       constants, type)
   map.names  <- mapinfo[[1]]
@@ -117,22 +116,24 @@ BuildModel <- function(
     map.shuffle <- matrix(aperm(array(1:n,dim=c(n/nr,nr,nr)),c(1,3,2)),ncol=nr)
   }
 
-  # use.par = boolean matrix for parameter use, cells x pars x resposnes
+  ## use.par = boolean matrix for parameter use, cells x pars x resposnes
   use.par <- array(NA,
     dim=c(length(level_array),length(names.par),length(responses)))
-  dimnames(use.par) <-
-    list(as.vector(level_array), names.par, responses)
+  dimnames(use.par) <- list(as.vector(level_array), names.par, responses)
 
-  # col.par = column parameter type (1st name)
-  if ( is.null(match.map) )
-    col.par.levels <- responses else
-      col.par.levels <- c(responses,"true","false", map.levels)
-
-  col.par <- strsplit(dimnames(use.par)[[2]],".",fixed=T)
-  col.fac <- lapply(col.par,function(x){x[-1]})
-  col.par <- unlist(lapply(col.par,function(x){x[1]}))
-  # split into fac and resp
-  col.fac <- lapply(col.fac,function(x){
+  ## col.par = column parameter type (1st name)
+  if ( is.null(match.map) ) {
+    col.par.levels <- responses
+  } else {
+    col.par.levels <- c(responses, "true", "false", map.levels)
+  }
+    
+  col.par <- strsplit(dimnames(use.par)[[2]], "[.]")
+  col.fac <- lapply(col.par, function(x){x[-1]})
+  col.par <- unlist(lapply(col.par, function(x){x[1]}))
+  
+  ## split into fac and resp
+  col.fac <- lapply(col.fac, function(x){
     if ( length(x)==0 ) out <- c(NA,NA)
     if ( length(x)==1 ) {
       if ( x %in% col.par.levels )
@@ -140,17 +141,18 @@ BuildModel <- function(
     }
     if ( length(x)>1 )
       if ( x[length(x)] %in% col.par.levels )
-        out <- c(paste(x[-length(x)],collapse="."),x[length(x)]) else
-          out <- paste(x,collapse=".")
+        out <- c(paste(x[-length(x)], collapse="."),x[length(x)]) else
+          out <- paste(x, collapse=".")
         out
   })
-  col.resp <- unlist(lapply(col.fac,function(x){x[2]}))
-  col.fac <- unlist(lapply(col.fac,function(x){x[1]}))
+  
+  col.resp <- sapply(col.fac,function(x){x[2]})
+  col.fac <- sapply(col.fac,function(x){x[1]})
 
-  row.fac <- strsplit(dimnames(use.par)[[1]],".",fixed=T)
+  row.fac <- strsplit(dimnames(use.par)[[1]], "[.]")
   #  row.resp <- unlist(lapply(row.fac,function(x){x[length(x)]}))
-  row.fac <- unlist(lapply(row.fac,function(x){
-    paste(x[-length(x)],collapse=".")}))
+  row.fac <- sapply(row.fac, function(x){
+    paste(x[-length(x)], collapse=".")})
 
   # Fill use.par array
   for ( p in unique(col.par) )
@@ -199,8 +201,7 @@ BuildModel <- function(
     }
   }
 
-  if ( any(is.na(use.par)) )
-    stop("Some cells of the map were not assigned!")
+  if (any(is.na(use.par))) stop("Some cells of the map were not assigned!")
 
   # add in constants
   all.par <- use.par[1,,1]
@@ -236,7 +237,7 @@ BuildModel <- function(
   attr(use.par, "constants") <- constants
   attr(use.par, "posdrift") <- posdrift
 
-  par.df <- matrix(nrow=0,ncol=length(p.map))
+  par.df <- matrix(nrow=0, ncol=length(p.map))
   dimnames(par.df) <- list(NULL,names(p.map))
   par.df <- data.frame(par.df)
 

@@ -1,10 +1,10 @@
 context("DDM 1e4")
 require(ggdmc); require(testthat); require(ggplot2); require(data.table)
 
-test_that("LBA 1e4", {
+test_that("DDM 1e4", {
   rm(list = ls())
   setwd("/media/yslin/KIWI/Documents/ggdmc")
-  model <- ggdmc::BuildModel(
+  model <- BuildModel(
     p.map     = list(a = "1", v = "1", z = "1", d = "1", sz = "1", sv = "1",
                      t0 = "1", st0 = "1"),
     match.map = list(M = list(s1 = "r1", s2 = "r2")),
@@ -14,7 +14,6 @@ test_that("LBA 1e4", {
     type      = "rd")
   
   p.vector <- c(a = 1, v = 1.2, z = .38, sz = .25, sv = .2, t0 = .15)
-  head(ggdmc:::simulate.model)
   dat <- simulate(model, nsim = 1e4, ps = p.vector)
   dmi <- BuildDMI(dat, model)
   p.prior  <- BuildPrior(

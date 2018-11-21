@@ -4,17 +4,17 @@
     "created" : 1542757244109.000,
     "dirty" : false,
     "encoding" : "UTF-8",
-    "folds" : "694|70|709|0|\n711|46|738|0|\n740|52|748|0|\n803|10|819|2|\n833|56|847|0|\n",
+    "folds" : "158|3|201|2|\n266|3|285|2|\n695|70|710|0|\n712|46|739|0|\n741|52|749|0|\n804|10|820|2|\n834|56|848|0|\n",
     "hash" : "0",
     "id" : "F914DFBC",
-    "lastKnownWriteTime" : 1542771378,
-    "last_content_update" : 1542771378368,
+    "lastKnownWriteTime" : 1542772232,
+    "last_content_update" : 1542772232285,
     "path" : "/media/yslin/KIWI/Documents/ggdmc/R/model.R",
     "project_path" : "R/model.R",
     "properties" : {
-        "cursorPosition" : "117,0",
+        "cursorPosition" : "106,20",
         "docOutlineVisible" : "1",
-        "scrollLine" : "95"
+        "scrollLine" : "77"
     },
     "relative_order" : 2,
     "source_on_save" : false,

@@ -2,6 +2,26 @@
 
 void InitializeOneSubject(Rcpp::List samples, arma::umat& rj);
 void InitializeSubjectRJ(Rcpp::List samples, arma::field<arma::umat>& rj);
+void TransformSubjects_glm(Rcpp::List samples,
+                           arma::field<arma::cube>& thetas,
+                           arma::field<arma::mat>& usethetas,
+                           arma::field<arma::mat>& logpriors,
+                           arma::field<arma::vec>& uselogpriors,
+                           arma::field<arma::mat>& loglikes,
+                           arma::field<arma::vec>& useloglikes,
+                           arma::uvec& store_i,
+                           std::vector<std::string>& types,
+                           arma::field<arma::vec>& allpars, arma::field<arma::umat>& n1idxes,
+                           arma::field<arma::uvec>& matchcells, arma::field<arma::uvec>& emptycells,
+                           arma::field<arma::umat>& cellidxes, 
+                           arma::field<std::vector<std::string>>& parnames,
+                           arma::field<std::vector<std::string>>& dim1s,
+                           arma::field<std::vector<std::string>>& dim2s,
+                           arma::field<std::vector<std::string>>& dim3s,
+                           arma::field<arma::uvec>& isr1s, arma::uvec& posdrift,
+                           arma::field<arma::ucube>& models,
+                           arma::uvec& npdas, arma::vec& bws, arma::uvec& gpuids,
+                           arma::field<arma::vec>& RTs, arma::field<arma::vec>& Xs);
 
 void TransformSubjects(Rcpp::List samples, arma::field<arma::cube>& thetas,
   arma::field<arma::mat>& usethetas, arma::field<arma::mat>& logpriors,
@@ -19,8 +39,6 @@ void TransformSubjects(Rcpp::List samples, arma::field<arma::cube>& thetas,
   arma::uvec& npdas, arma::vec& bws, arma::uvec& gpuids,
   arma::field<arma::vec>& RTs);
 
-void GetPrior(Rcpp::List pprior, std::vector<std::string>& dists, arma::vec& p1,
-  arma::vec& p2, arma::vec& lower, arma::vec& upper, arma::uvec& islog);
 
 arma::uvec GetIsR1(Rcpp::NumericVector modelAttr, std::string type);
 

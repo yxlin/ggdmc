@@ -1,0 +1,157 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> require(ggdmc); require(testthat); require(ggplot2); require(data.table)
+Loading required package: ggdmc
+Loading required package: testthat
+Loading required package: ggplot2
+Loading required package: data.table
+> rm(list = ls())
+> setwd("/media/yslin/KIWI/Documents/ggdmc")
+> model <- BuildModel(
++     p.map     = list(a = "1", v = "F", z = "1", d = "1", sz = "1", sv = "1",
++                      t0 = "1", st0 = "1"),
++     match.map = list(M = list(s1 = "r1", s2 = "r2")),
++     factors   = list(S = c("s1", "s2"), F = c("f1", "f2")),
++     constants = c(st0 = 0, d = 0),
++     responses = c("r1", "r2"),
++     type      = "rd")
+
+Parameter vector names are: ( see attr(,"p.vector") )
+[1] "a"    "v.f1" "v.f2" "z"    "sz"   "sv"   "t0"  
+
+Constants are (see attr(,"constants") ):
+st0   d 
+  0   0 
+
+Model type = rd 
+
+>   
+>   npar <- length(GetPNames(model))
+>   
+>   ##Population distribution
+>   pop.mean  <- c(a=2,   v.f1=4,  v.f2=3,  z=0.5, sz=0.3, sv=.45,  t0=0.3)
+>   pop.scale <- c(a=0.5, v.f1=.5, v.f2=.5, z=0.1, sz=0.1, sv=.3, t0=0.05)
+>   pop.prior <- BuildPrior(
++     dists = rep("tnorm", npar),
++     p1    = pop.mean,
++     p2    = pop.scale,
++     lower = c(0,-5, -5, 0, 0, 0, 0),
++     upper = c(5, 7,  7, 1, 2, 1, 1))
+>   
+>   ## Simulate some data
+>   dat <- simulate(model, nsub = 8, nsim = 100, prior = pop.prior)
+>   dmi <- BuildDMI(dat, model)
+>   ps <- attr(dat, "parameters")
+> 
+>   p.prior <- BuildPrior(
++     dists = rep("tnorm", npar), 
++     p1    = pop.mean,
++     p2    = pop.scale*5,
++     lower = c(0,-5, -5, 0, 0, 0, 0),
++     upper = c(5, 7,  7, 1, 2, 1, 1))
+>   
+>   mu.prior <- ggdmc::BuildPrior(
++     dists = rep("tnorm", npar),
++     p1    = pop.mean,
++     p2    = pop.scale*5,
++     lower = c(0,-5, -5, 0, 0, 0, 0),
++     upper = c(5, 7,  7, 1, 2, 1, 1)
++   )
+>   sigma.prior <- BuildPrior(
++     dists = rep("beta", npar), 
++     p1    = c(a=1, v.f1=1,v.f2 = 1, z=1, sz=1, sv=1, t0=1),
++     p2    = rep(1, npar), 
++     upper = rep(2, npar))
+>   pp.prior <- list(mu.prior, sigma.prior)
+>   # plot(p.prior, ps = ps)
+>   # plot(mu.prior, ps = pop.mean)
+>   # plot(sigma.prior, ps = pop.scale)
+>   
+> ## Sampling ------------
+>   setwd("/media/yslin/KIWI/Documents/ggdmc_lesson/")
+>   path <- c("data/Lesson4/ggdmc_4_6_HDDM_tmp.rda")
+>   # load(path)
+>   fit0 <- run(StartNewHypersamples(5e2, dmi, pop.prior, pp.prior))
+nchain is not supplied. Use default 21 chains
+Generating hyper-start points for each chain: .....................
+DE-MCMC; hierarchical modeling
+100 200 300 400 500 
+>   fit  <- fit0
+>   thin <- 1
+>   repeat {
++     fit <- run(RestartHypersamples(5e2, fit, thin = thin), pm = .05, hpm = .05)
++     save(fit0, fit, file = path[1])
++     rhat <- hgelman(fit, verbose = TRUE)
++     if (all(rhat < 1.2)) break
++     thin <- thin * 2
++   }
+DE-MCMC; hierarchical modeling
+100 200 300 400 500 
+hyper     4     2     5     8     7     6     1     3 
+ 2.78  1.06  1.07  1.07  1.07  1.07  1.09  1.13  1.17 
+DE-MCMC; hierarchical modeling
+100 200 300 400 500 
+hyper     7     4     2     5     8     6     3     1 
+ 2.60  1.03  1.03  1.03  1.03  1.04  1.05  1.07  1.08 
+DE-MCMC; hierarchical modeling
+100 200 300 400 500 
+hyper     4     5     7     8     1     2     6     3 
+ 1.05  1.01  1.02  1.02  1.02  1.02  1.03  1.03  1.05 
+>   # cat("Done ", path[1], "\n")
+>   # setwd("/media/yslin/KIWI/Documents/ggdmc/")
+>   # p0 <- plot(fit, hyper = TRUE)
+>   # p1 <- plot(fit, hyper = TRUE, start = 51)
+>   # p2 <- plot(fit, pll = FALSE)
+>   # # p3 <- plot(fit)  
+>   # est1 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.mean, type = 1, verbose = TRUE)
+>   # est2 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.scale, type = 2, verbose = TRUE)
+> 
+> ##                    a    sv    sz    t0  v.f1  v.f2    z
+> ## True            2.00  1.00  0.30  0.30  4.00  3.00 0.50
+> ## 2.5% Estimate   1.35  0.13  0.01  0.20  3.06  2.02 0.12
+> ## 50% Estimate    1.81  0.86  0.22  0.28  3.68  2.58 0.51
+> ## 97.5% Estimate  2.13  0.99  0.43  0.33  4.26  3.23 0.90
+> ## Median-True    -0.19 -0.14 -0.08 -0.02 -0.32 -0.42 0.01
+> ##                    a    sv    sz    t0  v.f1  v.f2    z
+> ## True            2.00  1.00  0.30  0.30  4.00  3.00 0.50
+> ## 2.5% Estimate   0.81  0.05  0.01  0.16  3.37  2.52 0.43
+> ## 50% Estimate    1.91  0.65  0.11  0.28  3.84  2.87 0.55
+> ## 97.5% Estimate  2.62  0.98  0.29  0.35  4.30  3.23 0.64
+> ## Median-True    -0.09 -0.35 -0.19 -0.02 -0.16 -0.13 0.05
+>   
+> ## 
+> ##                    a    sv   sz   t0 v.f1 v.f2    z
+> ## True            0.50  0.30 0.10 0.05 0.50 0.50 0.10
+> ## 2.5% Estimate   0.21  0.05 0.09 0.04 0.39 0.42 0.07
+> ## 50% Estimate    0.38  0.23 0.24 0.06 0.71 0.75 0.13
+> ## 97.5% Estimate  1.00  1.88 0.59 0.89 1.46 1.53 1.83
+> ## Median-True    -0.12 -0.07 0.14 0.01 0.21 0.25 0.03  
+>   #                   a   sv   sz   t0  v.f1  v.f2     z
+>   # True           0.50 0.30 0.10 0.05  0.50  0.50  0.10
+>   # 2.5% Estimate  0.46 0.16 0.05 0.05  0.22  0.17  0.05
+>   # 50% Estimate   0.85 1.00 0.15 0.08  0.48  0.36  0.08
+>   # 97.5% Estimate 1.86 1.95 0.40 0.40  1.07  0.80  1.51
+>   # Median-True    0.35 0.70 0.05 0.03 -0.02 -0.14 -0.02
+> 
+>   ## rhat <- hgelman(fit, verbose = TRUE, subchain=TRUE)
+> 
+> proc.time()
+     user    system   elapsed 
+30453.922    52.418 10626.364 

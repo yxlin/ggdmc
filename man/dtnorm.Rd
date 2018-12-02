@@ -2,28 +2,31 @@
 % Please edit documentation in R/RcppExports.R
 \name{dtnorm}
 \alias{dtnorm}
+\alias{dtnorm2}
 \alias{rtnorm}
 \alias{ptnorm}
 \title{Truncated Normal Distribution}
 \usage{
-dtnorm(x, mean, sd, lower, upper, log = FALSE)
+dtnorm(x, p1, p2, lower, upper, lg = FALSE)
 
-rtnorm(n, mean, sd, lower, upper)
+dtnorm2(x, p1, p2, lower, upper, lg = FALSE)
 
-ptnorm(q, mean, sd, lower, upper, lt = TRUE, log = FALSE)
+rtnorm(n, p1, p2, lower, upper)
+
+ptnorm(q, p1, p2, lower, upper, lt = TRUE, lg = FALSE)
 }
 \arguments{
 \item{x, q}{vector of quantiles;}
 
-\item{mean}{mean (must be scalar).}
+\item{p1}{mean (must be scalar).}
 
-\item{sd}{standard deviation (must be scalar).}
+\item{p2}{standard deviation (must be scalar).}
 
 \item{lower}{lower truncation value (must be scalar).}
 
 \item{upper}{upper truncation value (must be scalar).}
 
-\item{log}{log probability. If TRUE (default is FALSE) probabilities p are
+\item{lg}{log probability. If TRUE (default is FALSE) probabilities p are
 given as \code{log(p)}.}
 
 \item{n}{number of observations. n must be a scalar.}

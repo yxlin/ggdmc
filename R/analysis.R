@@ -210,7 +210,8 @@ iseffective <- function(x, minN, nfun, verbose = FALSE) {
 ##' @export
 theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   subchain = FALSE, nsubchain = 3, thin = NA) {
-
+  # x <- samples
+  # split = FALSE
   if (is.na(thin)) thin <- x$thin
   if (is.na(end)) end <- x$nmc
   nchain <- x$n.chains
@@ -227,7 +228,11 @@ theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   lst <- vector(mode = "list", length = nchain * ifelse(split, 2, 1))
   iter <- start:end
 
-  if (split) is.in <- !as.logical(iter %% 2) else is.in <- rep(TRUE, length(iter))
+  if (split) {
+    is.in <- !as.logical(iter %% 2)
+  } else {
+    is.in <- rep(TRUE, length(iter))
+  }
 
   if (split) {
     not.is.in <- !is.in
@@ -266,9 +271,18 @@ theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
 ##' @export
 phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   subchain = FALSE, nsubchain = 3) {
-
+  # x <- xx
+  # d <- phi2mcmclist(xx, start, end)
+  
+  
+  # x <- attr(fit, "hyper")
+  # names(x)
+  # str(x$pp.prior[[1]])
+  # start = 101
+  
   thin   <- x$thin   ## x == hyper
   nchain <- x$n.chains
+  pnames <- x$p.names
 
   if (subchain) {
     message("pMCMC diagnosis randomly select a subset of chains: ", appendLF = FALSE)
@@ -279,14 +293,20 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
     chain.idx <- 1:nchain
   }
 
-  # Parameters that are not constants
-  ok1 <- lapply(x$pp.prior,function(x){
-    lapply(x,function(y){attr(y, "dist") != "constant"})})
-  ok2 <- paste(names(ok1[[2]])[unlist(ok1[[2]])], "h2", sep=".")
-  ok1 <- paste(names(ok1[[1]])[unlist(ok1[[1]])], "h1", sep=".")
-  if ( is.na(end) ) end <- x$nmc
+  ## Parameters that are not constant
+  notna <- lapply(x$pp.prior, function(xx) {
+    sapply(xx, function(y) { !is.na(attr(y, "dist")) } )
+    }
+  )
+  
+  
 
-  lst <- vector(mode = "list", length = nchain)
+  ok2 <- paste(names(notna[[2]])[notna[[2]]], "h2", sep = ".")
+  ok1 <- paste(names(notna[[1]])[notna[[1]]], "h1", sep = ".")
+  
+
+  if ( is.na(end) ) end <- x$nmc
+  lst <- vector("list", nchain)
   indx <- start:end
 
   if (split) is.in <- !as.logical(indx %% 2) else is.in <- rep(TRUE, length(indx))
@@ -299,38 +319,50 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
     }
   }
 
+  # i <- 1
+  
+  location_names <- pnames[notna$location]
+  scale_names <- pnames[notna$scale]
   for (i in 1:nchain) {
-    tmp1 <- t(x$phi[[1]][chain.idx[i], , indx[is.in]]) ## nmc x npar matrix
+    tmp1 <- t(x$phi[[1]][chain.idx[i], notna$location , indx[is.in]]) ## nmc x npar matrix
     ## attach parnames with h1
-    dimnames(tmp1)[[2]] <- paste(dimnames(tmp1)[[2]],"h1", sep=".")
-    tmp1 <- tmp1[,ok1]  ## exclude constant parameter
+    
+    dimnames(tmp1)[[2]] <- paste(location_names, "h1", sep=".")
+    # tmp1 <- tmp1[, ok1]   ## exclude NA parameter
 
-    ## same thing on scale
-    tmp2 <- t(x$phi[[2]][chain.idx[i], , indx[is.in]])
-    dimnames(tmp2)[[2]] <- paste(dimnames(tmp2)[[2]],"h2", sep=".")
-    tmp2 <- tmp2[,ok2]
+    tmp2 <- t(x$phi[[2]][chain.idx[i], notna$scale , indx[is.in]])
+    dimnames(tmp2)[[2]] <- paste(scale_names, "h2", sep=".")
+    # tmp2 <- tmp2[,ok2]
 
     ## Remove cases with !has.sigma
-    tmp2 <- tmp2[,!apply(tmp2, 2, function(x){all(is.na(x))})]
+    # tmp2 <- tmp2[, !apply(tmp2, 2, function(x){all(is.na(x))})]
+
     lst[[i]] <- coda::mcmc(cbind(tmp1, tmp2), thin = thin)
   }
 
   if (split) {
     for (i in 1:nchain) {
-      tmp1 <- t(x$phi[[1]][chain.idx[i], , indx[not.is.in]])
-      dimnames(tmp1)[[2]] <- paste(dimnames(tmp1)[[2]],"h1", sep=".")
-      tmp1 <- tmp1[,ok1]
-      tmp2 <- t(x$phi[[2]][chain.idx[i], , indx[not.is.in]])
-      dimnames(tmp2)[[2]] <- paste(dimnames(tmp2)[[2]],"h2", sep=".")
-      tmp2 <- tmp2[,ok2]
+      tmp1 <- t(x$phi[[1]][chain.idx[i], notna$location , indx[not.is.in]])
+      dimnames(tmp1)[[2]] <- paste(location_names,"h1", sep=".")
+      # tmp1 <- tmp1[,ok1]
+      
+      tmp2 <- t(x$phi[[2]][chain.idx[i], notna$scale , indx[not.is.in]])
+      dimnames(tmp2)[[2]] <- paste(scale_names,"h2", sep=".")
+      # tmp2 <- tmp2[,ok2]
       # Remove cases with !has.sigma
-      tmp2 <- tmp2[,!apply(tmp2,2,function(x){all(is.na(x))})]
-      lst[[i + nchain]] <- coda::mcmc(cbind(tmp1,tmp2), thin = thin)
+      # tmp2 <- tmp2[,!apply(tmp2,2,function(x){all(is.na(x))})]
+      lst[[i + nchain]] <- coda::mcmc(cbind(tmp1, tmp2), thin = thin)
     }
   }
 
+  if (length(ok1) != x$n.pars | length(ok2) != x$n.pars) { 
+    new.npar <- sum(unlist(notna))
+  } else {
+    new.npar <- x$n.pars * 2
+  }
+    
   attr(lst, "nchain") <- nchain
-  attr(lst, "npar")   <- x$n.pars * 2
+  attr(lst, "npar")   <- new.npar
   attr(lst, "thin")   <- thin
   attr(lst, "iter")   <- indx
   attr(lst, "pnames") <- dimnames(lst[[1]])[[2]]
@@ -578,6 +610,7 @@ safespec0 <- function(x) {
 ##' @export
 summary_mcmc_list <- function(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
   ...) {
+  # object <- lst
 
   nchain <- attr(object, "nchain")
   npar   <- attr(object, "npar")
@@ -593,11 +626,11 @@ summary_mcmc_list <- function(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
   varstats <- matrix(nrow = npar, ncol = length(statnames),
     dimnames = list(pnames, statnames))
   xtsvar <- matrix(nrow = nchain, ncol = npar)
-
+  
   if (is.matrix(object[[1]])) {
     for (i in 1:nchain) {
       for (j in 1:npar) {
-        xtsvar[i, j] <- safespec0(object[[i]][, j])
+        xtsvar[i, j] <- ggdmc:::safespec0(object[[i]][, j])
       }
       xlong <- do.call("rbind", object)
     }
@@ -627,6 +660,7 @@ summary_hyper <- function(x, start, end, hmeans, hci, prob, digits, verbose) {
   if (verbose) message("Summarise hierarchical model")
   hyper <- attr(x, "hyper")
   if (is.null(hyper)) stop("Samples are not from a hierarhcial model fit")
+  
   # message("end is missing detected.")
   if (is.na(end)) end <- hyper$nmc
   npar <- hyper$n.pars
@@ -681,14 +715,15 @@ summary_many <- function(x, start, end, prob, verbose) {
 }
 
 summary_recoverone <- function(object, start, end, ps, digits, prob, verbose) {
-
-  if (missing(start)) start <- object$start
-  if (missing(end)) end <- object$end
-
-  qs <- summary_one(object, start, end, prob, FALSE)$quantiles
+  # object <- samples
+  # start <- 201
+  # end <- 500
+  # prob <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+  # ps = pop.mean
+  qs <- ggdmc:::summary_one(object, start, end, prob, FALSE)$quantiles
   parnames <- dimnames(qs)[[1]]
 
-  if (!is.null(ps) && (!all(parnames %in% names(ps))))
+  if (!is.null(ps) && ( !all(parnames %in% names(ps)) ) )
     stop("Names of p.vector do not match parameter names in samples")
 
   est  <- qs[names(ps), "50%"]
@@ -713,8 +748,10 @@ summary_recoverone <- function(object, start, end, ps, digits, prob, verbose) {
 }
 
 summary_recovermany <- function(object, start, end, ps, digits, prob) {
-
-  est <- summary_many(object, start, end, prob, TRUE)
+  ## object <- fit
+  # start = 201
+  # end <- 500
+  est <- ggdmc:::summary_many(object, start, end, prob, TRUE)
 
   df_form <- t(data.frame(lapply(est, function(x){x[[1]][, 1]})))
 
@@ -734,16 +771,35 @@ summary_recovermany <- function(object, start, end, ps, digits, prob) {
   invisible(return(out))
 }
 
+check_nonna <- function(x, type) {
+  # x <- attr(fit, "hyper")
+  # type <- 1
+  notna <- lapply(x$pp.prior, function(xx) {
+    sapply(xx, function(xxx) { !is.na(attr(xxx, "dist")) } )
+    }
+  )
+  
+  notnaidx <- notna[[type]]
+  theta <- x$phi[[type]][,notnaidx,] 
+  pnames <- x$p.names[notnaidx] 
+  newnpar <- sum(notnaidx)
+
+  return(list(theta, newnpar, pnames))
+}
+
 summary_recoverhyper <- function(object, start, end, ps, type, digits, prob,
   verbose) {
-
+  # object <- fit
+  # type <- 1
   hyper <- attr(object, "hyper")
-  samples <- list(theta = hyper$phi[[type]])
+  res <- ggdmc:::check_nonna(hyper, type)
+
+  samples <- list(theta = res[[1]])
   samples$n.chains <- hyper$n.chains
   samples$nmc  <- hyper$nmc
   samples$thin <- hyper$thin
-  samples$n.pars <- hyper$n.pars
-  samples$p.names <- hyper$p.names
+  samples$n.pars <- res[[2]]
+  samples$p.names <- res[[3]]
   out <- suppressMessages(
     summary_recoverone(samples, start, end, ps, digits, prob, verbose)
   )
@@ -978,6 +1034,8 @@ deviance.model <- function(object, ...) {
     Dmean <- -2*sum(log(likelihood_norm(mtheta, object$data)))
   } else if (type == "rd") {
     Dmean <- -2*sum(log(likelihood_rd(mtheta, object$data)))
+  } else if (type == "glm") {
+    Dmean <- -2*sum(log(likelihood_glm(mtheta, object$data)))
   } else {
     stop("Type not defined")
   }

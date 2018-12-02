@@ -20,7 +20,7 @@ using namespace Rcpp;
 //' gamma <- GetGamma(length(pVec), 2.38)
 //' @export
 // [[Rcpp::export]]
-arma::vec GetGamma(unsigned int npar, double gammamult, bool hyper = false) {
+arma::vec GetGamma(unsigned int npar, double gammamult, bool hyper) {
   arma::vec out(npar);
   double divisor = hyper ? std::sqrt(4.0*(double)npar) : std::sqrt(2.0*(double)npar);
   for (size_t i = 0; i < npar; i++) {
@@ -146,14 +146,14 @@ arma::uvec SelectEmigrants(unsigned int ngroup, unsigned int k) {
 
 
 void MutateDGMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
-  std::vector<std::string> pnames, std::vector<std::string> dists,
+  std::vector<std::string> pnames, arma::vec dists,
   arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames, arma::ucube model,
   std::string type, std::vector<std::string> dim1,
   std::vector<std::string> dim2, std::vector<std::string> dim3,
   arma::umat n1idx, arma::uvec ise, arma::umat cellidx, arma::vec RT,
-  arma::uvec matchcell, arma::uvec isr1, bool posdrift, unsigned int ngroup, double rp,
-  unsigned int npda, double bw, unsigned int ncore,
+  arma::uvec matchcell, arma::uvec isr1, bool posdrift, unsigned int ngroup, 
+  double rp, unsigned int npda, double bw, unsigned int ncore,
   unsigned int gpuid, arma::uvec& rj) {
 
   double tmp_lp, tmp_ll, tmp_logpos, cur_logpos, mh;
@@ -202,10 +202,10 @@ void MutateDGMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
 
 void MutateDGMCHyperchains(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll, arma::cube thetas,
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog, unsigned int ngroup,
   double rp, arma::uvec& rj) {
 
@@ -263,7 +263,7 @@ void MutateDGMCHyperchains(arma::field<arma::mat>& usephi,
 void MutateDGMCDataChains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,
   std::vector<std::string> pnames,
-  std::vector<std::string> dists,
+  arma::vec dists,
   arma::mat usephi0, arma::mat usephi1,
   arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames,
@@ -325,10 +325,10 @@ void MutateDGMCDataChains(arma::mat& usetheta,    // nchain x npar
 
 void CrossoverDGMCHyperchains(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll, arma::cube theta,
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog, unsigned int ngroup,
   double rp, double gammaMult, arma::uvec& hrj) {
 
@@ -395,7 +395,7 @@ void CrossoverDGMCHyperchains(arma::field<arma::mat>& usephi,
 void CrossoverDGMCDatachains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,
   std::vector<std::string> pnames,
-  std::vector<std::string> dists,
+  arma::vec dists,
   arma::mat usephi0, arma::mat usephi1,
   arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames,
@@ -466,10 +466,10 @@ void CrossoverDGMCDatachains(arma::mat& usetheta,    // nchain x npar
 
 void CrossoverDMCHyperchains(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll, arma::cube theta,
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog, double rp,
   double gammaMult, arma::uvec& rj) {
 
@@ -525,6 +525,7 @@ void CrossoverDMCHyperchains(arma::field<arma::mat>& usephi,
     // theta: nsub x npar x nchain == ps: nchain x nsub x npar
     tmp_hlp = sumloghprior(tmp_loc, tmp_sca, ldists, sdists, lp1, sp1, lp2,
       sp2, llower, slower, lupper, supper, llog, slog);
+    
     tmp_hll = sumloghlike(theta.slice(k0), pdists, tmp_loc, tmp_sca, plower,
       pupper, plog);
     tmp_logpos = tmp_hlp + tmp_hll;
@@ -552,10 +553,10 @@ void CrossoverDMCHyperchains(arma::field<arma::mat>& usephi,
 
 void CrossoverDMCHyperchains_blocked(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll, arma::cube theta,
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog, double rp,
   double gammaMult, arma::uvec& rj, unsigned int j) {
 
@@ -593,8 +594,8 @@ void CrossoverDMCHyperchains_blocked(arma::field<arma::mat>& usephi,
 
     double tmp_hlp = sumloghprior(tmp_loc, tmp_sca, ldists, sdists, lp1, sp1,
         lp2, sp2, llower, slower, lupper, supper, llog, slog);
-    double tmp_hll = sumloghlike(theta.slice(chains(i)), pdists, tmp_loc, tmp_sca,
-        plower, pupper, plog);
+    double tmp_hll = sumloghlike(theta.slice(chains(i)), pdists, tmp_loc, 
+                                 tmp_sca, plower, pupper, plog);
     tmp_logpos = tmp_hlp + tmp_hll;
 
     double mh = std::exp(tmp_logpos - cur_logpos);
@@ -614,7 +615,7 @@ void CrossoverDMCHyperchains_blocked(arma::field<arma::mat>& usephi,
 
 void CrossoverDMCDatachains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,
-  std::vector<std::string> pnames, std::vector<std::string> dists,
+  std::vector<std::string> pnames, arma::vec dists,
   arma::mat usephi0, arma::mat usephi1, arma::vec lower,
   arma::vec upper, arma::uvec islog, arma::vec allpar,
   std::vector<std::string> parnames, arma::ucube model, std::string type,
@@ -685,7 +686,7 @@ void CrossoverDMCDatachains(arma::mat& usetheta,    // nchain x npar
 void CrossoverDMCDatachains_blocked(arma::mat& usetheta,    // nchain x npar
                             arma::vec& uselp, arma::vec& usell,
                             std::vector<std::string> pnames,
-                            std::vector<std::string> dists,
+                            arma::vec dists,
                             arma::mat usephi0, arma::mat usephi1, arma::vec lower,
                             arma::vec upper, arma::uvec islog, arma::vec allpar,
                             std::vector<std::string> parnames, arma::ucube model,
@@ -775,7 +776,7 @@ void CrossoverDMCDatachains_blocked(arma::mat& usetheta,    // nchain x npar
 
 void CrossoverDGMCChains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,  // nchain x 1
-  std::vector<std::string> pnames, std::vector<std::string> dists,
+  std::vector<std::string> pnames, arma::vec dists,
   arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper,
   arma::uvec islog, arma::vec allpar, std::vector<std::string> parnames,
   arma::ucube model, std::string type, std::vector<std::string> dim1,
@@ -840,7 +841,7 @@ void CrossoverDGMCChains(arma::mat& usetheta,    // nchain x npar
 void CrossoverDMCChains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,  // nchain x 1
   std::vector<std::string> pnames,
-  std::vector<std::string> dists, arma::vec p1, arma::vec p2,
+  arma::vec dists, arma::vec p1, arma::vec p2,
   arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames,
   arma::ucube model, std::string type,
@@ -919,7 +920,7 @@ void CrossoverDMCChains(arma::mat& usetheta,    // nchain x npar
 void CrossoverDMCChains_blocked(arma::mat& usetheta,    // nchain x npar
                                 arma::vec& uselp, arma::vec& usell,  // nchain x 1
                                 std::vector<std::string> pnames,
-                                std::vector<std::string> dists, arma::vec p1, arma::vec p2,
+                                arma::vec dists, arma::vec p1, arma::vec p2,
                                 arma::vec lower, arma::vec upper, arma::uvec islog,
                                 arma::vec allpar, std::vector<std::string> parnames,
                                 arma::ucube model, std::string type,
@@ -988,10 +989,10 @@ void CrossoverDMCChains_blocked(arma::mat& usetheta,    // nchain x npar
 
 void MigrateDMCHyperchains_old(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll,  arma::cube theta,
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog, double rp,
   arma::uvec& rj, bool debug) {
 
@@ -1072,10 +1073,10 @@ void MigrateDMCHyperchains_old(arma::field<arma::mat>& usephi,
 
 void MigrateDMCHyperchains(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll, arma::cube theta,
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog, double rp,
   arma::uvec& rj, bool debug) {
 
@@ -1142,10 +1143,10 @@ void MigrateDMCHyperchains(arma::field<arma::mat>& usephi,
 
 void MigrateDGMCHyperchains(arma::field<arma::mat>& usephi,
   arma::vec& usehlp, arma::vec& usehll,  arma::cube& thetas, // nsub x npar x nchain
-  std::vector<std::string> pdists, arma::vec plower, arma::vec pupper,
-  arma::uvec plog, std::vector<std::string> ldists, arma::vec lp1,
+  arma::vec pdists, arma::vec plower, arma::vec pupper,
+  arma::uvec plog, arma::vec ldists, arma::vec lp1,
   arma::vec lp2, arma::vec llower, arma::vec lupper, arma::uvec llog,
-  std::vector<std::string> sdists, arma::vec sp1, arma::vec sp2,
+  arma::vec sdists, arma::vec sp1, arma::vec sp2,
   arma::vec slower, arma::vec supper, arma::uvec slog,
   unsigned int ngroup, double rp, arma::uvec& hrj) {
   // Rcout << "MigrateDGMC Hyperchains" << std::endl;
@@ -1221,7 +1222,7 @@ void MigrateDGMCHyperchains(arma::field<arma::mat>& usephi,
 void MigrateDGMCDatachains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,
   std::vector<std::string> pnames,
-  std::vector<std::string> dists,
+  arma::vec dists,
   arma::mat usephi0, arma::mat usephi1, // nchain x npar
   arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames,
@@ -1293,7 +1294,7 @@ void MigrateDGMCDatachains(arma::mat& usetheta,    // nchain x npar
 void MigrateDMCDatachains(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,
   std::vector<std::string> pnames,
-  std::vector<std::string> dists,
+  arma::vec dists,
   arma::mat usephi0, arma::mat usephi1, // nchain x npar
   arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames,
@@ -1360,7 +1361,7 @@ void MigrateDMCDatachains(arma::mat& usetheta,    // nchain x npar
 void MigrateDMCDatachains_old(arma::mat& usetheta,    // nchain x npar
   arma::vec& uselp, arma::vec& usell,
   std::vector<std::string> pnames,
-  std::vector<std::string> dists,
+  arma::vec dists,
   arma::mat usephi0, arma::mat usephi1, // nchain x npar
   arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames,
@@ -1441,7 +1442,7 @@ void MigrateDMCDatachains_old(arma::mat& usetheta,    // nchain x npar
 }
 
 void MigrateDGMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
-  std::vector<std::string> pnames, std::vector<std::string> dists,
+  std::vector<std::string> pnames, arma::vec dists,
   arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames, arma::ucube model,
   std::string type, std::vector<std::string> dim1,
@@ -1504,7 +1505,7 @@ void MigrateDGMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
 }
 
 void MigrateDMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
-  std::vector<std::string> pnames, std::vector<std::string> dists, arma::vec p1,
+  std::vector<std::string> pnames, arma::vec dists, arma::vec p1,
   arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames, arma::ucube model,
   std::string type, std::vector<std::string> dim1,
@@ -1559,7 +1560,7 @@ void MigrateDMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
 }
 
 // void MigrateDMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
-//   std::vector<std::string> pnames, std::vector<std::string> dists, arma::vec p1,
+//   std::vector<std::string> pnames, arma::vec dists, arma::vec p1,
 //   arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog,
 //   arma::vec allpar, std::vector<std::string> parnames, arma::ucube model,
 //   std::string type, std::vector<std::string> dim1,
@@ -1612,7 +1613,7 @@ void MigrateDMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
 // }
 
 void MigrateDMCChains_old(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
-  std::vector<std::string> pnames, std::vector<std::string> dists, arma::vec p1,
+  std::vector<std::string> pnames, arma::vec dists, arma::vec p1,
   arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog,
   arma::vec allpar, std::vector<std::string> parnames, arma::ucube model,
   std::string type, std::vector<std::string> dim1,
@@ -1735,8 +1736,7 @@ List run_dgmc(List samples, arma::uvec force, unsigned int report, double pm,
   unsigned int npar = pvec.size();
   std::vector<std::string> pnames = pvec.attr("names");
 
-  std::vector<std::string> pdists(npar);
-  arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar);
+  arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar), pdists(npar);
   arma::uvec plog(npar);
   List pprior = samples_in["p.prior"];
   GetPrior(pprior, pdists, pp1, pp2, plower, pupper, plog);
@@ -1785,8 +1785,8 @@ List run_dgmc(List samples, arma::uvec force, unsigned int report, double pm,
 }
 
 // [[Rcpp::export]]
-List run_dmc(List samples, arma::uvec force, unsigned int report, double pm, double pm0,
-  double gammamult, unsigned int ncore, bool slice) {
+List run_dmc(List samples, arma::uvec force, unsigned int report, double pm, 
+             double pm0, double gammamult, unsigned int ncore, bool slice) {
 
   List samples_in(clone(samples)); // so R' original samples stays
   CheckPnames(samples_in);
@@ -1834,8 +1834,7 @@ List run_dmc(List samples, arma::uvec force, unsigned int report, double pm, dou
   unsigned int npar = pnames.size();
 
   List pprior = samples_in["p.prior"];
-  std::vector<std::string> pdists(npar);
-  arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar);
+  arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar), pdists(npar);
   arma::uvec plog(npar);
   GetPrior(pprior, pdists, pp1, pp2, plower, pupper, plog);
 
@@ -1939,13 +1938,13 @@ List run_hyper_dmc(List samples, unsigned int report, double pm, double pm0, dou
   List ppprior  = hyper["pp.prior"];     /* Extract pprior & ppprior */
   List lprior   = ppprior[0];
   List sprior   = ppprior[1];
-  std::vector<std::string> pdists(npar), ldists(npar), sdists(npar),
-     types(nsub);
+  
+  std::vector<std::string> types(nsub);
   arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar), lp1(npar),
      lp2(npar), llower(npar), lupper(npar), sp1(npar), sp2(npar), slower(npar),
-     supper(npar), bws(nsub);
-  arma::uvec llog(npar), slog(npar), plog(npar), substore(nsub), npdas(nsub),
-     gpuids(nsub);
+     supper(npar), bws(nsub),  pdists(npar), ldists(npar), sdists(npar);
+  arma::uvec llog(npar), slog(npar), plog(npar),substore(nsub), npdas(nsub),
+             gpuids(nsub);
   GetPrior(pprior, pdists, pp1, pp2, plower, pupper, plog);
   GetPrior(lprior, ldists, lp1, lp2, llower, lupper, llog);
   GetPrior(sprior, sdists, sp1, sp2, slower, supper, slog);
@@ -2164,12 +2163,12 @@ List run_hyper_dgmc(List samples, unsigned int report, double pm,
   List ppprior  = hyper["pp.prior"];
   List lprior   = ppprior[0];
   List sprior   = ppprior[1];
-  std::vector<std::string> pdists(npar), ldists(npar), sdists(npar), types(nsub);
+  std::vector<std::string> types(nsub);
   arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar), lp1(npar),
      lp2(npar), llower(npar), lupper(npar), sp1(npar), sp2(npar), slower(npar),
-     supper(npar), bws(nsub);
+     supper(npar), bws(nsub), pdists(npar), ldists(npar), sdists(npar);
   arma::uvec llog(npar), slog(npar), plog(npar), substore(nsub), npdas(nsub),
-     gpuids(nsub);
+              gpuids(nsub);
   GetPrior(pprior, pdists, pp1, pp2, plower, pupper, plog);
   GetPrior(lprior, ldists, lp1, lp2, llower, lupper, llog);
   GetPrior(sprior, sdists, sp1, sp2, slower, supper, slog);

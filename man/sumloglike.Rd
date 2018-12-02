@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{sumloglike}
 \alias{sumloglike}
-\title{Calculate Summed, Log-likelihood of a Cognitive Model}
+\title{Calculate Log-likelihoods}
 \usage{
 sumloglike(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3,
   n1idx, ise, cellidx, RT, matchcell, isr1, posdrift, nsim, bw, ncore,

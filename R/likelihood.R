@@ -132,6 +132,24 @@ likelihood_cnorm <- function(x, data, min_lik = 1e-10) {
   pmax(out[,1], min_lik)
 }
 
+##' @export
+likelihood_glm <- function(x, data, min_lik = 1e-10) {
+  model    <- attr(data,  "model")
+  ise      <- attr(data,  "cell.empty")
+  allpar   <- attr(model, "all.par")
+  parnames <- attr(model, "par.names")
+  type     <- attr(model, "type")
+  n1idx    <- attr(model, "n1.order")
+  mc       <- attr(model, "match.cell")
+  cellidx  <- cellIdx2Mat(data)
+  pnames   <- names(x)
+
+  out <- ggdmc:::density_glm(x, pnames, allpar, parnames, model, type,
+                      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]],
+                      ise, cellidx, data$X, data$RT)
+  pmax(out[,1], min_lik)
+}
+
 ##' Substract nondecision times from response times
 ##'
 ##' This function minus t0's from RTs.

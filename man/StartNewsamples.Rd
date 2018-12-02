@@ -7,6 +7,7 @@
 \alias{RestartManysamples}
 \alias{StartNewHypersamples}
 \alias{RestartHypersamples}
+\alias{StartNewhiersamples}
 \title{Initialize New Samples}
 \usage{
 StartNewsamples(nmc, data = NULL, prior = NULL, thin = 1,
@@ -22,10 +23,13 @@ RestartManysamples(nmc, samples = NULL, thin = NULL, rp = 0.001,
   add = FALSE)
 
 StartNewHypersamples(nmc, data = NULL, prior = NULL, ppprior = NULL,
-  thin = 1, rp = 0.001, nchain = NULL)
+  thin = 1, nchain = NULL, rp = 0.001)
 
 RestartHypersamples(nmc, samples = NULL, thin = NULL, rp = 0.001,
   add = FALSE)
+
+StartNewhiersamples(nmc, data = NULL, start = NULL, prior = NULL,
+  thin = 1, nchain = NULL, rp = 0.001)
 }
 \arguments{
 \item{nmc}{numbers of Monte Carlo samples / iterations.}

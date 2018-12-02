@@ -223,7 +223,11 @@ density_plba1_gpu <- function(pVec, pnames, allpar, parnames, model, type, dim1,
     .Call('_ggdmc_density_plba1_gpu', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, nsim, bw, ncore, gpuid, nthread, debug)
 }
 
-#' Calculate Summed, Log-likelihood of a Cognitive Model
+density_glm <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, ise, cellidx, X, y) {
+    .Call('_ggdmc_density_glm', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, ise, cellidx, X, y)
+}
+
+#' Calculate Log-likelihoods 
 #'
 #' The function calculates log-likelihood for every trial.  The input must
 #' be a data model instance.
@@ -273,6 +277,10 @@ sumloglike <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2, 
     .Call('_ggdmc_sumloglike', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, posdrift, nsim, bw, ncore, gpuid, debug)
 }
 
+sumloglike_glm <- function(pvec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, X) {
+    .Call('_ggdmc_sumloglike_glm', PACKAGE = 'ggdmc', pvec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, X)
+}
+
 profile_rd <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, pname, ps) {
     .Call('_ggdmc_profile_rd', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, pname, ps)
 }
@@ -319,16 +327,52 @@ GetTheta0 <- function(samples) {
     .Call('_ggdmc_GetTheta0', PACKAGE = 'ggdmc', samples)
 }
 
-sumloghprior <- function(location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog) {
-    .Call('_ggdmc_sumloghprior', PACKAGE = 'ggdmc', location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog)
-}
-
-sumloghlike <- function(thetak, dists, p1, p2, lower, upper, islog) {
-    .Call('_ggdmc_sumloghlike', PACKAGE = 'ggdmc', thetak, dists, p1, p2, lower, upper, islog)
-}
-
 StartIteration <- function(samples) {
     invisible(.Call('_ggdmc_StartIteration', PACKAGE = 'ggdmc', samples))
+}
+
+init_new_glm <- function(nmc, prior, data, rp, thin, nchain) {
+    .Call('_ggdmc_init_new_glm', PACKAGE = 'ggdmc', nmc, prior, data, rp, thin, nchain)
+}
+
+init_add_glm <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_add_glm', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_old_glm <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_old_glm', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_newnonhier_glm <- function(nmc, data, pprior, rp, thin, nchain) {
+    .Call('_ggdmc_init_newnonhier_glm', PACKAGE = 'ggdmc', nmc, data, pprior, rp, thin, nchain)
+}
+
+init_addnonhier_glm <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_addnonhier_glm', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_oldnonhier_glm <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_oldnonhier_glm', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_oldhier_glm <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_oldhier_glm', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_addhier_glm <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_addhier_glm', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_new_start <- function(nmc, data, start, prior, rp, thin, nchain) {
+    .Call('_ggdmc_init_new_start', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
+}
+
+init_newnonhier_start <- function(nmc, data, start, prior, rp, thin, nchain) {
+    .Call('_ggdmc_init_newnonhier_start', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
+}
+
+init_newhier_start <- function(nmc, data, start, prior, rp, thin, nchain) {
+    .Call('_ggdmc_init_newhier_start', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
 }
 
 init_new <- function(nmc, pprior, data, rp, thin, nchain, ncore = 1L, debug = FALSE) {
@@ -493,10 +537,6 @@ dprior_ <- function(pvec, dists, p1, p2, lower, upper, islog) {
     .Call('_ggdmc_dprior_', PACKAGE = 'ggdmc', pvec, dists, p1, p2, lower, upper, islog)
 }
 
-sumlogprior <- function(pvec, dists, p1, p2, lower, upper, islog) {
-    .Call('_ggdmc_sumlogprior', PACKAGE = 'ggdmc', pvec, dists, p1, p2, lower, upper, islog)
-}
-
 #' Probability densities of prior distributions
 #'
 #' \code{sumlogpriorNV} calculate sum log-likelihood. \code{rprior} generates
@@ -513,8 +553,8 @@ dprior <- function(pvec, prior) {
 
 #' @rdname rprior
 #' @export
-rprior_scalar <- function(prior) {
-    .Call('_ggdmc_rprior_scalar', PACKAGE = 'ggdmc', prior)
+rprior_vec <- function(prior) {
+    .Call('_ggdmc_rprior_vec', PACKAGE = 'ggdmc', prior)
 }
 
 #' @rdname rprior
@@ -523,18 +563,42 @@ rprior_mat <- function(prior, n) {
     .Call('_ggdmc_rprior_mat', PACKAGE = 'ggdmc', prior, n)
 }
 
-rprior_vec <- function(dists, p1, p2, lower, upper) {
-    .Call('_ggdmc_rprior_vec', PACKAGE = 'ggdmc', dists, p1, p2, lower, upper)
+rprior_vec_ <- function(dists, p1, p2, lower, upper) {
+    .Call('_ggdmc_rprior_vec_', PACKAGE = 'ggdmc', dists, p1, p2, lower, upper)
 }
 
-rprior <- function(n, dists, p1, p2, lower, upper) {
-    .Call('_ggdmc_rprior', PACKAGE = 'ggdmc', n, dists, p1, p2, lower, upper)
+rprior_mat_ <- function(n, dists, p1, p2, lower, upper) {
+    .Call('_ggdmc_rprior_mat_', PACKAGE = 'ggdmc', n, dists, p1, p2, lower, upper)
 }
 
 #' @rdname dprior
 #' @export
 sumlogpriorNV <- function(pvec, prior) {
     .Call('_ggdmc_sumlogpriorNV', PACKAGE = 'ggdmc', pvec, prior)
+}
+
+sumlogprior <- function(pvec, dists, p1, p2, lower, upper, lg) {
+    .Call('_ggdmc_sumlogprior', PACKAGE = 'ggdmc', pvec, dists, p1, p2, lower, upper, lg)
+}
+
+RestorePrior <- function(pprior, p1, p2, lower, upper, lg, dists, pnames) {
+    .Call('_ggdmc_RestorePrior', PACKAGE = 'ggdmc', pprior, p1, p2, lower, upper, lg, dists, pnames)
+}
+
+sumloghprior <- function(location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog) {
+    .Call('_ggdmc_sumloghprior', PACKAGE = 'ggdmc', location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog)
+}
+
+sumloghlike <- function(thetak, dists, p1, p2, lower, upper, islog) {
+    .Call('_ggdmc_sumloghlike', PACKAGE = 'ggdmc', thetak, dists, p1, p2, lower, upper, islog)
+}
+
+run_glm <- function(samples, force, report, pm, pm0, gammamult, ncore, slice) {
+    .Call('_ggdmc_run_glm', PACKAGE = 'ggdmc', samples, force, report, pm, pm0, gammamult, ncore, slice)
+}
+
+run_hyper_glm <- function(samples, report, pm, pm0, hpm, hpm0, gammamult) {
+    .Call('_ggdmc_run_hyper_glm', PACKAGE = 'ggdmc', samples, report, pm, pm0, hpm, hpm0, gammamult)
 }
 
 #' Generate a Gamma Vector
@@ -553,7 +617,7 @@ sumlogpriorNV <- function(pvec, prior) {
 #'           muw1 = 1.51, muw2 = 3.69, t_delay = 0.31, sv = 1, swt = 0.5)
 #' gamma <- GetGamma(length(pVec), 2.38)
 #' @export
-GetGamma <- function(npar, gammamult, hyper = FALSE) {
+GetGamma <- function(npar, gammamult, hyper) {
     .Call('_ggdmc_GetGamma', PACKAGE = 'ggdmc', npar, gammamult, hyper)
 }
 
@@ -655,6 +719,10 @@ rtn_scalar <- function(mean, sd, l, u) {
     .Call('_ggdmc_rtn_scalar', PACKAGE = 'ggdmc', mean, sd, l, u)
 }
 
+rtn_scalar2 <- function(mean, precision, l, u) {
+    .Call('_ggdmc_rtn_scalar2', PACKAGE = 'ggdmc', mean, precision, l, u)
+}
+
 #' Truncated Normal Distribution
 #'
 #' Random number generation, probability density and cumulative density
@@ -662,13 +730,13 @@ rtn_scalar <- function(mean, sd, l, u) {
 #'
 #' @param x,q vector of quantiles;
 #' @param n number of observations. n must be a scalar.
-#' @param mean mean (must be scalar).
-#' @param sd standard deviation (must be scalar).
+#' @param p1 mean (must be scalar).
+#' @param p2 standard deviation (must be scalar).
 #' @param lower lower truncation value (must be scalar).
 #' @param upper upper truncation value (must be scalar).
 #' @param lt lower tail. If TRUE (default) probabilities are \code{P[X <= x]},
 #' otherwise, \code{P[X > x]}.
-#' @param log log probability. If TRUE (default is FALSE) probabilities p are
+#' @param lg log probability. If TRUE (default is FALSE) probabilities p are
 #' given as \code{log(p)}.
 #' @return a column vector.
 #' @examples
@@ -691,20 +759,26 @@ rtn_scalar <- function(mean, sd, l, u) {
 #' upper <- 5
 #' dat1 <- ptnorm(x, 0, 1, 0, 5, log = TRUE)
 #' @export
-dtnorm <- function(x, mean, sd, lower, upper, log = FALSE) {
-    .Call('_ggdmc_dtnorm', PACKAGE = 'ggdmc', x, mean, sd, lower, upper, log)
+dtnorm <- function(x, p1, p2, lower, upper, lg = FALSE) {
+    .Call('_ggdmc_dtnorm', PACKAGE = 'ggdmc', x, p1, p2, lower, upper, lg)
 }
 
 #' @rdname dtnorm
 #' @export
-rtnorm <- function(n, mean, sd, lower, upper) {
-    .Call('_ggdmc_rtnorm', PACKAGE = 'ggdmc', n, mean, sd, lower, upper)
+dtnorm2 <- function(x, p1, p2, lower, upper, lg = FALSE) {
+    .Call('_ggdmc_dtnorm2', PACKAGE = 'ggdmc', x, p1, p2, lower, upper, lg)
 }
 
 #' @rdname dtnorm
 #' @export
-ptnorm <- function(q, mean, sd, lower, upper, lt = TRUE, log = FALSE) {
-    .Call('_ggdmc_ptnorm', PACKAGE = 'ggdmc', q, mean, sd, lower, upper, lt, log)
+rtnorm <- function(n, p1, p2, lower, upper) {
+    .Call('_ggdmc_rtnorm', PACKAGE = 'ggdmc', n, p1, p2, lower, upper)
+}
+
+#' @rdname dtnorm
+#' @export
+ptnorm <- function(q, p1, p2, lower, upper, lt = TRUE, lg = FALSE) {
+    .Call('_ggdmc_ptnorm', PACKAGE = 'ggdmc', q, p1, p2, lower, upper, lt, lg)
 }
 
 #' Whether a hyper-prior distribution is set constant

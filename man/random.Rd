@@ -4,7 +4,7 @@
 \alias{random}
 \title{Generate random variates of various cognitive models}
 \usage{
-random(type, pmat, n, seed = NULL)
+random(type, pmat, n, seed = NULL, regressors = NULL)
 }
 \arguments{
 \item{type}{a character string indicating the model type}

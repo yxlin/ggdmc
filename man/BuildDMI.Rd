@@ -8,7 +8,7 @@ BuildDMI(x, model, npda = 16384, bw = 0.01, gpuid = 0,
   debug = FALSE)
 }
 \arguments{
-\item{x}{data in a data frame format}
+\item{x}{data in the format of data frame}
 
 \item{model}{a model object}
 

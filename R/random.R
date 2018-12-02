@@ -452,9 +452,10 @@ maker <- function (drifts, n, b, A, n_v, t0, st0 = 0, seed = NULL,
 ##' should be initialized.
 ##' @importFrom rtdists rdiffusion
 ##' @export
-random <- function(type, pmat, n, seed = NULL) {
+random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
 
   set.seed(seed)
+  
   if (type == "rd") {
     out <- rtdists::rdiffusion(n, a = pmat$a[1], v = pmat$v[1],
       t0 = pmat$t0[1],
@@ -466,6 +467,8 @@ random <- function(type, pmat, n, seed = NULL) {
   } else if (type %in% c("norm", "norm_pda", "norm_pda_gpu")) {
 
     ## pmat: A b t0 mean_v sd_v st0
+    # print(n)
+    # print(pmat)
     out <- rlba_norm(n, pmat[, 1], pmat[, 2], matrix(pmat[, 4]), pmat[, 5],
       pmat[,3], pmat[1,6])
 
@@ -494,6 +497,15 @@ random <- function(type, pmat, n, seed = NULL) {
 
     out <- rca(n, pmat[,1], pmat[,2], pmat[,3], pmat[,4], pmat[,5], pmat[,7],
       unique(pmat[,6]))
+
+  } else if (type == "glm") {
+    # pmat is a data frame
+    #       a   b   tau
+    # r1 143 -1.2   8.8
+    X  <- sample(x = regressors, size = n, replace = TRUE)
+    mu <- pmat[1,1] + pmat[1,2] * X
+    sd <- 1/sqrt(pmat[1,3])
+    out <- cbind(rnorm(n, mu, sd), rep(1, n), X)
 
   } else {
     stop("Model type yet created")
@@ -606,21 +618,58 @@ GetParameterMatrix <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
   return(psmat)
 }
 
+GetParameterMatrix_bk <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
+  
+  message1 <- "Parameters are incompatible with model"
+  pnames <- names(attr(x, "p.vector"))
+  
+  if (anyNA(prior)) { ## use ps
+    if (is.vector(ps)) {
+      if (check_pvec(ps, x)) stop(message1)
+      ps    <- ps[pnames]
+      pss   <- rep(ps, each = ns)
+      psmat <- matrix(pss, ns, dimnames = list(NULL, pnames))
+    } else if (is.matrix(ps)) {
+      psmat <- matrix(ps, ns, dimnames = list(NULL, pnames))
+    } else {
+      if ((ns != dim(ps)[1])) stop("ps matrix must have ns rows")
+      if (check_pvec(ps[1,], x)) stop(message1)
+    }
+    
+    rownames(psmat) <- 1:ns
+  } else {  ## use prior; random-effect model
+    if (!all( pnames %in% names(prior))) stop(message1)
+    set.seed(seed)
+    psmat <- rprior(prior[pnames], ns)
+  }
+  
+  return(psmat)
+}
+
+# n <- 10
 simulate_one <- function(model, n, ps, seed) {
   if (check_pvec(ps, model)) stop("p.vector and model incompatible")
+  regressors <- attr(model, "regressors")
   resp <- attr(model, "responses")
   type <- attr(model, "type")
   levs <- attr(model, "factors")
-  facs <- createfacsdf(model)
-  nvec <- check_n(n, facs)
-  dat  <- nadf(nvec, facs, levs)
+  facs <- ggdmc:::createfacsdf(model)
+  nvec <- ggdmc:::check_n(n, facs)
+  dat  <- ggdmc:::nadf(nvec, facs, levs)
   row1 <- 1
 
   ## random is set in the ggdmc_random.R
   for (i in 1:nrow(facs)) {
     pmat <- TableParameters(ps, i, model, FALSE) ## simulate use n1.order == FALSE
     rown <- row1 + nvec[i] - 1
-    dat[row1:rown, c("RT", "R")] <- random(type, pmat, nvec[i], seed)
+    
+    if (type == "glm") {
+      dat$X <- NA
+      tmp <- random(type, pmat, nvec[i], seed, regressors)
+      dat[row1:rown, c("RT", "R", "X")] <- tmp
+    } else {
+      dat[row1:rown, c("RT", "R")] <- random(type, pmat, nvec[i], seed)
+    }
     row1 <- rown+1
   }
 
@@ -638,8 +687,8 @@ simulate_many <- function(model, n, ns, prior, ps, seed) {
   if(ismanysub) modeli <- model[[1]] else modeli <- model
 
   ndatai <- cumsum(c(0, matrixStats::rowSums2(n))); ## index boundaries
-  datr <- (ndatai[1] + 1):(ndatai[2]); ## Fist subj's trial index
-  ## Simulate first subject; modeli should be 'model' class
+  datr <- (ndatai[1] + 1):(ndatai[2]); ## First subject's trial index
+  ## Simulate first subject; modeli must be 'model' class
   dat <- cbind(s = rep.int(1, length(datr)),
     simulate_one(modeli, n[1,], ps[1,], seed))
 
@@ -719,7 +768,7 @@ simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
     out <- simulate_one(object, nsim, ps, seed)
     attr(out, "parameters") <- ps
   } else {
-    message1 <- "Must supply either p.prior or p.vector."
+    message1 <- "Must supply either sampling distribution or a true vector."
     if (anyNA(prior) & anyNA(ps)) stop(message1)
     out <- simulate_many(object, nsim, nsub, prior, ps, seed)
   }

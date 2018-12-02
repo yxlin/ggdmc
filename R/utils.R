@@ -177,40 +177,6 @@ CheckHyperDMI <- function(data = NULL, nchain = NULL) {
   return(nchain)
 }
 
-##' Check Data Model Instance
-##'
-##' Return a model object extracted either from a data model instance or
-##' an object storing posterior samples. The function checks also
-##' \enumerate{
-##' \item When x stores DMI of one participant, if DMI is a \code{data.frame},
-##' \item When x is an object of posterior samples, if x is a list of many subjects,
-##' \item whether model is successfully created,
-##' \item whether prior is suppled or we can extract it from 'samples'
-##' }
-##'
-##' @param x a data-model instance
-##' @param prior a parameter prior list
-##' @param theta1 a user-supplied theta cube
-##' @param nchain number of MCMC chains
-##' @export
-CheckDMI <- function(x = NULL, prior = NULL, theta1 = NULL, nchain = NULL) {
-  ## x == data == DMI
-
-  if (!is.null(x) && !is.data.frame(x)) stop("Data must be a data frame")
-  if (is.null(x)) {
-    stop("No data model instance")
-  } else {
-    model <- attr(x, "model")
-  }
-
-  npar <- length(GetPNames(model))
-  if (is.null(nchain)) nchain <- 3*npar
-  if (is.null(model)) stop("Must specify a model")
-  if (is.null(prior)) stop("Must specify a prior argument")
-  if (!is.null(theta1) && !is.matrix(theta1) || (!all(dim(theta1)==c(nchain, npar))))
-    stop("theta1 must be a nchain x npar matrix")
-  return(model)
-}
 
 CheckSamples <- function(samples = NULL, prior = NULL, theta1 = NULL) {
   ## x == samples
@@ -353,7 +319,7 @@ ConvertChains <- function(x, start = 1, end = NA, pll = TRUE) {
 ##' @param pll a Boolean switch to make posterior log likelihood
 ##' @export
 ConvertChains2 <- function(x, pll) {
-
+  # x <- d
   nchain <- attr(x, "nchain")
   npar <- attr(x, "npar")
   pnames <- attr(x, "pnames")
@@ -366,7 +332,12 @@ ConvertChains2 <- function(x, pll) {
   if ( end <= start ) stop("End must be greater than start")
   iter   <- start:end
   # mcmclist <- mcmc_list.model(x, start, end, pll)
+  
 
+  # tmp1 <- sapply(x[1][[1]], c)
+  # str(tmp1)
+  # str(rep(iter, npar))
+  
   v <- lapply(seq_along(x), function(k) {
     tmp1 <- sapply(x[k][[1]], c)
     if (pll) {

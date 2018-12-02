@@ -82,62 +82,74 @@ grepl_dot <- function(pattern, x) {
 BuildModel <- function(
   p.map,                          # list factors and constants for parameters
   responses,                      # Response (accumulator) names
-  factors    = list(A = "1"), # Factor names and levels
+  regressors = NULL,
+  factors    = list(A = "1"),     # Factor names and levels
   match.map  = NULL,              # Scores responses
   constants  = numeric(0),        # Parameters set to constant value
   type       = "norm",            # model type
   posdrift   = TRUE,              # only used by norm
   verbose    = TRUE               # Print p.vector, constants and type
-  ) {
-  mapinfo <- ggdmc:::check_BuildModel(p.map, responses, factors, match.map,
+) {
+  mapinfo <- check_BuildModel(p.map, responses, factors, match.map,
                                       constants, type)
   map.names  <- mapinfo[[1]]
-  map.levels <- mapinfo[[2]]
+  map.levels <- mapinfo[[2]] ## usually empty named list
   match.map  <- mapinfo[[3]] ## match.map fixed numeric sequences 
-  factors_long <- ggdmc:::check_factors(responses, factors, match.map, map.names)
-  names.par <- make_pnames(p.map, factors_long)
+  factors_long <- check_factors(responses, factors, match.map, map.names)
+  dim2 <- make_pnames(p.map, factors_long) ## names.par
+  npar <- length(dim2)
 
   ## Make level array for manifest design and accumulators
   level_array <- make_level_array(factors_long[1:(length(factors) + 1)])
   check_matchmap(match.map, level_array)
-
-  MRmap <- check_keywords(p.map, match.map, type, map.names)
-  is.M  <- MRmap[[1]]
-  is.R  <- MRmap[[2]]
-  is.map<- MRmap[[3]]
-
+  dim1       <- as.vector(level_array)
+  ncondition <- length(dim1)
+  nresponse  <- length(responses)
+  
+  n1order   <- make_n1order(responses, level_array) ## norm type node 1
+  matchcell <- make_match_cell(match.map, level_array) ## matching cells Boolean
+  rdinfo    <- flipz(responses, match.map, type, level_array)
+  
+  MRmap  <- check_keywords(p.map, match.map, type, map.names)
+  is.M   <- MRmap[[1]]
+  is.R   <- MRmap[[2]]
+  is.map <- MRmap[[3]]
+  
   if ( any(is.map) ) {
-    p.map.name <- lapply(p.map, function(x){
+    p.map.name <- lapply(p.map, function(x) {
       unlist(strsplit(x, "[.]"))[
         unlist(strsplit(x, "[.]")) %in% map.names]
     })
-    nr <- length(responses)
-    n <- length(level_array)
-    map.shuffle <- matrix(aperm(array(1:n,dim=c(n/nr,nr,nr)),c(1,3,2)),ncol=nr)
+    maps_dim <- c(ncondition / nresponse, nresponse, nresponse)
+    map.shuffle <- matrix(aperm(array(1:ncondition, dim=maps_dim), 
+                                c(1,3,2)), ncol = nresponse)
   }
-
-  ## use.par = boolean matrix for parameter use, cells x pars x resposnes
-  use.par <- array(NA,
-    dim=c(length(level_array),length(names.par),length(responses)))
-  dimnames(use.par) <- list(as.vector(level_array), names.par, responses)
-
+  
+  out <- array(NA, dim = c(ncondition, npar, nresponse))
+  dimnames(out) <- list(dim1, dim2, responses)
+  
   ## col.par = column parameter type (1st name)
   if ( is.null(match.map) ) {
     col.par.levels <- responses
+    # cat("match.map is NULL")
+    # print(col.par.levels)
   } else {
+    ## col.par.levels because map.levels is an empty named list
     col.par.levels <- c(responses, "true", "false", map.levels)
+    # cat("match.map found")
+    # print(col.par.levels)
   }
-    
-  col.par <- strsplit(dimnames(use.par)[[2]], "[.]")
+  
+  col.par <- strsplit(dim2, "[.]")
   col.fac <- lapply(col.par, function(x){x[-1]})
-  col.par <- unlist(lapply(col.par, function(x){x[1]}))
+  col.par <- sapply(col.par, function(x){x[1]})
   
   ## split into fac and resp
-  col.fac <- lapply(col.fac, function(x){
-    if ( length(x)==0 ) out <- c(NA,NA)
-    if ( length(x)==1 ) {
+  col.fac  <- lapply(col.fac, function(x){
+    if ( length(x) == 0 ) out <- c(NA, NA)
+    if ( length(x) == 1 ) {
       if ( x %in% col.par.levels )
-        out <- c(NA,x) else out <- c(x,NA)
+        out <- c(NA, x) else out <- c(x,NA)
     }
     if ( length(x)>1 )
       if ( x[length(x)] %in% col.par.levels )
@@ -146,29 +158,28 @@ BuildModel <- function(
         out
   })
   
-  col.resp <- sapply(col.fac,function(x){x[2]})
-  col.fac <- sapply(col.fac,function(x){x[1]})
-
-  row.fac <- strsplit(dimnames(use.par)[[1]], "[.]")
-  #  row.resp <- unlist(lapply(row.fac,function(x){x[length(x)]}))
-  row.fac <- sapply(row.fac, function(x){
-    paste(x[-length(x)], collapse=".")})
-
-  # Fill use.par array
+  col.resp <- sapply(col.fac, function(x){x[2]})
+  col.fac  <- sapply(col.fac, function(x){x[1]})
+  
+  row.fac <- strsplit(dim1, "[.]")
+  ## row.resp <- unlist(lapply(row.fac,function(x){x[length(x)]}))
+  row.fac <- sapply( row.fac, function(x){ paste(x[-length(x)], collapse=".") } )
+  
+  # Fill out array
   for ( p in unique(col.par) )
   { # parameters
     is.col <- p==col.par
     ncols <- sum(is.col)
-    if ( ncols==1 ) use.par[,is.col,] <- TRUE else
+    if ( ncols==1 ) out[,is.col,] <- TRUE else
     { # there are parameter subtypes
       for ( i in 1:ncols )
       { # each parameter subtype
         # select rows based on factors
         tmp <- col.fac[is.col][i]
-        is.fac.row <- rep(TRUE,dim(use.par)[1])
+        is.fac.row <- rep(TRUE, ncondition)
         if ( !is.na(tmp) ) is.fac.row[!grepl_dot(tmp, row.fac)] <- FALSE
         # set not applicable rows to false
-        use.par[!is.fac.row,is.col,][,i,] <- FALSE
+        out[!is.fac.row,is.col,][,i,] <- FALSE
         if ( is.M[p] )
         { # has a match factor
           for ( j in names(match.map$M) )
@@ -180,44 +191,53 @@ BuildModel <- function(
               if ( k==correct.response )
               {
                 if ( grepl("true", col.resp[is.col][i]) )
-                  use.par[,is.col,][is.rcell,i,k] <- TRUE else
-                    use.par[,is.col,][is.rcell,i,k] <- FALSE
-
+                  out[,is.col,][is.rcell,i,k] <- TRUE else
+                    out[,is.col,][is.rcell,i,k] <- FALSE
+                  
               } else {
                 if ( grepl("false",col.resp[is.col][i]) )
-                  use.par[,is.col,][is.rcell,i,k] <- TRUE else
-                    use.par[,is.col,][is.rcell,i,k] <- FALSE
+                  out[,is.col,][is.rcell,i,k] <- TRUE else
+                    out[,is.col,][is.rcell,i,k] <- FALSE
               }
             }
           }
         } else if ( is.R[p] ) {
           for ( k in responses )
-            use.par[is.fac.row,is.col,k][,i] <- k==col.resp[is.col][i]
+            out[is.fac.row,is.col,k][,i] <- k==col.resp[is.col][i]
         }  else if ( is.map[p] ) {
-          use.par[is.fac.row,is.col,][,i,] <-
+          out[is.fac.row,is.col,][,i,] <-
             match.map[[ p.map.name[[p]] ]] [map.shuffle[is.fac.row,]]==col.resp[is.col][i]
-        } else use.par[is.fac.row,is.col,][,i,] <- TRUE
+        } else out[is.fac.row,is.col,][,i,] <- TRUE
       }
     }
   }
-
-  if (any(is.na(use.par))) stop("Some cells of the map were not assigned!")
-
+  
+  if (any(is.na(out))) stop("Some cells of the map were not assigned!")
+  
   # add in constants
-  all.par <- use.par[1,,1]
+  all.par <- out[1,,1]
   all.par[1:length(all.par)] <- NA
-  if ( length(constants)>0 ) {
+  if ( length(constants) > 0 ) {
     if ( !all(names(constants) %in% names(all.par)) )
       stop("Name(s) in constants not in p.map")
     all.par[names(constants)] <- constants
   }
 
-  attr(use.par, "all.par")  <- all.par
-  attr(use.par, "p.vector") <- all.par[is.na(all.par)]
-
-  if (length(attr(use.par,"p.vector"))<2)
-    stop("DMC cant handle models with less than two parameters")
-
+  attr(out, "all.par")    <- all.par
+  attr(out, "p.vector")   <- all.par[is.na(all.par)]
+  attr(out, "par.names")  <- unique(col.par)   
+  attr(out, "type")       <- type
+  attr(out, "regressors") <- regressors
+  attr(out, "factors")    <- factors
+  attr(out, "responses")  <- responses
+  attr(out, "constants")  <- constants
+  attr(out, "posdrift")   <- posdrift
+  attr(out, "n1.order")   <- n1order
+  attr(out, "match.cell") <- matchcell
+  if ( !is.null(match.map) ) attr(out, "match.map") <- match.map
+  attr(out, "is.r1") <- rdinfo[[1]]
+  attr(out, "bound") <- rdinfo[[2]]
+  
   if (verbose) {
     cat("\nParameter vector names are: ( see attr(,\"p.vector\") )\n")
     print(names(all.par[is.na(all.par)]))
@@ -225,68 +245,11 @@ BuildModel <- function(
     print(constants)
     mod <- paste("\nModel type =", type)
     if (type == "norm") mod <- paste(mod, "(posdrift =", posdrift,")")
-    cat(paste(mod,"\n\n"))
+    cat(paste(mod, "\n\n"))
   }
 
-
-  # Names of parameter types (cannot have a period)
-  attr(use.par, "par.names") <- unique(col.par)
-  attr(use.par, "type") <- type
-  attr(use.par, "factors") <- factors
-  attr(use.par, "responses") <- responses
-  attr(use.par, "constants") <- constants
-  attr(use.par, "posdrift") <- posdrift
-
-  par.df <- matrix(nrow=0, ncol=length(p.map))
-  dimnames(par.df) <- list(NULL,names(p.map))
-  par.df <- data.frame(par.df)
-
-  # save "n1" orders
-  resp <- sapply(strsplit(level_array, "[.]"), function(x){
-    x[length(x)]})
-  nr <- length(responses)
-  n1.order <- matrix(nrow=length(resp),ncol=nr)
-  for (i in 1:length(resp))
-    n1.order[i,] <- c(c(1:nr)[resp[i]==responses],c(1:nr)[resp[i]!=responses])
-  row.names(n1.order) <- row.names(use.par)
-
-  # Boolean for matching cells
-  match.cell <- logical(length(row.names(n1.order)))
-  names(match.cell) <- row.names(n1.order)
-  if ( !is.null(match.map) ) for (i in 1:length(match.map$M)) {
-    match.num <- grep(match.map$M[i],names(match.cell))
-    match.cell[match.num[match.num %in%
-        grep(names(match.map$M[i]),names(match.cell))]] <- TRUE
-  }
-
-  attr(use.par, "n1.order") <- n1.order
-  attr(use.par, "match.cell") <- match.cell
-  if ( !is.null(match.map) ) attr(use.par, "match.map") <- match.map
-
-  if (type=="rd") # r1 cells have z flipped
-  {
-    is.r1 <- rep(FALSE,length(row.names(use.par)))
-    names(is.r1) <- row.names(use.par)
-    is.r1[unlist(lapply(
-      lapply(
-        as.list(names(match.map$M)[match.map$M==responses[1]]),
-        function(x)grepl(x,row.names(use.par))
-      ),
-      function(x) which(x==TRUE)))] <- TRUE
-    attr(use.par,"is.r1") <- is.r1
-
-    # add bound attributes
-    bound <- rep("lower",dim(use.par)[1])
-    bound[as.vector(sapply(
-      paste("",names(attr(use.par,"match.map")$M),
-        attr(use.par,"match.map")$M,sep="*"),
-      function(x){grep(glob2rx(x),row.names(use.par))}))] <- "upper"
-    names(bound) <- row.names(use.par)
-    attr(use.par,"bound") <- bound
-  }
-
-  class(use.par) <- "model"
-  return(use.par)
+  class(out) <- "model"
+  return(out)
 }
 
 ##' @rdname BuildModel
@@ -317,13 +280,23 @@ print.model <- function(x, p.vector = NULL, ...) {
   }
 }
 
+##' @rdname BuildModel
+##' @export
+print.dmi <- function(x, ...) {
+  model <- attr(x, "model")
+  print.model(model)
+  print(head(as.data.frame(x)))
+  return(invisible(x))
+}
+
+
 ##' Bind data and models
 ##'
 ##' Binding a data with a model object. This function also checks
 ##' if they are compatible and adds a \code{cell.index} and many other
 ##' attributes to the data frame.
 ##'
-##' @param x data in a data frame format
+##' @param x data in the format of data frame
 ##' @param model a model object
 ##' @param npda number of model simulations
 ##' @param bw kernel bandwidth
@@ -334,7 +307,7 @@ print.model <- function(x, p.vector = NULL, ...) {
 BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
   debug = FALSE) {
 
-  res <- check_dmi(x, model)
+  res <- check_BuildDMI(x, model)
   subject_models <- res$issm
   modeli <- res$model
   fnams <- names(attr(modeli, "factors"))
@@ -365,8 +338,7 @@ BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
       for ( j in names(cell.index) ) cell.index[[j]] <- cells %in% j
 
       attr(dat[[k]], "cell.index") <- cell.index
-      attr(dat[[k]], "cell.empty") <-
-        unlist(lapply(cell.index, function(xx){sum(xx)})) == 0
+      attr(dat[[k]], "cell.empty") <- sapply(cell.index, function(xx){sum(xx)}) == 0
       attr(dat[[k]], "model") <- modeli
 
       # if (is.sim) attr(data[[s]], "parameters") <- attr(dat, "parameters")[s,]
@@ -375,29 +347,44 @@ BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
       attr(dat[[k]], "bw")    <- bw
       attr(dat[[k]], "gpuid") <- gpuid
       attr(dat[[k]], "debug") <- debug
-      class(dat) <- c("model", "list")
+      class(dat) <- c("dmi", "model", "list")
     }
 
     return(dat)
 
   } else { # one subject
-    # add model and index attribute to data
-    cells      <- apply(x[, c(fnams, "R")], 1, paste, collapse = ".")
+    ## add model and index attribute to data
+    ## Presume only one dependent variable RT
+    ## x[, c(fnams, "R")] extract all columns except the dependent variable (RT)
+    cells <- apply(x[, c(fnams, "R")], 1, paste, collapse = ".")
+    ## ncell == nobservation
+
     cell.index <- vector("list", dim(model)[1])
     names(cell.index) <- row.names(model)
+    ## scan trial-by-trial (every observation)
     for ( j in names(cell.index) ) cell.index[[j]] <- cells %in% j
+
     attr(x, "cell.index") <- cell.index
-    attr(x, "cell.empty") <-
-      unlist(lapply(cell.index, function(xx){sum(xx)})) == 0
+    attr(x, "cell.empty") <- sapply(cell.index, function(xx){sum(xx)}) == 0
     attr(x, "model") <- model
     attr(x, "n.pda") <- npda
     attr(x, "bw")    <- bw
     attr(x, "gpuid") <- gpuid
     attr(x, "debug") <- debug
-    class(x) <- c("model", "data.frame")
+    class(x) <- c("dmi", "model", "data.frame")
     return(x)
   }
 }
+
+# cell_matrix <- function(x, model) {
+#   out <- vector("list", dim(model)[1])
+#   dim1 <- dimnames(model)[[1]]
+#   names(out) <- row.names(model)
+#   ## scan trial-by-trial (every observation) 
+#   for ( j in names(out) ) outs[[j]] <- cells %in% j
+#   return(out)
+# }
+
 
 
 ##' Create an array of all factorial combinations of factor levels
@@ -575,7 +562,12 @@ TableParameters <- function(x, cell, model, n1order = TRUE) {
     names(out) <- c("A", "b", "t0", "mean_v", "sd_v", "corr_v", "st0")
     rownames(out) <- attr(model, "response")
   }
-
+  
+  if(type %in% c("glm")) {
+    names(out) <- c("a", "b", "tau")
+    rownames(out) <- attr(model, "response")
+  }
+  
   return(out)
 }
 
@@ -610,7 +602,7 @@ check_BuildModel <- function(p_map, responses, factors, match_map, constants,
   ## Check requried inputs supplied
   if (is.null(p_map)) stop("Must supply p.map")
   if (is.null(responses)) stop("Must supply responses")
-  if (is.null(factors)) stop("Must supply factors")
+  ## if (is.null(factors)) stop("Must supply factors")
   
   ## Check factors
   keywords <- c("1", "s", "R")
@@ -679,14 +671,12 @@ check_BuildModel <- function(p_map, responses, factors, match_map, constants,
     
     ## Must return match_map. This is because the user is allowed to enter
     ## numberic sequences (1, 2, ...) to represent string response types (r1, r2).
-    ## Internally, string response types are favoured.
+    ## Internally, string (response) types are favoured. (should change this)
     out <- list(map_names, map_levels, match_map)
     
   } else {
-
     hasM <- sapply(p_map, function(x){ any(x == "M")})
-    if(any(hasM)) stop("match.map is NULL, but found M factor")
-    message("match.map is NULL")
+    if(any(hasM)) stop("match.map is NULL, but found M factor in p.map")
     out <- NULL
   }
   
@@ -778,6 +768,116 @@ check_keywords <- function(p.map, match.map, type, map.names) {
   return(list(is.M, is.R, is.map))
 }  
 
+make_match_cell <- function(match.map, level_array) {
+  dim1 <- as.vector(level_array)
+  ncondition <- length(dim1)
+  out <- logical(ncondition)
+  names(out) <- dim1
+  
+  if (!is.null(match.map)) {
+    
+    for (i in 1:length(match.map$M)) {
+      match.num <- grep(match.map$M[i], dim1)
+      idx1 <- match.num %in% grep(names(match.map$M[i]), dim1)
+      idx2 <- match.num[idx1]
+      out[idx2] <- TRUE
+    }
+    
+  } else {
+    message("match.map is NULL")
+  }
+  
+  return(out)
+}
+
+make_n1order <- function(responses, level_array) {
+  nresponse  <- length(responses)
+  dim1       <- as.vector(level_array)
+  resp <- sapply( strsplit(dim1, "[.]"), function(x){ x[length(x)] } )
+  out  <- matrix(nrow = length(resp), ncol = nresponse)
+  row.names(out) <- dim1
+  
+  for (i in 1:length(resp)) {
+    out[i,] <- c(
+      c(1:nresponse)[resp[i] == responses],
+      c(1:nresponse)[resp[i] != responses]
+    )
+  }
+  return(out)
+}
+
+flipz <- function(responses, match.map, type, level_array) {
+  dim1       <- as.vector(level_array)
+  ncondition <- length(dim1)
+  
+  if (type == "rd") # r1 cells have z flipped
+  {
+    is.r1 <- rep(FALSE, ncondition)
+    
+    idx1 <- sapply(lapply(
+      as.list(names(match.map$M)[match.map$M == responses[1]]),
+      function(x)grepl(x, dim1)
+      ), function(x) which(x == TRUE)
+    )
+    
+    is.r1[idx1] <- TRUE
+    
+    # add bound attributes
+    bound <- rep("lower", ncondition)
+    idx2 <- as.vector(sapply(
+      paste("", names(match.map$M), match.map$M, sep = "*"),
+      function(x){grep(glob2rx(x), dim1)}))
+    
+    bound[idx2] <- "upper"
+    
+    names(is.r1) <- dim1
+    names(bound) <- dim1
+
+  } else {
+    is.r1 <- 0
+    bound <- NULL
+  }
+  
+  return(list(is.r1, bound))
+}
+
+check_BuildDMI <- function(data, model) {
+  message1 <- "Model list is to match multiple subjects - models. No s column was found in data frame"
+  message2 <- "Mostl list must be same length as the number of subjects"
+  message3 <- "data must be a data frame"
+
+  if (is.list(model)) {
+    if (!any(names(data) == "s")) stop(message1)
+    if (length(model) != length(levels(data$s))) stop(message2)
+    subject_models <- TRUE
+    modeli <- model[[1]]
+  } else {
+    subject_models <- FALSE
+    modeli <- model
+  }
+  
+  fnams   <- names(attr(modeli, "factors"))
+  factors <- attr(modeli, "factors")
+  resps   <- attr(modeli, "responses")
+  message4 <- paste("data must have columns named:", 
+                    paste(fnams, collapse = " "), "R", "RT")
+  
+  ## check data
+  if ( !is.data.frame(data) ) stop(message3)
+  if ( !all(c(fnams, "R", "RT") %in% names(data)) ) stop(message4)
+  for ( i in fnams ) {
+    factori <- factors[[i]]
+    if ( !all(sort(factori) == sort(levels(data[,i]))) )
+      stop(paste("Factor", i, "must have levels:", paste(factori, collapse=" ")))
+  }
+  
+  if ( !all(sort(resps) == sort(levels(data[, "R"]))) )
+    stop(paste("data$R must have levels:", paste(resps, collapse=" ")))
+  if ( !is.numeric(data$RT) ) stop("data$RT must be of type numeric")
+  
+  list(issm = subject_models, model=modeli)
+}
+
 checkddm1 <- function(p.map, responses,  type) {
   nr       <- length(responses)
   message1 <- "DDM only applicable for two responses"
@@ -832,76 +932,6 @@ checkdesign  <- function(match.map, levelarray) {
   }
 }
 
-splitfacresp <- function(colfac, responses, maplevels) {
-  res <- lapply(colfac, function(x){
-    if ( length(x) == 0 ) out <- c(NA, NA)
-    if ( length(x) == 1 ) {
-      if ( x %in% c(responses, "true", "false", maplevels) )
-        out <- c(NA, x) else out <- c(x, NA)
-    }
-    if ( length(x) > 1 )
-      if ( x[length(x)] %in% c(responses, "true", "false", maplevels) )
-        out <- c(paste(x[-length(x)], collapse="."), x[length(x)]) else
-          out <- paste(x, collapse=".")
-        out
-  })
-  return(res)
-}
-
-getcolpar <- function(names.par) {
-  col.par <- strsplit(names.par, "[.]")   ## dim2
-  col.fac <- lapply(col.par, function(x){x[-1]})
-  col.par <- unlist(lapply(col.par, function(x){x[1]}))
-  return(col.par)
-}
-
-checkconst <- function(use.par, constants) {
-  all.par <- use.par[1,,1]  ## First array, first row
-  all.par[1:length(all.par)] <- NA
-  if (length(constants)>0) {
-    if ( !any(names(constants) %in% names(all.par)) )
-      stop("Name(s) in constants not in p.map")
-    all.par[names(constants)] <- constants
-  }
-  return(all.par)
-}
-
-addisr1 <- function(match.map, responses, use.par) {
-  is.r1 <- rep(FALSE, length(row.names(use.par)))
-  names(is.r1) <- row.names(use.par)
-  is.r1[unlist(lapply(
-    lapply(
-      as.list(names(match.map$M)[match.map$M==responses[1]]),
-      function(x)grepl(x, row.names(use.par))
-    ),
-    function(x)which(x==TRUE)))] <- TRUE
-  attr(use.par, "is.r1") <- is.r1
-  return(use.par)
-}
-
-getn1order <- function(responses, level.array, use.par) {
-  resp <- unlist(lapply(strsplit(level.array,"[.]"),function(x){
-    x[length(x)]}))
-  nr <- length(responses)
-  n1.order <- matrix(nrow=length(resp), ncol=nr)
-  for (i in 1:length(resp))
-    n1.order[i,] <- c(c(1:nr)[resp[i]==responses], c(1:nr)[resp[i]!=responses])
-  row.names(n1.order) <- row.names(use.par)
-  return(n1.order)
-
-}
-
-getmatchcell <- function(match.map, n1.order) {
-  # Boolean for matching cells
-  match.cell <- logical(length(row.names(n1.order)))
-  names(match.cell) <- row.names(n1.order)
-  for (i in 1:length(match.map$M)) {
-    match.num <- grep(match.map$M[i],names(match.cell))
-    match.cell[match.num[match.num %in%
-        grep(names(match.map$M[i]),names(match.cell))]] <- TRUE
-  }
-  return(match.cell)
-}
 
 ##' Check if parameter vector compatible with model object?
 ##'
@@ -941,45 +971,42 @@ check_rd <- function(type, model) {
 }
 
 
-check_dmi <- function(data, model) {
-  ## Remember to make CheckDMI and check_dmi consistent
-  message1 <- "Model list is for multiple subjects\nNo s column is found in
- data model instance"
-  message2 <- "List of models must be same length as number of subjects"
-  message3 <- "data must be a data frame"
-
-  if (is.list(model)) {
-    if (!any(names(data) == "s")) stop(message1)
-    if (length(model) != length(levels(data$s))) stop(message2)
-    subject_models <- TRUE
-    modeli <- model[[1]]
+##' Check Data Model Instance
+##'
+##' Return a model object extracted either from a data model instance or
+##' an object storing posterior samples. The function checks also
+##' \enumerate{
+##' \item When x stores DMI of one participant, if DMI is a \code{data.frame},
+##' \item When x is an object of posterior samples, if x is a list of many subjects,
+##' \item whether model is successfully created,
+##' \item whether prior is suppled or we can extract it from 'samples'
+##' }
+##'
+##' @param x a data-model instance
+##' @param prior a parameter prior list
+##' @param theta1 a user-supplied theta cube
+##' @param nchain number of MCMC chains
+##' @export
+CheckDMI <- function(x = NULL, prior = NULL, theta1 = NULL, nchain = NULL) {
+  ## x == data == DMI
+  ## Been used in StartNewsamples
+  
+  if (!is.null(x) && !is.data.frame(x)) stop("Data must be a data frame")
+  if (is.null(x)) {
+    stop("No data model instance")
   } else {
-    subject_models <- FALSE
-    modeli <- model
+    model <- attr(x, "model")
   }
-
-  fnams   <- names(attr(modeli, "factors"))
-  factors <- attr(modeli, "factors")
-  resps   <- attr(modeli, "responses")
-  message4 <- paste("data must have columns named:", paste(fnams, collapse=" "),
-    "R", "RT")
-
-  if ( !is.data.frame(data) ) stop(message3)
-
-  # check data
-  if ( !all(c(fnams, "R", "RT") %in% names(data)) ) stop(message4)
-  for ( i in fnams ) {
-    factori <- factors[[i]]
-    if ( !all(sort(factori) == sort(levels(data[,i]))) )
-      stop(paste("Factor", i, "must have levels:", paste(factori, collapse=" ")))
-  }
-
-  if ( !all(sort(resps) == sort(levels(data[, "R"]))) )
-    stop(paste("data$R must have levels:", paste(resps, collapse=" ")))
-  if ( !is.numeric(data$RT) ) stop("data$RT must be of type numeric")
-
-  list(issm = subject_models, model=modeli)
+  
+  npar <- length(GetPNames(model))
+  if (is.null(nchain)) nchain <- 3*npar
+  if (is.null(model)) stop("Must specify a model")
+  if (is.null(prior)) stop("Must specify a prior argument")
+  if (!is.null(theta1) && !is.matrix(theta1) || (!all(dim(theta1)==c(nchain, npar))))
+    stop("theta1 must be a nchain x npar matrix")
+  return(model)
 }
+
 
 ######### Simulation checks -----------------------------------------------------
 createfacsdf <- function(model) {
@@ -1017,12 +1044,16 @@ check_n <- function(n, facs) {
 
 nadf <- function(n, facs, levs) {
   # create a data-frame container
-  data <- data.frame(lapply(facs, rep, n))
 
-  for (i in names(levs)) data[[i]] <- factor(as.character(data[[i]]), levels=levs[[i]])
-  data$R <- NA
-  data$RT <- NA
-  return(data)
+  out <- data.frame(lapply(facs, rep, n))
+
+  for (i in names(levs)) {
+    out[[i]] <- factor(as.character(out[[i]]), levels = levs[[i]])
+  }
+  
+  out$R <- NA
+  out$RT <- NA
+  return(out)
 }
 
 FlipResponse_rd <- function(model, data, facs) {

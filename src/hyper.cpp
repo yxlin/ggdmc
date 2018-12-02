@@ -1,48 +1,7 @@
 #include <ggdmc.hpp>
 using namespace Rcpp;
 
-arma::vec UpdatePriors(arma::mat theta, std::vector<std::string> dists,
-  arma::mat p1, arma::mat p2, arma::vec lower, arma::vec upper,
-  arma::uvec islog) {
-  // theta = nchain x npar
 
-  unsigned int nchain = theta.n_rows;
-  arma::vec out(nchain);
-  for (size_t i = 0; i < nchain; i++) {
-    out(i) = sumlogprior(arma::trans(theta.row(i)), dists,
-      arma::trans(p1.row(i)), arma::trans(p2.row(i)), lower, upper, islog);
-  }
-
-  return out ;
-}
-
-
-arma::mat UpdatePriors2(arma::cube theta, std::vector<std::string> dists,
-  arma::mat p1, arma::mat p2, arma::vec lower, arma::vec upper,
-  arma::uvec islog) {
-
-  unsigned int nchain = theta.n_slices;
-  unsigned int nsub   = theta.n_rows;
-  arma::vec pvec, location, scale;
-  // arma::mat out(nsub, nchain);
-  arma::mat out(nchain, nsub);
-  // p1 and p2 are usephi = nchain x npar
-  // arma::uvec rchains = arma::shuffle(arma::linspace<arma::uvec>(0, nchain - 1, nchain));
-  // unsigned int k0;
-
-  for (size_t i = 0; i < nchain; i++) {
-    // k0 = rchains(i);
-    location = arma::trans(p1.row(i));
-    scale    = arma::trans(p2.row(i));
-
-    for (size_t j = 0; j < nsub; j++) {
-      pvec = arma::trans(theta.slice(i).row(j));
-      out(i, j) = sumlogprior(pvec, dists, location, scale, lower, upper, islog);
-    }
-  }
-
-  return out;
-}
 
 //' Extract Start Posterior Sample
 //'
@@ -105,29 +64,6 @@ arma::cube GetUsethetas(arma::field<arma::mat> usethetas) {
   }
   return out;
 }
-
-// [[Rcpp::export]]
-double sumloghprior(arma::vec location, arma::vec scale,
-  std::vector<std::string> ldists, std::vector<std::string> sdists,
-  arma::vec lp1, arma::vec sp1, arma::vec lp2, arma::vec sp2, arma::vec llower,
-  arma::vec slower, arma::vec lupper, arma::vec supper, arma::uvec llog,
-  arma::uvec slog) {
-  return sumlogprior(location, ldists, lp1, lp2, llower, lupper, llog) +
-  sumlogprior(scale, sdists, sp1, sp2, slower, supper, slog);
-}
-
-// [[Rcpp::export]]
-double sumloghlike(arma::mat thetak, std::vector<std::string> dists,
-  arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper,
-  arma::uvec islog) {
-  double out = 0; // thetak: nsub x npar
-  for(size_t i = 0; i < thetak.n_rows; i++) {
-    out += sumlogprior(arma::trans(thetak.row(i)), dists, p1, p2, lower, upper,
-      islog);
-  }
-  return out;
-}
-
 
 // [[Rcpp::export]]
 void StartIteration(List samples) {

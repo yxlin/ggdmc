@@ -89,7 +89,7 @@ double rtn_scalar(double mean,  double sd, double l, double u) {
   // rejection sampling with exponential proposal. Use if upper < mean.
   // Algorithm (3, else): rejection sampling with uniform proposal.
   // Use if bounds are narrow and central.
-  a0 = (stdl < 0 && u == INFINITY) || (stdl == -INFINITY && stdu > 0) ||
+  a0 = (stdl < 0 && u == R_PosInf) || (stdl == R_NegInf && stdu > 0) ||
     (std::isfinite(stdl) && std::isfinite(u) && stdl < 0 && stdu > 0 && (stdu - stdl) > SQRT_2PI);
   eq_a1 = stdl + (2.0 * std::sqrt(M_E) / (stdl + std::sqrt(stdl2 + 4.0))) *
     (std::exp( 0.25 * (2.0*stdl - stdl*std::sqrt(stdl2 + 4.0))));
@@ -110,6 +110,45 @@ double rtn_scalar(double mean,  double sd, double l, double u) {
   return(z*sd + mean);
 }
 
+// [[Rcpp::export]]
+double rtn_scalar2(double mean,  double precision, double l, double u) {
+  // Standardised lower and upper
+  double z, stdl, stdl2, stdu, stdu2, eq_a1, eq_a2, sd; 
+  bool a0, a1, a2;
+  sd = 1/std::sqrt(precision);
+  
+  stdl  = (l - mean) / sd; // l == stdlower, u == stdupper
+  stdu  = (u - mean) / sd;
+  stdl2 = stdl*stdl;
+  stdu2 = stdu*stdu;
+  
+  // Accept-Reject Algorithm 0;
+  // Algorithm (1): Use Proposition 2.3 with only lower truncation. upper==INFINITY
+  // rejection sampling with exponential proposal. Use if lower > mean
+  // Algorithm (2): Use -x ~ N_+ (-mu, -mu^+, sigma^2) on page 123. lower==-INFINITY
+  // rejection sampling with exponential proposal. Use if upper < mean.
+  // Algorithm (3, else): rejection sampling with uniform proposal.
+  // Use if bounds are narrow and central.
+  a0 = (stdl < 0 && u == R_PosInf) || (stdl == R_NegInf && stdu > 0) ||
+    (std::isfinite(stdl) && std::isfinite(u) && stdl < 0 && stdu > 0 && (stdu - stdl) > SQRT_2PI);
+  eq_a1 = stdl + (2.0 * std::sqrt(M_E) / (stdl + std::sqrt(stdl2 + 4.0))) *
+    (std::exp( 0.25 * (2.0*stdl - stdl*std::sqrt(stdl2 + 4.0))));
+  a1 = (stdl >= 0) && (stdu > eq_a1);
+  eq_a2 = -stdu + (2.0 * std::sqrt(M_E) / (-stdu + std::sqrt(stdu2 + 4.0))) *
+    (std::exp(0.25 * (2.0*stdu + stdu*std::sqrt(stdu2 + 4.0))));
+  a2 = (stdu <= 0) && (-stdl > eq_a2);
+  
+  if (a0) {
+    z = rtnorm0(stdl, stdu);
+  } else if (a1) {
+    z = rtnorm1(stdl, stdu);
+  } else if (a2) {
+    z = rtnorm2(stdl, stdu);
+  } else {
+    z = rtnorm3(stdl, stdu);
+  }
+  return(z*sd + mean);
+}
 double dtn_scalar(double x, double mean, double sd, double lower,
   double upper, bool lp) {
 
@@ -121,7 +160,24 @@ double dtn_scalar(double x, double mean, double sd, double lower,
     numer = R::dnorm(x, mean, sd, lp);
     out = lp ? (numer - std::log(denom)) : (numer/denom);
   } else {
-    out = lp ? -INFINITY : 0;
+    out = lp ? R_NegInf : 0;
+  }
+  return(out);
+}
+
+double dtn_scalar2(double x, double mean, double precision, double lower,
+                  double upper, bool lp) {
+  
+  double out, numer, denom, sd;
+  if ((x >= lower) && (x <= upper)) {
+    // 4th arg: lower.tail (lt)=1; 5th arg: log.p (lg)=0
+    sd = 1/std::sqrt(precision);
+    denom = R::pnorm(upper, mean, sd, true, false) -
+      R::pnorm(lower, mean, sd, true, false);
+    numer = R::dnorm(x, mean, sd, lp);
+    out = lp ? (numer - std::log(denom)) : (numer/denom);
+  } else {
+    out = lp ? R_NegInf : 0;
   }
   return(out);
 }
@@ -154,13 +210,13 @@ double ptn_scalar(double q, double mean, double sd, double lower, double upper,
 //'
 //' @param x,q vector of quantiles;
 //' @param n number of observations. n must be a scalar.
-//' @param mean mean (must be scalar).
-//' @param sd standard deviation (must be scalar).
+//' @param p1 mean (must be scalar).
+//' @param p2 standard deviation (must be scalar).
 //' @param lower lower truncation value (must be scalar).
 //' @param upper upper truncation value (must be scalar).
 //' @param lt lower tail. If TRUE (default) probabilities are \code{P[X <= x]},
 //' otherwise, \code{P[X > x]}.
-//' @param log log probability. If TRUE (default is FALSE) probabilities p are
+//' @param lg log probability. If TRUE (default is FALSE) probabilities p are
 //' given as \code{log(p)}.
 //' @return a column vector.
 //' @examples
@@ -184,42 +240,59 @@ double ptn_scalar(double q, double mean, double sd, double lower, double upper,
 //' dat1 <- ptnorm(x, 0, 1, 0, 5, log = TRUE)
 //' @export
 // [[Rcpp::export]]
-arma::vec dtnorm(arma::vec x, double mean, double sd, double lower,
-  double upper, bool log = false) {
+arma::vec dtnorm(arma::vec x, double p1, double p2, double lower,
+  double upper, bool lg = false) {
   if (upper < lower) stop("upper must be greater than lower.");
-  if (sd < 0) stop("sd must be greater than 0.\n");
-  if (sd==R_NegInf || sd==R_PosInf) stop("sd must have a finite value.\n");
-  if (mean==R_NegInf || mean==R_PosInf) stop("mean must have a finite value.\n");
+  if (p2 < 0) stop("sd must be greater than 0.\n");
+  if (p2 == R_NegInf || p2 == R_PosInf) stop("sd must have a finite value.\n");
+  if (p1 == R_NegInf || p1 == R_PosInf) stop("mean must have a finite value.\n");
 
   arma::vec out(x.n_elem);
   for (size_t i = 0; i < x.n_elem; i++)
-    out(i) = dtn_scalar(x(i), mean, sd, lower, upper, log);
+    out(i) = dtn_scalar(x(i), p1, p2, lower, upper, lg);
   return out;
 }
 
 //' @rdname dtnorm
 //' @export
 // [[Rcpp::export]]
-arma::vec rtnorm(unsigned int n, double mean, double sd, double lower,
+arma::vec dtnorm2(arma::vec x, double p1, double p2, double lower,
+                 double upper, bool lg = false) {
+  
+  if (upper < lower) stop("upper must be greater than lower.");
+  if (p2 < 0) stop("precision must be greater than 0.\n");
+  if (p2 == R_NegInf || p2 == R_PosInf) stop("precison must have a finite value.\n");
+  if (p1 == R_NegInf || p1 == R_PosInf) stop("mean must have a finite value.\n");
+  
+  arma::vec out(x.n_elem);
+  for (size_t i = 0; i < x.n_elem; i++)
+    out(i) = dtn_scalar2(x(i), p1, p2, lower, upper, lg);
+  return out;
+}
+
+//' @rdname dtnorm
+//' @export
+// [[Rcpp::export]]
+arma::vec rtnorm(unsigned int n, double p1, double p2, double lower,
                  double upper) {
   arma::vec out(n);
   for (size_t i = 0; i < n; i++)
-    out(i) = rtn_scalar(mean, sd, lower, upper);
+    out(i) = rtn_scalar(p1, p2, lower, upper);
   return out;
 }
 
 //' @rdname dtnorm
 //' @export
 // [[Rcpp::export]]
-arma::vec ptnorm(arma::vec q, double mean, double sd, double lower,
-  double upper, bool lt = true, bool log = false) {
+arma::vec ptnorm(arma::vec q, double p1, double p2, double lower,
+  double upper, bool lt = true, bool lg = false) {
   if (upper < lower) {Rcpp::stop("'upper' must be greater than 'lower'.");}
-  if (sd < 0)        {Rcpp::stop("'sd' must be greater than 0.\n");}
-  if (sd==R_NegInf   || sd==R_PosInf)   {Rcpp::stop("'sd' must have a finite value.\n");}
-  if (mean==R_NegInf || mean==R_PosInf) {Rcpp::stop("'mean' must have a finite value.\n");}
+  if (p2 < 0)        {Rcpp::stop("'sd' must be greater than 0.\n");}
+  if (p2 == R_NegInf   || p2 == R_PosInf)   {Rcpp::stop("'sd' must have a finite value.\n");}
+  if (p1 == R_NegInf || p1 == R_PosInf) {Rcpp::stop("'mean' must have a finite value.\n");}
 
   arma::vec out(q.n_elem);
   for(size_t i = 0; i < q.n_elem; i++)
-    out[i] = ptn_scalar(q[i], mean, sd, lower, upper, lt, log);
+    out[i] = ptn_scalar(q[i], p1, p2, lower, upper, lt, lg);
   return out;
 }

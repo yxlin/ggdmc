@@ -132,6 +132,93 @@ void InitializeOneSubject(List samples, arma::umat& rj) {
   rj = arma::umat(nchain, nmc, arma::fill::zeros);
 }
 
+void TransformSubjects_glm(List samples,
+                           arma::field<arma::cube>& thetas,
+                           arma::field<arma::mat>& usethetas,
+                           arma::field<arma::mat>& logpriors,
+                           arma::field<arma::vec>& uselogpriors,
+                           arma::field<arma::mat>& loglikes,
+                           arma::field<arma::vec>& useloglikes,
+                           arma::uvec& store_i,
+                           std::vector<std::string>& types,
+                           arma::field<arma::vec>& allpars, 
+                           arma::field<arma::umat>& n1idxes,
+                           arma::field<arma::uvec>& matchcells, 
+                           arma::field<arma::uvec>& emptycells,
+                           arma::field<arma::umat>& cellidxes, 
+                           arma::field<std::vector<std::string>>& parnames,
+                           arma::field<std::vector<std::string>>& dim1s,
+                           arma::field<std::vector<std::string>>& dim2s,
+                           arma::field<std::vector<std::string>>& dim3s,
+                           arma::field<arma::uvec>& isr1s, arma::uvec& posdrift,
+                           arma::field<arma::ucube>& models,
+                           arma::uvec& npdas, arma::vec& bws, arma::uvec& gpuids,
+                           arma::field<arma::vec>& RTs, 
+                           arma::field<arma::vec>& Xs) {
+  
+  unsigned int nsub = samples.size();
+  
+  for (size_t i = 0; i < nsub; i++) {
+    List subjecti      = samples[i];
+    List data          = subjecti["data"];  // extract data-model options
+    arma::vec RT       = data["RT"];
+    arma::vec X        = data["X"];
+    arma::ucube model  = data.attr("model");
+    unsigned int npda  = data.attr("n.pda");
+    double bw          = data.attr("bw");
+    unsigned int gpuid = data.attr("gpuid");
+    NumericVector modelAttr = data.attr("model");
+    std::string type = modelAttr.attr("type");      // model type
+    arma::vec allpar = modelAttr.attr("all.par");
+    List modelDim    = modelAttr.attr("dimnames");
+    arma::umat n1idx = modelAttr.attr("n1.order");
+    arma::uvec mc    = modelAttr.attr("match.cell");
+    bool posd        = modelAttr.attr("posdrift");
+    arma::uvec ise   = data.attr("cell.empty");
+    cellidxes(i)     = cellIdx2Mat(data);
+    std::vector<std::string> parname = modelAttr.attr("par.names");
+    std::vector<std::string> dim1 = modelDim[0]; // row;
+    std::vector<std::string> dim2 = modelDim[1]; // col; parameters
+    std::vector<std::string> dim3 = modelDim[2]; // slice; response types; r1, r2
+    arma::uvec isr1 = GetIsR1(modelAttr, type);
+    
+    arma::cube thetai = subjecti["theta"]; // nchain x npar x nmc
+    arma::mat lpi     = subjecti["summed_log_prior"]; // nmc x nchain
+    arma::mat lli     = subjecti["log_likelihoods"];  // nmc x nchain
+    unsigned int start   = subjecti["start"];        // R index
+    unsigned int start_C = start - 1;
+    store_i(i) = start - 1;
+    // Rcout << "store_i: " << store_i(i) << std::endl;
+    
+    types[i] = type;
+    allpars(i) = allpar;
+    n1idxes(i) = n1idx;
+    matchcells(i) = mc;
+    emptycells(i) = ise;
+    parnames(i) = parname;
+    dim1s(i) = dim1;
+    dim2s(i) = dim2;
+    dim3s(i) = dim3;
+    isr1s(i) = isr1;
+    models(i) = model;
+    npdas(i) = npda;
+    bws(i) = bw;
+    gpuids(i) = gpuid;
+    RTs(i) = RT;
+    Xs(i) = X;
+    
+    posdrift(i) = posd;
+    
+    thetas(i)    = thetai; // nchain x npar x nmc
+    usethetas(i) = thetai.slice(start_C); // nchain x npar
+    logpriors(i) = lpi; // nmc x nchain
+    loglikes(i)  = lli;  // nmc x nchain
+    uselogpriors(i) = arma::trans(lpi.row(start_C)); // nchain x 1
+    useloglikes(i)  = arma::trans(lli.row(start_C));
+  }
+}
+
+
 void TransformSubjects(List samples,
   arma::field<arma::cube>& thetas,
   arma::field<arma::mat>& usethetas,
@@ -211,23 +298,7 @@ void TransformSubjects(List samples,
   }
 }
 
-void GetPrior(List pprior, std::vector<std::string>& dists, arma::vec& p1,
-  arma::vec& p2, arma::vec& lower, arma::vec& upper, arma::uvec& islog) {
 
-  std::vector<std::string> pnames = pprior.attr("names");
-  List L1;
-  unsigned int npar = pprior.size();
-  for (size_t i = 0; i < npar; i++) {
-    L1 = pprior[pnames[i]];
-    std::string disti = L1.attr("dist");
-    dists[i] = disti;
-    p1(i) = L1[0];
-    p2(i) = L1[1];
-    lower(i) = L1[2];
-    upper(i) = L1[3];
-    islog(i) = L1[4];
-  }
-}
 
 
 arma::uvec GetIsR1(NumericVector modelAttr, std::string type) {
@@ -373,6 +444,8 @@ void CheckHyperPnames(List samples) {
 //' @export
 // [[Rcpp::export]]
 arma::umat cellIdx2Mat(List data) {
+  // The nrow always equal the total number of trials, so unbalanced design 
+  // works, too.
 
   List cellidxlist = data.attr("cell.index"); // s1.r1,
   arma::uvec cell1 = cellidxlist[0];
@@ -386,6 +459,7 @@ arma::umat cellIdx2Mat(List data) {
   }
   return(out);
 }
+
 
 
 NumericMatrix na_matrix(unsigned int nr, unsigned int nc) {

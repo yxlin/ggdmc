@@ -1,5 +1,5 @@
-context("DDM 1e4")
 require(ggdmc); require(testthat); require(ggplot2); require(data.table)
+context("DDM 1e4")
 
 test_that("DDM 1e4", {
   rm(list = ls())
@@ -41,14 +41,14 @@ test_that("DDM 1e4", {
   cat("Done ", path[1], "\n")
   setwd("/media/yslin/KIWI/Documents/ggdmc")
   
-  p0 <- plot(fit0)
-  p1 <- plot(fit0, start = 101)
-  p2 <- plot(fit0, start = 201)
+  p0 <- plot(fit)
+  p1 <- plot(fit, start = 101)
+  p2 <- plot(fit, start = 201)
   gridExtra::grid.arrange(p0, p1, p2, ncol = 3)
   d <- data.table(fit$data)
   d[, .N, .(S)]
   ## Analysis -----------
-  est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
+  est <- summary(fit, recovery = TRUE, start = 201, ps = p.vector, verbose = TRUE)
   #                   a     v    z    sz    sv   t0
   # True           1.00  1.20 0.38  0.25  0.20 0.15
   # 2.5% Estimate  1.00  1.16 0.38  0.05  0.01 0.15
@@ -62,6 +62,24 @@ test_that("DDM 1e4", {
   # 97.5% Estimate 1.01 0.52  0.25 0.15 1.25 0.39
   # Median-True    0.00 0.16 -0.05 0.00 0.00 0.00
   
+  #                   a    sv    sz   t0     v    z
+  # True           1.00  0.20  0.25 0.15  1.20 0.38
+  # 2.5% Estimate  0.99  0.02  0.11 0.15  1.15 0.38
+  # 50% Estimate   1.00  0.18  0.20 0.15  1.18 0.38
+  # 97.5% Estimate 1.01  0.40  0.25 0.15  1.21 0.38
+  # Median-True    0.00 -0.02 -0.05 0.00 -0.02 0.00
+  #                   a    sv    sz   t0     v    z
+  # True           1.00  0.20  0.25 0.15  1.20 0.38
+  # 2.5% Estimate  0.99  0.01  0.10 0.15  1.14 0.37
+  # 50% Estimate   1.00  0.12  0.20 0.15  1.17 0.38
+  # 97.5% Estimate 1.01  0.33  0.26 0.15  1.21 0.38
+  # Median-True    0.00 -0.08 -0.05 0.00 -0.03 0.00
+  #                   a   sv   sz   t0    v    z
+  # True           1.00 0.20 0.25 0.15 1.20 0.38
+  # 2.5% Estimate  0.99 0.03 0.24 0.15 1.17 0.38
+  # 50% Estimate   1.00 0.26 0.30 0.15 1.20 0.38
+  # 97.5% Estimate 1.01 0.48 0.33 0.15 1.24 0.38
+  # Median-True    0.00 0.06 0.05 0.00 0.00 0.00
   
 })
 

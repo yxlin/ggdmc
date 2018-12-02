@@ -31,19 +31,18 @@ List init_new(unsigned int nmc, List pprior, List data, double rp,
   arma::uvec isr1 = GetIsR1(modelAttr, type);
 
   /*---------------------------------*/
-  std::vector<std::string> dists(npar);
-  arma::vec p1(npar), p2(npar), lower(npar), upper(npar);
+  arma::vec p1(npar), p2(npar), lower(npar), upper(npar), dists(npar);
   arma::uvec islog(npar);
   GetPrior(pprior, dists, p1, p2, lower, upper, islog);
 
   /*---------------------------------*/
-  arma::mat slp(nmc, nchain); slp.fill(-INFINITY); // sum log prior
-  arma::mat ll(nmc, nchain); ll.fill(-INFINITY); // log likelihood
+  arma::mat slp(nmc, nchain); slp.fill(-arma::datum::inf); // sum log prior
+  arma::mat ll(nmc, nchain); ll.fill(-arma::datum::inf); // log likelihood
   arma::cube theta(nchain, npar, nmc); theta.fill(NA_REAL);
   for (size_t i = 0; i < nchain; i++) {
     unsigned int j = 1;
     while (slp.row(0).col(i).has_inf() || ll.row(0).col(i).has_inf()) {
-      arma::vec pvec = rprior_vec(dists, p1, p2, lower, upper);
+      arma::vec pvec = rprior_vec_(dists, p1, p2, lower, upper);
 
       theta.slice(0).row(i) = arma::trans(pvec);
       slp.row(0).col(i) = sumlogprior(pvec, dists, p1, p2, lower, upper, islog);
@@ -91,7 +90,9 @@ List init_old(unsigned int nmc, List samples, double rp,
   arma::cube newtheta = arma::resize(theta, nchain, npar, nmc);
   arma::mat newlp     = arma::resize(slp, nmc, nchain);
   arma::mat newll     = arma::resize(ll,  nmc, nchain);
-  newtheta.fill(NA_REAL); newlp.fill(-INFINITY); newll.fill(-INFINITY);
+  newtheta.fill(NA_REAL); 
+  newlp.fill(-arma::datum::inf); 
+  newll.fill(-arma::datum::inf);
 
   newtheta.slice(0)   = theta.slice(startfrom);
   newlp.row(0)        = slp.row(startfrom);
@@ -131,8 +132,8 @@ List init_add(unsigned int nmc, List samples, double rp,
     arma::mat newll     = arma::resize(ll,  newnmc, nchain);
 
     newtheta.slices(pnmc, newnmc - 1).fill(NA_REAL);
-    newlp.rows(pnmc, newnmc - 1).fill(-INFINITY);
-    newll.rows(pnmc, newnmc - 1).fill(-INFINITY);
+    newlp.rows(pnmc, newnmc - 1).fill(-arma::datum::inf);
+    newll.rows(pnmc, newnmc - 1).fill(-arma::datum::inf);
 
     List samples_out = List::create(
       Rcpp::Named("theta")            = newtheta,
@@ -165,6 +166,7 @@ List init_newnonhier(unsigned int nmc, List data, List pprior,
   return out;
 }
 
+
 // [[Rcpp::export]]
 List init_oldnonhier(unsigned int nmc, List samples, double rp,
   unsigned int thin) {
@@ -196,7 +198,7 @@ List init_addnonhier(unsigned int nmc, List samples, double rp,
 
 // [[Rcpp::export]]
 List init_newhier(unsigned int nmc, List data, List pprior, List ppprior,
-  double rp,  unsigned int thin, unsigned int nchain) {
+  double rp, unsigned int thin, unsigned int nchain) {
 
   List data0 = data[0];  // Temporary measure to save PDA options
   unsigned int npda  = data0.attr("n.pda");
@@ -220,34 +222,32 @@ List init_newhier(unsigned int nmc, List data, List pprior, List ppprior,
 
   List lprior = ppprior[0];   /* Extract pprior & ppprior */
   List sprior = ppprior[1];
-  std::vector<std::string> pdists(npar), ldists(npar), sdists(npar);
   arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar),
             lp1(npar), lp2(npar), llower(npar), lupper(npar),
             sp1(npar), sp2(npar), slower(npar), supper(npar);
+  arma::vec pdists(npar), ldists(npar), sdists(npar);
   arma::uvec plog(npar), llog(npar), slog(npar);
 
   GetPrior(pprior, pdists, pp1, pp2, plower, pupper, plog);
   GetPrior(lprior, ldists, lp1, lp2, llower, lupper, llog);
   GetPrior(sprior, sdists, sp1, sp2, slower, supper, slog);
 
-
   // Rcout <<" before init_newnon\n";
-
   // AH's lapply-style loop; cps subject list: nchain x npar; cps == thetas
   List out = init_newnonhier(nmc, data, pprior, rp, thin, nchain);
   arma::cube thetas = GetTheta0(out); // thetas: nsub x npar x nchain
   //
   // // Rcout <<" after init_newnon\n";
-  arma::mat slp(nmc, nchain); slp.fill(-INFINITY);
-  arma::mat hslp(nmc, nchain); hslp.fill(-INFINITY); // hyper sum log prior
-  arma::mat hll(nmc, nchain); hll.fill(-INFINITY); // hyper log likelihood
+  arma::mat slp(nmc, nchain); slp.fill(-arma::datum::inf);
+  arma::mat hslp(nmc, nchain); hslp.fill(-arma::datum::inf); // hyper sum log prior
+  arma::mat hll(nmc, nchain); hll.fill(-arma::datum::inf); // hyper log likelihood
   Rcout << "Generating hyper-start points for each chain: ";
   for (size_t i = 0; i < nchain; i++) {
     Rcout << ".";
 
      // Step 1: Generate random p1 == location; p2 == scale
-    arma::vec lstart = rprior_vec(ldists, lp1, lp2, llower, lupper);
-    arma::vec sstart = rprior_vec(sdists, sp1, sp2, slower, supper);
+    arma::vec lstart = rprior_vec_(ldists, lp1, lp2, llower, lupper);
+    arma::vec sstart = rprior_vec_(sdists, sp1, sp2, slower, supper);
     location.slice(0).row(i) = arma::trans(lstart);
     scale.slice(0).row(i) = arma::trans(sstart);
 
@@ -325,7 +325,7 @@ List init_oldhier(unsigned int nmc, List samples, double rp,
   arma::mat newhll = arma::resize(hll, nmc, nchain);
 
   newlocation.fill(NA_REAL); newscale.fill(NA_REAL);
-  newhlp.fill(-INFINITY); newhll.fill(-INFINITY);
+  newhlp.fill(-arma::datum::inf); newhll.fill(-arma::datum::inf);
   newlocation.slice(0) = location.slice(startfrom - 1);
   newscale.slice(0)    = scale.slice(startfrom - 1);
   newhlp.row(0)        = hslp.row(startfrom - 1);
@@ -384,8 +384,8 @@ List init_addhier(unsigned int nmc, List samples, double rp,
 
   newlocation.slices(pnmc, newnmc - 1).fill(NA_REAL);
   newscale.slices(pnmc, newnmc - 1).fill(NA_REAL);
-  newhlp.rows(pnmc, newnmc - 1).fill(-INFINITY);
-  newhll.rows(pnmc, newnmc - 1).fill(-INFINITY);
+  newhlp.rows(pnmc, newnmc - 1).fill(-arma::datum::inf);
+  newhll.rows(pnmc, newnmc - 1).fill(-arma::datum::inf);
 
   List out = init_addnonhier(nmc, samples_in, rp, thin);
   // Finish up

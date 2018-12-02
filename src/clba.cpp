@@ -363,6 +363,7 @@ arma::mat make_v(unsigned int n, arma::mat mean_v, arma::vec sd_v,
 
   for (size_t i = 0; i < nmean_v; i++) {
     if (posdrift) {
+      // Rcpp::Rcout << "something wrong posdrift" << std::endl;
       drifts.col(i) = rtnorm(n,  mean_v(i), sd_v(i), 0, arma::datum::inf);
     } else {
       drifts.col(i) = sd_v(i) * arma::randn(n) + mean_v(i);

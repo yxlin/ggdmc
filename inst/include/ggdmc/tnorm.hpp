@@ -4,9 +4,14 @@ void set_seed(unsigned int seed);
 
 double rtn_scalar(double mean,  double sd, double l, double u);
 
+double rtn_scalar2(double mean,  double precision, double l, double u);
+
 double dtn_scalar(double x, double mean, double sd, double lower,
   double upper, bool lp);
 
+double dtn_scalar2(double x, double mean, double precision, double lower,
+                   double upper, bool lp);
+  
 double ptn_scalar(double q, double mean, double sd, double lower, double upper,
                   bool lt, bool lp);
 

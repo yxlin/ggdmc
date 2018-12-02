@@ -1,3 +1,89 @@
+### Prior density functions (plot_prior) ------
+##' A modified dbeta function
+##'
+##' @param x quantile
+##' @param n number of simulations
+##' @param p1 shape1 parameter
+##' @param p2 shape2 parameter
+##' @param lower lower bound
+##' @param upper upper bound
+##' @param lg logical; if TRUE, return log density.
+##' @export
+##' @importFrom stats dbeta
+dbeta_lu <- function(x, p1, p2, lower, upper, lg = FALSE) {
+  # Used with beta prior
+  if (!lg) {
+    out <- dbeta((x-lower)/(upper-lower), p1, p2, log = FALSE) / (upper-lower)
+  } else {
+    out <- dbeta((x-lower)/(upper-lower), p1, p2, log = TRUE) - log(upper-lower)
+  }
+  return(out)
+}
+
+##' A modified dgamma function
+##'
+##' @param x quantile
+##' @param p1 shape parameter
+##' @param p2 scale parameter
+##' @param lower lower bound
+##' @param upper upper bound
+##' @param lg log density?
+##' @importFrom stats dgamma
+##' @export
+dgamma_l <- function(x, p1, p2, lower, upper, lg = FALSE) {
+  dgamma(x - lower, shape = p1, scale = p2, log = lg)
+}
+
+##' A modified dlnorm functions
+##'
+##' @param x quantile
+##' @param p1 meanlog parameter
+##' @param p2 sdlog parameter
+##' @param lower lower bound
+##' @param upper upper bound
+##' @param log log density?
+##' @importFrom stats dlnorm
+##' @export
+dlnorm_l <- function(x, p1, p2, lower, upper, lg = FALSE) {
+  dlnorm(x - lower, p1, p2, log = lg)
+}
+
+
+##' A modified dcauchy functions
+##'
+##' @param x quantile
+##' @param p1 location parameter
+##' @param p2 scale parameter
+##' @param lg log density?
+##' @importFrom stats dcauchy
+##' @export
+dcauchy_l <- function(x, p1, p2, lg = FALSE) {
+  dcauchy(x, p1, p2, log = lg)
+}
+
+
+##' A pseudo constant function to get constant densities
+##'
+##' Used with constant prior
+##'
+##' @param x quantile
+##' @param p1 constant value
+##' @param p2 unused argument
+##' @param lower dummy varlable
+##' @param upper dummy varlable
+##' @param lg log density?
+##' @export
+dconstant <- function(x, p1, p2, lower, upper, lg = FALSE) {
+  den <- as.numeric((x == p1))
+  if (lg) out <- base::log(den) else out <- den
+  return(out)
+}
+
+dunif_ <- function(x, p1, p2, lower, upper, lg = FALSE) {
+  dunif(x, min = p1, max = p2, log = lg)
+}
+
+### Main functions --------------------
 ##' Specifying Parameter Prior Distributions
 ##'
 ##' \code{BuildPrior} sets up parameter prior distributions for each model
@@ -26,89 +112,205 @@
 ##' @return a list of list
 ##' @export
 BuildPrior <- function(p1, p2,
-  lower   = rep(NA, length(p1)),
-  upper   = rep(NA, length(p1)),
-  dists   = rep("tnorm", length(p1)),
-  untrans = rep("identity", length(p1)),
-  types   = c("tnorm", "beta", "gamma", "lnorm", "cauchy", "constant")) {
-
-  dist <- c()
-  np1 <- length(p1)
-
-  if (length(p2) == 1) p2 <- rep(p2, np1)
-  if ( np1 != length(p2) )    stop("p1 and p2 must have the same length")
-  if ( np1 != length(lower) ) stop("p1 and lower must have the same length")
-  if ( np1 != length(upper) ) stop("p1 and upper must have the same length")
-  both.not.na <- !is.na(upper) & !is.na(lower)
-
-  if ( any(upper[both.not.na] <= lower[both.not.na]) )
-    stop("All elements of upper must be greater than lower")
-  if ( np1 != length(dists) ) stop("p1 and dists must have the same length")
-  if ( !all(dists %in% types) )
-    stop(paste("Unsupported distribution, allowable types are:",
-      paste(types, collapse = ", ")))
-  name.untrans <- length(untrans) != np1
-  if (name.untrans & (is.null(names(untrans)) | is.null(names(p1))))
-    stop("If untrans vector is not the same length as p1 it must have p1 names")
-  if (!(all(names(untrans) %in% names(p1)))) stop("untrans vector has names not in p1 names")
-
-  prior <- vector(mode = "list", length = np1)
-  names(prior) <- names(p1)
-  for (i in 1:np1) {
-    prior[[i]] <- switch(dists[i],
-      tnorm = {
-        if (is.na(lower[i])) lower[i] <- -Inf
-        if (is.na(upper[i])) upper[i] <- Inf
-        p <- c(p1[i], p2[i], lower[i], upper[i])
-        names(p) <- c("mean","sd","lower","upper")
-        p <- as.list(p)
-        attr(p,"dist") <- "tnorm"
-        p
-      },
-      beta = {
-        if (is.na(lower[i])) lower[i] <- 0
-        if (is.na(upper[i])) upper[i] <- 1
-        p <- c(p1[i],p2[i],lower[i],upper[i])
-        names(p) <- c("shape1","shape2", "lower","upper")
-        p <- as.list(p)
-        attr(p, "dist") <- "beta_lu"
-        p
-      },
-      gamma={
-        if (is.na(lower[i])) lower[i] <- 0
-        if (is.na(upper[i])) upper[i] <- Inf
-        p <- c(p1[i],p2[i],lower[i], upper[i])
-        names(p) <- c("shape", "scale","lower", "upper")
-        p <- as.list(p)
-        attr(p, "dist") <- "gamma_l"
-        p
-      },
-      lnorm={
-        if (is.na(lower[i])) lower[i] <- 0
-        if (is.na(upper[i])) upper[i] <- Inf
-        p <- c(p1[i], p2[i], lower[i], upper[i])
-        names(p) <- c("meanlog","sdlog","lower", "upper")
-        p <- as.list(p)
-        attr(p, "dist") <- "lnorm_l"
-        p
-      },
-      {
-        p <- c(p1[i], 0, -Inf, Inf)
-        names(p) <- c("constant", "sd", "lower", "upper")
-        p <- as.list(p)
-        attr(p, "dist") <- "constant"
-        p
-      }
+                       lower   = rep(NA, length(p1)),
+                       upper   = rep(NA, length(p1)),
+                       dists   = rep("tnorm", length(p1)),
+                       untrans = rep("identity", length(p1)),
+                       types   = c("tnorm", "beta", "gamma", "lnorm", "unif", 
+                                   "constant", "tnorm2", NA)) 
+{
+  npar <- length(p1)  
+  if (length(p2) == 1) { p2 <- rep(p2, npar) }
+  name.untrans <- check_BuildPrior(p1, p2, lower, upper, dists, untrans, types)
+  out <- vector("list", npar)
+  pnames <- names(p1)
+  names(out) <- pnames
+  
+  for (i in 1:npar) {
+    out[[i]] <- switch(dists[i],
+                       tnorm = {
+                         if (is.na(lower[i])) lower[i] <- -Inf
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 1  ## "tnorm"
+                         p
+                       },
+                       beta  = {
+                         if (is.na(lower[i])) lower[i] <- 0
+                         if (is.na(upper[i])) upper[i] <- 1
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("p1", "p2", "lower","upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 2 ##"beta_lu"
+                         p
+                       },
+                       gamma = {
+                         if (is.na(lower[i])) lower[i] <- 0
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 3 ## "gamma_l"
+                         p
+                       },
+                       lnorm = {
+                         if (is.na(lower[i])) lower[i] <- 0
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 4 ## "lnorm_l"
+                         p
+                       },
+                       unif  = {
+                         p <- c(p1[i], p2[i], -Inf, Inf)
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 5 ## "unif_"
+                         p
+                       },
+                       constant = {
+                         p <- c(p1[i], p2[i], -Inf, Inf)
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 6 ## "constant"
+                         p
+                       },
+                       tnorm2 = {
+                         if (is.na(lower[i])) lower[i] <- -Inf
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 7  ## "tnorm2"
+                         p
+                       },
+                       
+                       {
+                         p <- c(p1[i], p2[i], -Inf, Inf)
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- NA
+                         p
+                       }
     )
-    prior[[i]]$log <- TRUE
-    if (!name.untrans) attr(prior[[i]], "untrans") <- untrans[i] else
-      if (is.na(untrans[names(p1)[i]]))
-        attr(prior[[i]], "untrans") <- "identity" else
-          attr(prior[[i]],"untrans") <- untrans[names(p1)[i]]
+    out[[i]]$lg <- TRUE
+    
+    if (!name.untrans) {
+      attr(out[[i]], "untrans") <- untrans[i] 
+    } else {
+      if (is.na(untrans[pnames[i]])) {
+        attr(out[[i]], "untrans") <- "identity"
+      } else {
+        attr(out[[i]], "untrans") <- untrans[pnames[i]]
+      }
+    }
   }
+  
+  class(out) <- c("prior", "list")
+  return(out)
+}
 
-  class(prior) <- "prior"
-  return(prior)
+BuildPrior_string <- function(p1, p2,
+                           lower   = rep(NA, length(p1)),
+                           upper   = rep(NA, length(p1)),
+                           dists   = rep("tnorm", length(p1)),
+                           untrans = rep("identity", length(p1)),
+                           types   = c("tnorm", "beta", "gamma", "lnorm", "unif", "constant", "empty")) 
+{
+  np1 <- length(p1)  
+  if (length(p2) == 1) p2 <- rep(p2, np1) 
+  name.untrans <- check_BuildPrior(p1, p2, lower, upper, dists, untrans, types)
+  out <- vector(mode = "list", length = np1)
+  pnames <- names(p1)
+  names(out) <- pnames
+  
+  for (i in 1:np1) {
+    out[[i]] <- switch(dists[i],
+                       tnorm = {
+                         if (is.na(lower[i])) lower[i] <- -Inf
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("mean", "sd", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "tnorm"
+                         p
+                       },
+                       beta  = {
+                         if (is.na(lower[i])) lower[i] <- 0
+                         if (is.na(upper[i])) upper[i] <- 1
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("shape1", "shape2", "lower","upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "beta_lu"
+                         p
+                       },
+                       gamma = {
+                         if (is.na(lower[i])) lower[i] <- 0
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("shape", "scale", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "gamma_l"
+                         p
+                       },
+                       lnorm = {
+                         if (is.na(lower[i])) lower[i] <- 0
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("meanlog","sdlog", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "lnorm_l"
+                         p
+                       },
+                       unif  = {
+                         if (is.na(lower[i])) lower[i] <- p1[i]
+                         if (is.na(upper[i])) upper[i] <- p2[i]
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("min", "max", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "unif_"
+                         p
+                       },
+                       constant = {
+                         p <- c(p1[i], p2[i], -Inf, Inf)
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "constant"
+                         p
+                       },
+                       tnorm2 = {
+                         p <- c(p1[i], p2[i], -Inf, Inf)
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- "tnorm2"
+                         p
+                       },
+                       {
+                         p <- c(p1[i], p2[i], -Inf, Inf)
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- NA
+                         p
+                       }
+    )
+    out[[i]]$lg <- TRUE
+    
+    if (!name.untrans) {
+      attr(out[[i]], "untrans") <- untrans[i] 
+    } else {
+      if (is.na(untrans[pnames[i]])) {
+        attr(out[[i]], "untrans") <- "identity"
+      } else {
+        attr(out[[i]], "untrans") <- untrans[pnames[i]]
+      }
+    }
+  }
+  
+  class(out) <- c("prior", "list")
+  return(out)
 }
 
 ##' Parameter Prior Distributions
@@ -151,12 +353,40 @@ BuildPrior <- function(p1, p2,
 ##' @export
 rprior <- function(prior, n = 1) {
   if (n == 1) {
-    out <- rprior_scalar(prior)
-  } else { out <- rprior_mat(prior, n)
+    out <- rprior_vec(prior)
+  } else { 
+    out <- rprior_mat(prior, n)
   }
   return(out)
 }
 
+
+check_BuildPrior <- function(p1, p2, lower, upper, dists, untrans,types) {
+  np1 <- length(p1)  ## number of parameter
+  np2 <- length(p2)
+  
+  if (np2 == 1) { p2 <- rep(p2, np1); np2 <- np1 }
+  if (np1 != np2) stop("p1 and p2 must be equal length")
+  if (np1 != length(lower) ) stop("p1 and lower must be equal length")
+  if (np1 != length(upper) ) stop("p1 and upper must be equal length")
+  if (np1 != length(dists) ) stop("p1 and dists must be equal length")
+  
+  both.not.na <- !is.na(upper) & !is.na(lower)
+  
+  if ( any(upper[both.not.na] <= lower[both.not.na]) )
+    stop("All elements of upper must be greater than lower")
+  if ( !all(dists %in% types) )
+    stop(paste("Unsupported distribution, allowable types are:",
+               paste(types, collapse = ", ")))
+
+  name.untrans <- length(untrans) != np1
+  if (name.untrans & (is.null(names(untrans)) | is.null(names(p1))))
+    stop("If untrans vector is not the same length as p1 it must have p1 names")
+  if (!(all(names(untrans) %in% names(p1)))) {
+    stop("untrans vector has names not in p1 names")
+  }
+  return(name.untrans)
+}
 
 ### Prior tools ------------------------------------------------------------
 ##' Print Prior Distribution
@@ -186,16 +416,18 @@ rprior <- function(prior, n = 1) {
 print.prior <- function(x, ...) {
 
   ncol <- 7
-  # ncol <- 7length(x[[1]]) + 2;
   npar <- length(x);
   bucket  <- matrix(numeric(npar*ncol), npar);
 
   for(i in 1:npar) {
     add1    <- attr(x[[i]], "dist");
     add2    <- attr(x[[i]], "untrans");
-    if (add1 == "constant") {
+    if (is.na(add1)) {
       tmp <- unlist(x[[i]])
-      rowObj  <- c(c(tmp[1], 0, NA, NA, tmp[2]), add1, add2);
+      rowObj  <- c(NA, NA, NA, NA, tmp[5], NA, add2)
+    } else if (add1 == "constant") {
+      tmp <- unlist(x[[i]])
+      rowObj  <- c(c(tmp[1], tmp[2], NA, NA, tmp[5]), add1, add2);
     } else if (add1 == "gamma_l") {
       tmp <- unlist(x[[i]])
       rowObj <- c(tmp[1:5], "gamma_l", add2)
@@ -206,7 +438,7 @@ print.prior <- function(x, ...) {
   }
 
   out <- data.frame(bucket)
-  names(out) <- c("p1", "p2", "lower", "upper", "log", "dist", "untrans")
+  names(out) <- c("p1", "p2", "lower", "upper", "lg", "dist", "untrans")
   rownames(out) <- names(x)
   return(out)
 }

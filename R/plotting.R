@@ -212,7 +212,9 @@ plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
 
 ##' @importFrom ggmcmc ggs
 preplot_phi <- function(x, start = 1, end = NA, pll = TRUE, ...) {
-
+  # x <- fit
+  # start <- 201
+  # pll <- FALSE
   xx <- attr(x, "hyper")
   if ( is.na(end) ) end <- xx$nmc
   if ( end <= start ) stop("End must be greater than start")
@@ -514,14 +516,24 @@ profile.model <- function(fitted, pname, minp, maxp, p.vector,
 ##' ##       facet_wrap(~gpvar, scales="free") + theme_bw(base_size =14)
 plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
                        trans = NA, save = FALSE, ... ) {
+  
   if (any(is.na(trans))) {   ### Check 1 ###
     trans <- ifelse(natural, attr(prior[[i]], "untrans"), "identity")
   }
+  
   if (is.numeric(i)) i <- names(prior)[i]   ### Check 2 ###
   ## Stop the function running, if the parameters are out-of-range
   if (!(i %in% names(prior))) stop("Parameter not in prior")
   ## Finish checks. Calculate the data frame
   p <- prior[[i]]    ## Save all parameter setting to another object called p
+  dist <- attr(p, "dist")
+  
+  if ( is.na(dist) | dist == 0 ) {
+    disttype <- NA
+  } else {
+    disttype <- switch(dist, "tnorm", "beta_lu", "gamma_l", "lnorm_l", 
+                       "unif_", "constant", "tnorm2") 
+  }
 
   ## Do an educated guess for xlim
   ## xlim can be a scalar or vector. test if any of its elements is NA. If it
@@ -533,35 +545,75 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
     ## and pick (1) the bigger and smaller number (tnorm); (2) use lower and
     ## upper directly (beta_lu); (3) use lower and a different arithmetic
     ## (gamma_l); (4) use lower and another different arithmetic (lnorm_l)
-    xlim <- switch(attr(p, "dist"),
-                   tnorm    = c(pmax(p$lower, p[[1]] - 3*p[[2]]),
-                                pmin(p$upper, p[[1]] + 3*p[[2]])),
-                   beta_lu  = c(p$lower, p$upper),
-                   gamma_l  = c(p$lower, p[[1]]*p[[2]] + 3*sqrt(p[[1]])*p[[2]]),
-                   lnorm_l  = c(p$lower, exp(p[[1]]+2*p[[2]])),
-                   constant = c(-10, 10)
+    x <- switch(disttype,
+                ## Now we get xlim. Then we want to set all the x points for
+                ##  plotting. By default we plot 100 point (n.point = 1e2)
+                tnorm    = {
+                     xlim <- c(pmax(p$lower, p[[1]] - 3*p[[2]]),
+                       pmin(p$upper, p[[1]] + 3*p[[2]]))
+                     seq(xlim[1], xlim[2], length.out = npoint)
+                },
+                beta_lu  = {
+                     xlim <- c(p$lower, p$upper)
+                     seq(xlim[1], xlim[2], length.out = npoint)
+                },
+                gamma_l  = {
+                     xlim <- c(p$lower, p[[1]]*p[[2]] + 3*sqrt(p[[1]])*p[[2]])
+                     seq(xlim[1], xlim[2], length.out = npoint)
+                },
+                lnorm_l  = {
+                     xlim <- c(p$lower, exp(p[[1]]+2*p[[2]]))
+                     seq(xlim[1], xlim[2], length.out = npoint)
+                },
+                unif_    = {
+                     xlim <- c(p[[1]], p[[2]])
+                     seq(xlim[1], xlim[2], length.out = npoint)
+                },
+                constant = {
+                     xlim <- c(p[[1]] - p[[2]], p[[1]] + p[[2]])
+                     tmp <- seq(xlim[1], xlim[2], length.out = npoint)
+                     sort(c(p[[1]], tmp))
+                },
+                tnorm2  = {
+                  sd <- 1/sqrt(p[[2]])
+                  xlim <- c(pmax(p$lower, p[[1]] - 3 * sd),
+                            pmin(p$upper, p[[1]] + 3 * sd))
+                  seq(xlim[1], xlim[2], length.out = npoint)
+                },
+                {
+                     c(-1, 1)
+                }
     )
-  }
-
-  ## Now we get xlim. Then we want to set all the x points for plotting.
-  ## By default we plot 100 point (n.point = 1e2)
-  x <- seq(xlim[1], xlim[2], length.out = npoint)
+  } else {
+    x <- c(-1, 1)
+  } 
   p$x <- x
-  p$log <- FALSE    ## Turn off logarithmic transformation
+  p$lg <- FALSE    ## Turn off logarithmic transformation
 
   ## 1. call a log/identity transform function to change x value
   ## 2. call a density function for a distribution to set y (density) value
-  df <- data.frame(
-    xpos  = do.call(trans, list(x = x)),
-    ypos  = do.call(paste0("d", attr(p, "dist")), p),
-    Parameter = rep( names(prior[i]), length(x)))
-
-  if (save) {
-    return(df)
+  if (is.na(disttype) | disttype == 0) {
+    message(paste0(i, " prior not available"))
+    invisible(NULL)
+  } else if (save) {
+    xpos <- do.call(trans, list(x = x))
+    ypos <- do.call(paste0("d", disttype), p)
+    dat <- data.frame(xpos  = xpos, ypos  = ypos,
+                      Parameter = rep(names(prior[i]), length(x)))
+    return(dat)
   } else {
-    print(ggplot(df, aes_string(x="xpos", y="ypos")) + geom_line() +
-            xlab("")+ ylab("Density") + facet_grid(.~Parameter))
+    xpos <- do.call(trans, list(x = x))
+    ypos <- do.call(paste0("d", disttype), p)
+    dat <- data.frame(xpos  = xpos, ypos  = ypos,
+                      Parameter = rep(names(prior[i]), length(x)))
+    
+    p0 <- ggplot(dat, aes_string(x="xpos", y="ypos")) + geom_line() +
+      xlab("")+ ylab("Density") + facet_grid(. ~Parameter) +
+      theme_bw(base_size = 16)
+    print(p0)
+    invisible(p0)
   }
+  
 }
 
 ##' @rdname plot_prior

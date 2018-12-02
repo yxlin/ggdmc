@@ -1,5 +1,6 @@
-context("HLBA")
 require(ggdmc); require(testthat); require(ggplot2); require(data.table)
+
+context("HLBA")
 
 test_that("HLBA", {
   rm(list = ls())
@@ -34,7 +35,7 @@ test_that("HLBA", {
   plot(pop.prior, ps = pop.mean)
   
   ## Simulate some data ----------
-  dat <- simulate(model, nsub = 8, nsim = 100, prior = pop.prior)
+  dat <- simulate(model, nsub = 12, nsim = 100, prior = pop.prior)
   dmi <- BuildDMI(dat, model)
   ps <- attr(dat, "parameters")
 

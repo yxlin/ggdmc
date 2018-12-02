@@ -600,6 +600,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// density_glm
+arma::vec density_glm(arma::vec pVec, std::vector<std::string> pnames, arma::vec allpar, std::vector<std::string> parnames, arma::ucube model, std::string type, std::vector<std::string> dim1, std::vector<std::string> dim2, std::vector<std::string> dim3, arma::uvec ise, arma::umat cellidx, arma::vec X, arma::vec y);
+RcppExport SEXP _ggdmc_density_glm(SEXP pVecSEXP, SEXP pnamesSEXP, SEXP allparSEXP, SEXP parnamesSEXP, SEXP modelSEXP, SEXP typeSEXP, SEXP dim1SEXP, SEXP dim2SEXP, SEXP dim3SEXP, SEXP iseSEXP, SEXP cellidxSEXP, SEXP XSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type pVec(pVecSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type pnames(pnamesSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type allpar(allparSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type parnames(parnamesSEXP);
+    Rcpp::traits::input_parameter< arma::ucube >::type model(modelSEXP);
+    Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type dim1(dim1SEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type dim2(dim2SEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type dim3(dim3SEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type ise(iseSEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type cellidx(cellidxSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(density_glm(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, ise, cellidx, X, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // sumloglike
 double sumloglike(arma::vec pVec, std::vector<std::string> pnames, arma::vec allpar, std::vector<std::string> parnames, arma::ucube model, std::string type, std::vector<std::string> dim1, std::vector<std::string> dim2, std::vector<std::string> dim3, arma::umat n1idx, arma::uvec ise, arma::umat cellidx, arma::vec RT, arma::uvec matchcell, arma::uvec isr1, bool posdrift, unsigned int nsim, double bw, unsigned int ncore, unsigned int gpuid, bool debug);
 RcppExport SEXP _ggdmc_sumloglike(SEXP pVecSEXP, SEXP pnamesSEXP, SEXP allparSEXP, SEXP parnamesSEXP, SEXP modelSEXP, SEXP typeSEXP, SEXP dim1SEXP, SEXP dim2SEXP, SEXP dim3SEXP, SEXP n1idxSEXP, SEXP iseSEXP, SEXP cellidxSEXP, SEXP RTSEXP, SEXP matchcellSEXP, SEXP isr1SEXP, SEXP posdriftSEXP, SEXP nsimSEXP, SEXP bwSEXP, SEXP ncoreSEXP, SEXP gpuidSEXP, SEXP debugSEXP) {
@@ -628,6 +651,32 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< unsigned int >::type gpuid(gpuidSEXP);
     Rcpp::traits::input_parameter< bool >::type debug(debugSEXP);
     rcpp_result_gen = Rcpp::wrap(sumloglike(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, posdrift, nsim, bw, ncore, gpuid, debug));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sumloglike_glm
+double sumloglike_glm(arma::vec pvec, std::vector<std::string> pnames, arma::vec allpar, std::vector<std::string> parnames, arma::ucube model, std::string type, std::vector<std::string> dim1, std::vector<std::string> dim2, std::vector<std::string> dim3, arma::umat n1idx, arma::uvec ise, arma::umat cellidx, arma::vec RT, arma::uvec matchcell, arma::uvec isr1, arma::vec X);
+RcppExport SEXP _ggdmc_sumloglike_glm(SEXP pvecSEXP, SEXP pnamesSEXP, SEXP allparSEXP, SEXP parnamesSEXP, SEXP modelSEXP, SEXP typeSEXP, SEXP dim1SEXP, SEXP dim2SEXP, SEXP dim3SEXP, SEXP n1idxSEXP, SEXP iseSEXP, SEXP cellidxSEXP, SEXP RTSEXP, SEXP matchcellSEXP, SEXP isr1SEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type pnames(pnamesSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type allpar(allparSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type parnames(parnamesSEXP);
+    Rcpp::traits::input_parameter< arma::ucube >::type model(modelSEXP);
+    Rcpp::traits::input_parameter< std::string >::type type(typeSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type dim1(dim1SEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type dim2(dim2SEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type dim3(dim3SEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type n1idx(n1idxSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type ise(iseSEXP);
+    Rcpp::traits::input_parameter< arma::umat >::type cellidx(cellidxSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type RT(RTSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type matchcell(matchcellSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type isr1(isr1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(sumloglike_glm(pvec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -877,47 +926,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// sumloghprior
-double sumloghprior(arma::vec location, arma::vec scale, std::vector<std::string> ldists, std::vector<std::string> sdists, arma::vec lp1, arma::vec sp1, arma::vec lp2, arma::vec sp2, arma::vec llower, arma::vec slower, arma::vec lupper, arma::vec supper, arma::uvec llog, arma::uvec slog);
-RcppExport SEXP _ggdmc_sumloghprior(SEXP locationSEXP, SEXP scaleSEXP, SEXP ldistsSEXP, SEXP sdistsSEXP, SEXP lp1SEXP, SEXP sp1SEXP, SEXP lp2SEXP, SEXP sp2SEXP, SEXP llowerSEXP, SEXP slowerSEXP, SEXP lupperSEXP, SEXP supperSEXP, SEXP llogSEXP, SEXP slogSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type location(locationSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type scale(scaleSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type ldists(ldistsSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type sdists(sdistsSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lp1(lp1SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sp1(sp1SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lp2(lp2SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type sp2(sp2SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type llower(llowerSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type slower(slowerSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lupper(lupperSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type supper(supperSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type llog(llogSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type slog(slogSEXP);
-    rcpp_result_gen = Rcpp::wrap(sumloghprior(location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sumloghlike
-double sumloghlike(arma::mat thetak, std::vector<std::string> dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog);
-RcppExport SEXP _ggdmc_sumloghlike(SEXP thetakSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP islogSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type thetak(thetakSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type dists(distsSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type islog(islogSEXP);
-    rcpp_result_gen = Rcpp::wrap(sumloghlike(thetak, dists, p1, p2, lower, upper, islog));
-    return rcpp_result_gen;
-END_RCPP
-}
 // StartIteration
 void StartIteration(List samples);
 RcppExport SEXP _ggdmc_StartIteration(SEXP samplesSEXP) {
@@ -926,6 +934,173 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
     StartIteration(samples);
     return R_NilValue;
+END_RCPP
+}
+// init_new_glm
+List init_new_glm(unsigned int nmc, List prior, List data, double rp, unsigned int thin, unsigned int nchain);
+RcppExport SEXP _ggdmc_init_new_glm(SEXP nmcSEXP, SEXP priorSEXP, SEXP dataSEXP, SEXP rpSEXP, SEXP thinSEXP, SEXP nchainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nchain(nchainSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_new_glm(nmc, prior, data, rp, thin, nchain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_add_glm
+List init_add_glm(unsigned int nmc, List samples, double rp, unsigned int thin);
+RcppExport SEXP _ggdmc_init_add_glm(SEXP nmcSEXP, SEXP samplesSEXP, SEXP rpSEXP, SEXP thinSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_add_glm(nmc, samples, rp, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_old_glm
+List init_old_glm(unsigned int nmc, List samples, double rp, unsigned int thin);
+RcppExport SEXP _ggdmc_init_old_glm(SEXP nmcSEXP, SEXP samplesSEXP, SEXP rpSEXP, SEXP thinSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_old_glm(nmc, samples, rp, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_newnonhier_glm
+List init_newnonhier_glm(unsigned int nmc, List data, List pprior, double rp, unsigned int thin, unsigned int nchain);
+RcppExport SEXP _ggdmc_init_newnonhier_glm(SEXP nmcSEXP, SEXP dataSEXP, SEXP ppriorSEXP, SEXP rpSEXP, SEXP thinSEXP, SEXP nchainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< List >::type pprior(ppriorSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nchain(nchainSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_newnonhier_glm(nmc, data, pprior, rp, thin, nchain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_addnonhier_glm
+List init_addnonhier_glm(unsigned int nmc, List samples, double rp, unsigned int thin);
+RcppExport SEXP _ggdmc_init_addnonhier_glm(SEXP nmcSEXP, SEXP samplesSEXP, SEXP rpSEXP, SEXP thinSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_addnonhier_glm(nmc, samples, rp, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_oldnonhier_glm
+List init_oldnonhier_glm(unsigned int nmc, List samples, double rp, unsigned int thin);
+RcppExport SEXP _ggdmc_init_oldnonhier_glm(SEXP nmcSEXP, SEXP samplesSEXP, SEXP rpSEXP, SEXP thinSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_oldnonhier_glm(nmc, samples, rp, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_oldhier_glm
+List init_oldhier_glm(unsigned int nmc, List samples, double rp, unsigned int thin);
+RcppExport SEXP _ggdmc_init_oldhier_glm(SEXP nmcSEXP, SEXP samplesSEXP, SEXP rpSEXP, SEXP thinSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_oldhier_glm(nmc, samples, rp, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_addhier_glm
+List init_addhier_glm(unsigned int nmc, List samples, double rp, unsigned int thin);
+RcppExport SEXP _ggdmc_init_addhier_glm(SEXP nmcSEXP, SEXP samplesSEXP, SEXP rpSEXP, SEXP thinSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_addhier_glm(nmc, samples, rp, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_new_start
+List init_new_start(unsigned int nmc, List data, List start, List prior, double rp, unsigned int thin, unsigned int nchain);
+RcppExport SEXP _ggdmc_init_new_start(SEXP nmcSEXP, SEXP dataSEXP, SEXP startSEXP, SEXP priorSEXP, SEXP rpSEXP, SEXP thinSEXP, SEXP nchainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< List >::type start(startSEXP);
+    Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nchain(nchainSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_new_start(nmc, data, start, prior, rp, thin, nchain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_newnonhier_start
+List init_newnonhier_start(unsigned int nmc, List data, List start, List prior, double rp, unsigned int thin, unsigned int nchain);
+RcppExport SEXP _ggdmc_init_newnonhier_start(SEXP nmcSEXP, SEXP dataSEXP, SEXP startSEXP, SEXP priorSEXP, SEXP rpSEXP, SEXP thinSEXP, SEXP nchainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< List >::type start(startSEXP);
+    Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nchain(nchainSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_newnonhier_start(nmc, data, start, prior, rp, thin, nchain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// init_newhier_start
+List init_newhier_start(unsigned int nmc, List data, List start, List prior, double rp, unsigned int thin, unsigned int nchain);
+RcppExport SEXP _ggdmc_init_newhier_start(SEXP nmcSEXP, SEXP dataSEXP, SEXP startSEXP, SEXP priorSEXP, SEXP rpSEXP, SEXP thinSEXP, SEXP nchainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type nmc(nmcSEXP);
+    Rcpp::traits::input_parameter< List >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< List >::type start(startSEXP);
+    Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
+    Rcpp::traits::input_parameter< double >::type rp(rpSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nchain(nchainSEXP);
+    rcpp_result_gen = Rcpp::wrap(init_newhier_start(nmc, data, start, prior, rp, thin, nchain));
+    return rcpp_result_gen;
 END_RCPP
 }
 // init_new
@@ -1292,36 +1467,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // dprior_
-arma::vec dprior_(arma::vec pvec, std::vector<std::string> dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog);
+arma::vec dprior_(arma::vec pvec, arma::vec dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog);
 RcppExport SEXP _ggdmc_dprior_(SEXP pvecSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP islogSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type dists(distsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type dists(distsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
     Rcpp::traits::input_parameter< arma::uvec >::type islog(islogSEXP);
     rcpp_result_gen = Rcpp::wrap(dprior_(pvec, dists, p1, p2, lower, upper, islog));
-    return rcpp_result_gen;
-END_RCPP
-}
-// sumlogprior
-double sumlogprior(arma::vec pvec, std::vector<std::string> dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog);
-RcppExport SEXP _ggdmc_sumlogprior(SEXP pvecSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP islogSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type dists(distsSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
-    Rcpp::traits::input_parameter< arma::uvec >::type islog(islogSEXP);
-    rcpp_result_gen = Rcpp::wrap(sumlogprior(pvec, dists, p1, p2, lower, upper, islog));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1337,14 +1495,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rprior_scalar
-NumericVector rprior_scalar(List prior);
-RcppExport SEXP _ggdmc_rprior_scalar(SEXP priorSEXP) {
+// rprior_vec
+NumericVector rprior_vec(List prior);
+RcppExport SEXP _ggdmc_rprior_vec(SEXP priorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
-    rcpp_result_gen = Rcpp::wrap(rprior_scalar(prior));
+    rcpp_result_gen = Rcpp::wrap(rprior_vec(prior));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1360,34 +1518,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rprior_vec
-arma::vec rprior_vec(std::vector<std::string> dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper);
-RcppExport SEXP _ggdmc_rprior_vec(SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP) {
+// rprior_vec_
+arma::vec rprior_vec_(arma::vec dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper);
+RcppExport SEXP _ggdmc_rprior_vec_(SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type dists(distsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type dists(distsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
-    rcpp_result_gen = Rcpp::wrap(rprior_vec(dists, p1, p2, lower, upper));
+    rcpp_result_gen = Rcpp::wrap(rprior_vec_(dists, p1, p2, lower, upper));
     return rcpp_result_gen;
 END_RCPP
 }
-// rprior
-arma::mat rprior(unsigned int n, std::vector<std::string> dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper);
-RcppExport SEXP _ggdmc_rprior(SEXP nSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP) {
+// rprior_mat_
+arma::mat rprior_mat_(unsigned int n, arma::vec dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper);
+RcppExport SEXP _ggdmc_rprior_mat_(SEXP nSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< unsigned int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< std::vector<std::string> >::type dists(distsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type dists(distsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
-    rcpp_result_gen = Rcpp::wrap(rprior(n, dists, p1, p2, lower, upper));
+    rcpp_result_gen = Rcpp::wrap(rprior_mat_(n, dists, p1, p2, lower, upper));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1400,6 +1558,117 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
     Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
     rcpp_result_gen = Rcpp::wrap(sumlogpriorNV(pvec, prior));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sumlogprior
+double sumlogprior(arma::vec pvec, arma::vec dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec lg);
+RcppExport SEXP _ggdmc_sumlogprior(SEXP pvecSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type dists(distsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type lg(lgSEXP);
+    rcpp_result_gen = Rcpp::wrap(sumlogprior(pvec, dists, p1, p2, lower, upper, lg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// RestorePrior
+List RestorePrior(List pprior, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec lg, arma::vec dists, std::vector<std::string> pnames);
+RcppExport SEXP _ggdmc_RestorePrior(SEXP ppriorSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lgSEXP, SEXP distsSEXP, SEXP pnamesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type pprior(ppriorSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type lg(lgSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type dists(distsSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type pnames(pnamesSEXP);
+    rcpp_result_gen = Rcpp::wrap(RestorePrior(pprior, p1, p2, lower, upper, lg, dists, pnames));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sumloghprior
+double sumloghprior(arma::vec location, arma::vec scale, arma::vec ldists, arma::vec sdists, arma::vec lp1, arma::vec sp1, arma::vec lp2, arma::vec sp2, arma::vec llower, arma::vec slower, arma::vec lupper, arma::vec supper, arma::uvec llog, arma::uvec slog);
+RcppExport SEXP _ggdmc_sumloghprior(SEXP locationSEXP, SEXP scaleSEXP, SEXP ldistsSEXP, SEXP sdistsSEXP, SEXP lp1SEXP, SEXP sp1SEXP, SEXP lp2SEXP, SEXP sp2SEXP, SEXP llowerSEXP, SEXP slowerSEXP, SEXP lupperSEXP, SEXP supperSEXP, SEXP llogSEXP, SEXP slogSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type location(locationSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type scale(scaleSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type ldists(ldistsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sdists(sdistsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type lp1(lp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sp1(sp1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type lp2(lp2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type sp2(sp2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type llower(llowerSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type slower(slowerSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type lupper(lupperSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type supper(supperSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type llog(llogSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type slog(slogSEXP);
+    rcpp_result_gen = Rcpp::wrap(sumloghprior(location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sumloghlike
+double sumloghlike(arma::mat thetak, arma::vec dists, arma::vec p1, arma::vec p2, arma::vec lower, arma::vec upper, arma::uvec islog);
+RcppExport SEXP _ggdmc_sumloghlike(SEXP thetakSEXP, SEXP distsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP islogSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type thetak(thetakSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type dists(distsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type islog(islogSEXP);
+    rcpp_result_gen = Rcpp::wrap(sumloghlike(thetak, dists, p1, p2, lower, upper, islog));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_glm
+List run_glm(List samples, arma::uvec force, unsigned int report, double pm, double pm0, double gammamult, unsigned int ncore, bool slice);
+RcppExport SEXP _ggdmc_run_glm(SEXP samplesSEXP, SEXP forceSEXP, SEXP reportSEXP, SEXP pmSEXP, SEXP pm0SEXP, SEXP gammamultSEXP, SEXP ncoreSEXP, SEXP sliceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type force(forceSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type report(reportSEXP);
+    Rcpp::traits::input_parameter< double >::type pm(pmSEXP);
+    Rcpp::traits::input_parameter< double >::type pm0(pm0SEXP);
+    Rcpp::traits::input_parameter< double >::type gammamult(gammamultSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type ncore(ncoreSEXP);
+    Rcpp::traits::input_parameter< bool >::type slice(sliceSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_glm(samples, force, report, pm, pm0, gammamult, ncore, slice));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_hyper_glm
+List run_hyper_glm(List samples, unsigned int report, double pm, double pm0, double hpm, double hpm0, double gammamult);
+RcppExport SEXP _ggdmc_run_hyper_glm(SEXP samplesSEXP, SEXP reportSEXP, SEXP pmSEXP, SEXP pm0SEXP, SEXP hpmSEXP, SEXP hpm0SEXP, SEXP gammamultSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type samples(samplesSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type report(reportSEXP);
+    Rcpp::traits::input_parameter< double >::type pm(pmSEXP);
+    Rcpp::traits::input_parameter< double >::type pm0(pm0SEXP);
+    Rcpp::traits::input_parameter< double >::type hpm(hpmSEXP);
+    Rcpp::traits::input_parameter< double >::type hpm0(hpm0SEXP);
+    Rcpp::traits::input_parameter< double >::type gammamult(gammamultSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_hyper_glm(samples, report, pm, pm0, hpm, hpm0, gammamult));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1541,51 +1810,81 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rtn_scalar2
+double rtn_scalar2(double mean, double precision, double l, double u);
+RcppExport SEXP _ggdmc_rtn_scalar2(SEXP meanSEXP, SEXP precisionSEXP, SEXP lSEXP, SEXP uSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< double >::type precision(precisionSEXP);
+    Rcpp::traits::input_parameter< double >::type l(lSEXP);
+    Rcpp::traits::input_parameter< double >::type u(uSEXP);
+    rcpp_result_gen = Rcpp::wrap(rtn_scalar2(mean, precision, l, u));
+    return rcpp_result_gen;
+END_RCPP
+}
 // dtnorm
-arma::vec dtnorm(arma::vec x, double mean, double sd, double lower, double upper, bool log);
-RcppExport SEXP _ggdmc_dtnorm(SEXP xSEXP, SEXP meanSEXP, SEXP sdSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP logSEXP) {
+arma::vec dtnorm(arma::vec x, double p1, double p2, double lower, double upper, bool lg);
+RcppExport SEXP _ggdmc_dtnorm(SEXP xSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type mean(meanSEXP);
-    Rcpp::traits::input_parameter< double >::type sd(sdSEXP);
+    Rcpp::traits::input_parameter< double >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< double >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
     Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
-    Rcpp::traits::input_parameter< bool >::type log(logSEXP);
-    rcpp_result_gen = Rcpp::wrap(dtnorm(x, mean, sd, lower, upper, log));
+    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
+    rcpp_result_gen = Rcpp::wrap(dtnorm(x, p1, p2, lower, upper, lg));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dtnorm2
+arma::vec dtnorm2(arma::vec x, double p1, double p2, double lower, double upper, bool lg);
+RcppExport SEXP _ggdmc_dtnorm2(SEXP xSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lgSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< double >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
+    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
+    rcpp_result_gen = Rcpp::wrap(dtnorm2(x, p1, p2, lower, upper, lg));
     return rcpp_result_gen;
 END_RCPP
 }
 // rtnorm
-arma::vec rtnorm(unsigned int n, double mean, double sd, double lower, double upper);
-RcppExport SEXP _ggdmc_rtnorm(SEXP nSEXP, SEXP meanSEXP, SEXP sdSEXP, SEXP lowerSEXP, SEXP upperSEXP) {
+arma::vec rtnorm(unsigned int n, double p1, double p2, double lower, double upper);
+RcppExport SEXP _ggdmc_rtnorm(SEXP nSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< unsigned int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type mean(meanSEXP);
-    Rcpp::traits::input_parameter< double >::type sd(sdSEXP);
+    Rcpp::traits::input_parameter< double >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< double >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
     Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
-    rcpp_result_gen = Rcpp::wrap(rtnorm(n, mean, sd, lower, upper));
+    rcpp_result_gen = Rcpp::wrap(rtnorm(n, p1, p2, lower, upper));
     return rcpp_result_gen;
 END_RCPP
 }
 // ptnorm
-arma::vec ptnorm(arma::vec q, double mean, double sd, double lower, double upper, bool lt, bool log);
-RcppExport SEXP _ggdmc_ptnorm(SEXP qSEXP, SEXP meanSEXP, SEXP sdSEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP ltSEXP, SEXP logSEXP) {
+arma::vec ptnorm(arma::vec q, double p1, double p2, double lower, double upper, bool lt, bool lg);
+RcppExport SEXP _ggdmc_ptnorm(SEXP qSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP ltSEXP, SEXP lgSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type q(qSEXP);
-    Rcpp::traits::input_parameter< double >::type mean(meanSEXP);
-    Rcpp::traits::input_parameter< double >::type sd(sdSEXP);
+    Rcpp::traits::input_parameter< double >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< double >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< double >::type lower(lowerSEXP);
     Rcpp::traits::input_parameter< double >::type upper(upperSEXP);
     Rcpp::traits::input_parameter< bool >::type lt(ltSEXP);
-    Rcpp::traits::input_parameter< bool >::type log(logSEXP);
-    rcpp_result_gen = Rcpp::wrap(ptnorm(q, mean, sd, lower, upper, lt, log));
+    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
+    rcpp_result_gen = Rcpp::wrap(ptnorm(q, p1, p2, lower, upper, lt, lg));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1697,7 +1996,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_density_plba1", (DL_FUNC) &_ggdmc_density_plba1, 19},
     {"_ggdmc_density_plba0_gpu", (DL_FUNC) &_ggdmc_density_plba0_gpu, 21},
     {"_ggdmc_density_plba1_gpu", (DL_FUNC) &_ggdmc_density_plba1_gpu, 21},
+    {"_ggdmc_density_glm", (DL_FUNC) &_ggdmc_density_glm, 13},
     {"_ggdmc_sumloglike", (DL_FUNC) &_ggdmc_sumloglike, 21},
+    {"_ggdmc_sumloglike_glm", (DL_FUNC) &_ggdmc_sumloglike_glm, 16},
     {"_ggdmc_profile_rd", (DL_FUNC) &_ggdmc_profile_rd, 17},
     {"_ggdmc_profile_norm", (DL_FUNC) &_ggdmc_profile_norm, 18},
     {"_ggdmc_profile_norm_pda", (DL_FUNC) &_ggdmc_profile_norm_pda, 19},
@@ -1707,9 +2008,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_profile_plba1_gpu", (DL_FUNC) &_ggdmc_profile_plba1_gpu, 22},
     {"_ggdmc_profile_plba0_gpu", (DL_FUNC) &_ggdmc_profile_plba0_gpu, 22},
     {"_ggdmc_GetTheta0", (DL_FUNC) &_ggdmc_GetTheta0, 1},
-    {"_ggdmc_sumloghprior", (DL_FUNC) &_ggdmc_sumloghprior, 14},
-    {"_ggdmc_sumloghlike", (DL_FUNC) &_ggdmc_sumloghlike, 7},
     {"_ggdmc_StartIteration", (DL_FUNC) &_ggdmc_StartIteration, 1},
+    {"_ggdmc_init_new_glm", (DL_FUNC) &_ggdmc_init_new_glm, 6},
+    {"_ggdmc_init_add_glm", (DL_FUNC) &_ggdmc_init_add_glm, 4},
+    {"_ggdmc_init_old_glm", (DL_FUNC) &_ggdmc_init_old_glm, 4},
+    {"_ggdmc_init_newnonhier_glm", (DL_FUNC) &_ggdmc_init_newnonhier_glm, 6},
+    {"_ggdmc_init_addnonhier_glm", (DL_FUNC) &_ggdmc_init_addnonhier_glm, 4},
+    {"_ggdmc_init_oldnonhier_glm", (DL_FUNC) &_ggdmc_init_oldnonhier_glm, 4},
+    {"_ggdmc_init_oldhier_glm", (DL_FUNC) &_ggdmc_init_oldhier_glm, 4},
+    {"_ggdmc_init_addhier_glm", (DL_FUNC) &_ggdmc_init_addhier_glm, 4},
+    {"_ggdmc_init_new_start", (DL_FUNC) &_ggdmc_init_new_start, 7},
+    {"_ggdmc_init_newnonhier_start", (DL_FUNC) &_ggdmc_init_newnonhier_start, 7},
+    {"_ggdmc_init_newhier_start", (DL_FUNC) &_ggdmc_init_newhier_start, 7},
     {"_ggdmc_init_new", (DL_FUNC) &_ggdmc_init_new, 8},
     {"_ggdmc_init_old", (DL_FUNC) &_ggdmc_init_old, 4},
     {"_ggdmc_init_add", (DL_FUNC) &_ggdmc_init_add, 4},
@@ -1732,13 +2042,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_n1PDF_plba2", (DL_FUNC) &_ggdmc_n1PDF_plba2, 14},
     {"_ggdmc_n1PDF_plba3", (DL_FUNC) &_ggdmc_n1PDF_plba3, 14},
     {"_ggdmc_dprior_", (DL_FUNC) &_ggdmc_dprior_, 7},
-    {"_ggdmc_sumlogprior", (DL_FUNC) &_ggdmc_sumlogprior, 7},
     {"_ggdmc_dprior", (DL_FUNC) &_ggdmc_dprior, 2},
-    {"_ggdmc_rprior_scalar", (DL_FUNC) &_ggdmc_rprior_scalar, 1},
+    {"_ggdmc_rprior_vec", (DL_FUNC) &_ggdmc_rprior_vec, 1},
     {"_ggdmc_rprior_mat", (DL_FUNC) &_ggdmc_rprior_mat, 2},
-    {"_ggdmc_rprior_vec", (DL_FUNC) &_ggdmc_rprior_vec, 5},
-    {"_ggdmc_rprior", (DL_FUNC) &_ggdmc_rprior, 6},
+    {"_ggdmc_rprior_vec_", (DL_FUNC) &_ggdmc_rprior_vec_, 5},
+    {"_ggdmc_rprior_mat_", (DL_FUNC) &_ggdmc_rprior_mat_, 6},
     {"_ggdmc_sumlogpriorNV", (DL_FUNC) &_ggdmc_sumlogpriorNV, 2},
+    {"_ggdmc_sumlogprior", (DL_FUNC) &_ggdmc_sumlogprior, 7},
+    {"_ggdmc_RestorePrior", (DL_FUNC) &_ggdmc_RestorePrior, 8},
+    {"_ggdmc_sumloghprior", (DL_FUNC) &_ggdmc_sumloghprior, 14},
+    {"_ggdmc_sumloghlike", (DL_FUNC) &_ggdmc_sumloghlike, 7},
+    {"_ggdmc_run_glm", (DL_FUNC) &_ggdmc_run_glm, 8},
+    {"_ggdmc_run_hyper_glm", (DL_FUNC) &_ggdmc_run_hyper_glm, 7},
     {"_ggdmc_GetGamma", (DL_FUNC) &_ggdmc_GetGamma, 3},
     {"_ggdmc_PickChains", (DL_FUNC) &_ggdmc_PickChains, 3},
     {"_ggdmc_GetSubchains", (DL_FUNC) &_ggdmc_GetSubchains, 2},
@@ -1748,7 +2063,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_run_hyper_dmc", (DL_FUNC) &_ggdmc_run_hyper_dmc, 9},
     {"_ggdmc_run_hyper_dgmc", (DL_FUNC) &_ggdmc_run_hyper_dgmc, 9},
     {"_ggdmc_rtn_scalar", (DL_FUNC) &_ggdmc_rtn_scalar, 4},
+    {"_ggdmc_rtn_scalar2", (DL_FUNC) &_ggdmc_rtn_scalar2, 4},
     {"_ggdmc_dtnorm", (DL_FUNC) &_ggdmc_dtnorm, 6},
+    {"_ggdmc_dtnorm2", (DL_FUNC) &_ggdmc_dtnorm2, 6},
     {"_ggdmc_rtnorm", (DL_FUNC) &_ggdmc_rtnorm, 5},
     {"_ggdmc_ptnorm", (DL_FUNC) &_ggdmc_ptnorm, 7},
     {"_ggdmc_GetConstIdx", (DL_FUNC) &_ggdmc_GetConstIdx, 1},

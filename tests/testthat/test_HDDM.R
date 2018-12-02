@@ -13,6 +13,8 @@ test_that("HDDM", {
     responses = c("r1", "r2"),
     type      = "rd")
   
+  level_array
+  
   npar <- length(GetPNames(model))
   
   ## Population distribution

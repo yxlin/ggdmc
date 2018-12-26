@@ -432,13 +432,15 @@ OpenMP flag, but they are less straightforward.
 Please visit his site for more explanations regarding the clang-OpenMP issue. 
 
 ## How to install many supporting packages
+One common hurlde in install a large R package is to install many supporting
+packages.  One useful method to mitigate such hurdle is use a convenient
+command line script. 
 
-This is for the Unix-like OS users. First at the command line,
-install the littler package
+This works in Unix-like OS. First of all, you need the littler package.
 
 > sudo apt-get install r-cran-littler
 
-Second copy-and-page the following as a _install.r_ script
+Second copy-and-paste the following script into a file, called it _install.r_.
 ```
 #!/usr/bin/env r
 
@@ -459,16 +461,16 @@ install.packages(argv, lib.loc, repos)
 > chmod +x install.r
 
 Finally, at the command line, enter the following:
-> install.r Rcpp RcppArmadillo ggplot2 rtdists ggmcmc coda tmvtnorm matrixStats  data.table
+> install.r Rcpp RcppArmadillo ggplot2 rtdists ggmcmc coda tmvtnorm matrixStats data.table
 
-Please refer to Dirk Eddelbuettel's "littler.html" and its example page
+This shall install all supporting packages at once. 
+This useful method is from Dirk Eddelbuettel's [littler]<http://dirk.eddelbuettel.com/code/littler.html>.
 
 ## Citation
 
 If you use this package, please cite the software, for example:
 
-Lin, Y.-S.(submitted). Tutorial on Bayesian cognitive modeling. The Quantitative
-Method for Psychology.
+Lin, Y.-S. (in preparation). Tutorial on Bayesian cognitive modeling. 
 
 
 ## Contributors
@@ -479,7 +481,8 @@ developed by Yi-Shin Lin. DMC is developed by Andrew Heathcote (Heathcote et al.
 
 _ggdmc_ evolves from DMC.  Although these two tools share some similarities, they
 have some differences. They are designed to tackle different problems, although
-some may overlap. Please report bugs to [me](mailto:yishinlin001@gmail.com).
+some may overlap.  _ggdmc_ uses similar attribute naming system, so samples drawn 
+from DMC may be piped into ggdmc C++ samplers.  Please report bugs to [me](mailto:yishinlin001@gmail.com).
 
 ## License
 

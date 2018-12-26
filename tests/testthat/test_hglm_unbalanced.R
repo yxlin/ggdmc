@@ -1,7 +1,6 @@
 rm(list = ls())
 setwd("/media/yslin/KIWI/Documents/ggdmc/")
-loadPackages <-c("ggdmc", "ggplot2", "gridExtra",
-                 "data.table")
+loadPackages <-c("ggdmc", "ggplot2", "gridExtra", "data.table")
 sapply(loadPackages, require, character.only=TRUE)
 ##              mean     sd    2.5%     25%     50%     75%   97.5%  Rhat n.eff
 ## alpha0    106.527  3.644  99.390 104.100 106.500 108.900 113.702 1.001  4400
@@ -61,7 +60,7 @@ plot(pop.prior)
 
 ## Level 1 ----------
 ## Randomly draw 5 a's (from 1 to ns)
-## Use Gaussian GLM to draw trial-level data 
+## Use Gaussian GLM to draw trial-level data
 model <- BuildModel(
   p.map      = list(a = "1", b = "1", tau = "1"),
   match.map  = NULL,

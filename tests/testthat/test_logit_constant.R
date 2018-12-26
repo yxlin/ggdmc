@@ -1,20 +1,22 @@
 require(ggdmc); require(data.table); require(ggplot2); require(gridExtra)
 require(testthat)
-context("GLM")
+context("logistic")
 
-test_that("GLM", {
+test_that("logistic", {
   rm(list = ls())
   setwd("/media/yslin/KIWI/Documents/ggdmc/")
+
   model <- BuildModel(
-    p.map     = list(a = "1", b = "1", tau = "1"),
+    p.map     = list(a0 = "1", a1 = "1", a2 = "1", a3 = "1", b = "1"),
     match.map = NULL,
-    regressors= c(8, 15, 22, 29, 36),
-    factors   = list(S = c("x1")),
+    regressors= NULL,
+    factors   = list(S = c("s1", "s2"), E = c("e1", "e2")),
     responses = "r1",
-    constants = NULL,
-    type      = "glm")
-  p.vector <- c(a = 242.7, b = 6.185, tau = .01)
-  ntrial <- 1000
+    constants =  c(a0 = -.55),
+    type      = "logit")
+
+  p.vector <- c(a1 = .08, a2 = -.81, a3 = 1.35, b = .27)
+  ntrial <- 10
   dat <- simulate(model, nsim = ntrial, ps = p.vector)
 
   # x <- rep(c(8, 15, 22, 29, 36), each = ntrial/5)
@@ -24,34 +26,63 @@ test_that("GLM", {
   dplyr::tbl_df(dat)
   dmi <- BuildDMI(dat, model)
 
+  datnames <- colnames(dat)
+  Xnames   <- datnames[!datnames %in% c("R", "N", "Y")]
+  Ynames   <- c("Y", "N")
+  X_ <- data.matrix( dat[,Xnames])
+  Y <- data.matrix(dat[,Ynames])
+  X <- cbind( rep(1, nrow(dat)), X_, X_[,1]*X_[,2])
+  linpred <- X %*% p.vector[1:4]
+
+  prob <- Y[,1] / Y[,2]
+  yi <- qlogis(prob, 0, 1, TRUE, FALSE)
+  res0 <- dnorm(yi, linpred, p.vector[5])
+
+  # prob <- plogis( linpred, 0, 1, 1, 0 );
+  # res0 <- dbinom(Y[,1], Y[,2], prob, FALSE)
+
+  res1 <- ggdmc:::density_logit(p.vector, X, Y)
+  res2 <- ggdmc:::density_logit(p.vector, X, Y)
+  all(res1==res2)
+  sum(is.na(res1))
+  sum(is.na(res2))
+  all.equal(res1, res2)
+  all.equal(res0, res2[,1])
+  cbind(res0, res1, res2)
+
+  # arma::vec density_logit(arma::vec pvec, arma::mat X, arma::mat Y) {
+
   npar <- length(GetPNames(model))
-  start <- BuildPrior(
-    dists = c("tnorm2", "tnorm2", "gamma"),
-    p1    = c(a = 240, b = 6, tau = .01),
-    p2    = c(a = 1e-6, b = 1e-6, tau = .1),
-    lower = c(NA, NA, NA),
+  start  <- BuildPrior(
+    dists = c(rep("tnorm2", npar)),
+    p1    = c(a1 = 0.08, a2 = -.81, a3 = 1.35, b = .267),
+    p2    = rep(0.1, npar),
+    lower = rep(NA, npar),
     upper = rep(NA, npar))
-  p.prior  <- BuildPrior(
-    dists = c("tnorm2", "tnorm2", "gamma"),
-    p1    = c(a = 200, b = 0, tau = .1),
-    p2    = c(a = 1e-6, b = 1e-6, tau = .1),
-    lower = c(NA, NA, NA),
+
+  rprior(start)
+
+  p.prior  <-BuildPrior(
+    dists = c(rep("tnorm2", npar)),
+    p1    = c(a1 = 0, a2 = 0, a3 = 0, b = 0),
+    p2    = rep(1e-3, npar),
+    lower = rep(NA, npar),
     upper = rep(NA, npar))
   plot(p.prior, ps = p.vector)
-  plot(p.prior)
   print(p.prior)
   ## Sampling -----------
   setwd("/media/yslin/KIWI/Documents/ggdmc_lesson/")
-  path <- c("data/Lesson3/ggdmc_3.0_glm.rda")
-  # fit0 <- ggdmc:::init_new_glm_bk(5e2, p.prior, dmi, .001, 8, 9)
+  path <- c("data/Lesson3/ggdmc_3.8_logit.rda")
 
-  fit0 <- Startglm(5e2, dmi, start, p.prior, thin = 8)
-  fit0$theta[,,1]
+  fit0 <- Startlogit(5e2, dmi, start, p.prior, thin = 2)
+  # fit0$theta[,,1]
+  # str(fit0$theta)
+
   fit <- run(fit0)
-  thin <- 2
-  repeat {
-    fit <- run(RestartSamples(5e2, fit, thin = thin), pm0 = .05)
 
+  thin <- 32
+  repeat {
+    fit <- run(RestartSamples(5e2, fit, thin = thin))
     save(fit0, fit, file = path[1])
     rhat <- gelman(fit, verbose = TRUE)
     if (all(rhat$mpsrf < 1.1)) break
@@ -63,23 +94,15 @@ test_that("GLM", {
   ## Analysis -----------
   p0 <- plot(fit)
   p1 <- plot(fit, start = 101)
-  p1 <- plot(fit)
+  ## plot(fit, pll =F, den=T)
 
   est <- summary(fit, start = 101, recover = TRUE, ps = p.vector, verbose = TRUE)
-
-  #                 alpha beta epsilon
-  # True           242.70 6.18    6.09
-  # 2.5% Estimate  241.66 6.17    5.76
-  # 50% Estimate   242.44 6.20    5.98
-  # 97.5% Estimate 243.19 6.24    6.22
-  # Median-True     -0.26 0.02   -0.10
-  fit.lm <- lm(RT ~ X, data = dat)
-  arm::display(fit.lm)
-  summary(fit.lm)
-  coef(fit.lm)
-  sd(fit.lm$residuals)
-
-  tmp0 <- predict_one(fit)
+  #                   b0   b1    b2   b3       sd
+  # True           -0.55 0.08 -0.81 1.35     0.27
+  # 2.5% Estimate  -0.62 0.00 -0.97 1.17 -1742.63
+  # 50% Estimate   -0.53 0.12 -0.83 1.35     0.97
+  # 97.5% Estimate -0.44 0.25 -0.69 1.54  1660.99
+  # Median-True     0.02 0.04 -0.02 0.00     0.70
 
   ## Gelman's simulation method
   thetas <- matrix(aperm(fit$theta, c(3,1,2)), ncol = fit$n.par)

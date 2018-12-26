@@ -5,20 +5,33 @@
 ##' @param x posterior samples
 ##' @param start start from which iteration.
 ##' @param end end at which iteration
-##' @importFrom ggmcmc ggs_autocorrelation
+##' @param nLags the number of lags of the autocorrelation plot.
+##' @param nsubchain plot only a chain subset
 ##' @export
-autocor <- function(x, start = 1, end = NA) {
+autocor <- function(x, start = 1, end = NA, nLags = 50, nsubchain = NULL) {
 
   if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
   if (is.null(x$theta)) stop("Use hyper mcmc_list")
   if ( is.na(end) ) end <- x$nmc
   if ( end <= start ) stop("End must be greater than start")
+  if (!is.null(nsubchain)) idx <- sample(1:x$n.chains, nsubchain) else idx <- 1:x$n.chains
 
   d <- ConvertChains(x, start, end, FALSE)
-  p0 <- ggs_autocorrelation(d) +
-    theme(legend.position="none") +
+  DT <- d[, .SD[, .(Lag = 1:nLags,
+                    Autocorrelation = ggdmc:::ac_(value, nLags))],
+              .(Parameter, Chain)]
+
+  p0 <- ggplot(DT[Chain %in% idx],
+               aes(x = Lag, y = Autocorrelation, colour = Chain, fill = Chain)) +
+    geom_bar(stat = "identity", position = "identity") +
+    ylim(-1, 1) +
+    scale_fill_discrete(name = "Chain") +
+    scale_colour_discrete(name = "Chain") +
+    facet_grid(Parameter ~ Chain) +
+    theme(legend.position = "none") +
     theme(axis.text.x  = element_blank())
   print(p0)
+  invisible(p0)
 }
 
 ##' Correlation Matrix
@@ -67,7 +80,6 @@ plot.model <- function(x, y = NULL, hyper = FALSE, start = 1,
 
 ##' @import ggplot2
 ##' @importFrom coda mcmc mcmc.list
-##' @importFrom ggmcmc ggs
 preplot_one <- function(x, start, end, pll) {
 
   if ( is.na(end) ) end <- x$nmc
@@ -103,7 +115,6 @@ preplot_one <- function(x, start, end, pll) {
 }
 
 ##' @import ggplot2
-##' @importFrom ggmcmc ggs
 plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
   chains, ...) {
 
@@ -156,12 +167,20 @@ preplot_many <- function(x, start = 1, end = NA, pll = TRUE) {
   return(xx)
 }
 
+# x <- fit
+# start <- 1
+# end <- 500
+# pll <- T
+# save <- F
+# den <- F
+# subchain <- F
+# nsubchain <- 3
 ##' @import ggplot2
 plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
   chains, ...) {
 
   nsub <- length(x)
-  DT <- preplot_many(x, start, end, pll)
+  DT <- ggdmc:::preplot_many(x, start, end, pll)
 
   if (subchain) {
     if (missing(nsubchain)) stop("Please supply nsubchain")
@@ -169,9 +188,13 @@ plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
     cat("Plot chains: ", chains, "\n")
   }
 
-  x0 <- NULL
-  subjectnames <- names(DT)
+  if(is.null(names(DT))) {
+    subjectnames <- 1:nsub
+  } else {
+    subjectnames <- names(DT)
+  }
 
+  x0 <- NULL
   for(i in 1:nsub) {
     tmp <- DT[[i]]
     if (subchain) tmp <- tmp[ tmp$Chain %in% chains, ]
@@ -212,8 +235,8 @@ plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
 
 ##' @importFrom ggmcmc ggs
 preplot_phi <- function(x, start = 1, end = NA, pll = TRUE, ...) {
-  # x <- fit
-  # start <- 201
+  # x <- fit1
+  # start <- 1
   # pll <- FALSE
   xx <- attr(x, "hyper")
   if ( is.na(end) ) end <- xx$nmc
@@ -411,10 +434,11 @@ profile.model <- function(fitted, pname, minp, maxp, p.vector,
   debug     <- attr(fitted, "debug")
 
   if (type == "norm") {
+    posdrift <- attr(model, "posdrift")
 
     ll <- profile_norm(p.vector, pnames, allpar, parnames, model, type,
       dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]],
-      n1idx, ise, cellidx, RT, mc, isr1, pname, ps)
+      n1idx, ise, cellidx, RT, mc, isr1, pname, ps, posdrift)
 
   } else if (type == "norm_pda") {
 
@@ -516,23 +540,23 @@ profile.model <- function(fitted, pname, minp, maxp, p.vector,
 ##' ##       facet_wrap(~gpvar, scales="free") + theme_bw(base_size =14)
 plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
                        trans = NA, save = FALSE, ... ) {
-  
+
   if (any(is.na(trans))) {   ### Check 1 ###
     trans <- ifelse(natural, attr(prior[[i]], "untrans"), "identity")
   }
-  
+
   if (is.numeric(i)) i <- names(prior)[i]   ### Check 2 ###
   ## Stop the function running, if the parameters are out-of-range
   if (!(i %in% names(prior))) stop("Parameter not in prior")
   ## Finish checks. Calculate the data frame
   p <- prior[[i]]    ## Save all parameter setting to another object called p
   dist <- attr(p, "dist")
-  
+
   if ( is.na(dist) | dist == 0 ) {
     disttype <- NA
   } else {
-    disttype <- switch(dist, "tnorm", "beta_lu", "gamma_l", "lnorm_l", 
-                       "unif_", "constant", "tnorm2") 
+    disttype <- switch(dist, "tnorm", "beta_lu", "gamma_l", "lnorm_l",
+                       "unif_", "constant", "tnorm2")
   }
 
   ## Do an educated guess for xlim
@@ -586,7 +610,7 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
     )
   } else {
     x <- c(-1, 1)
-  } 
+  }
   p$x <- x
   p$lg <- FALSE    ## Turn off logarithmic transformation
 
@@ -606,26 +630,26 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
     ypos <- do.call(paste0("d", disttype), p)
     dat <- data.frame(xpos  = xpos, ypos  = ypos,
                       Parameter = rep(names(prior[i]), length(x)))
-    
+
     p0 <- ggplot(dat, aes_string(x="xpos", y="ypos")) + geom_line() +
       xlab("")+ ylab("Density") + facet_grid(. ~Parameter) +
       theme_bw(base_size = 16)
     print(p0)
     invisible(p0)
   }
-  
+
 }
 
 ##' @rdname plot_prior
 ##' @export
 plot.prior <- function(x, save = FALSE, ps = NULL, ...) {
   if( is.null(names(x))) stop("Prior object must has name attributes.")
-  
+
   pD <- NULL
   for(j in names(x)) {
     invisible(pD <- rbind(pD, plot_prior(i = j, prior = x, save = TRUE)))
   }
-  
+
   if (save) {
     return(pD)
   } else if (!is.null(ps) & is.vector(ps)) {

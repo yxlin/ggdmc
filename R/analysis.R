@@ -273,13 +273,13 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   subchain = FALSE, nsubchain = 3) {
   # x <- xx
   # d <- phi2mcmclist(xx, start, end)
-  
-  
+
+
   # x <- attr(fit, "hyper")
   # names(x)
   # str(x$pp.prior[[1]])
   # start = 101
-  
+
   thin   <- x$thin   ## x == hyper
   nchain <- x$n.chains
   pnames <- x$p.names
@@ -298,12 +298,10 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
     sapply(xx, function(y) { !is.na(attr(y, "dist")) } )
     }
   )
-  
-  
 
   ok2 <- paste(names(notna[[2]])[notna[[2]]], "h2", sep = ".")
   ok1 <- paste(names(notna[[1]])[notna[[1]]], "h1", sep = ".")
-  
+
 
   if ( is.na(end) ) end <- x$nmc
   lst <- vector("list", nchain)
@@ -320,17 +318,18 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   }
 
   # i <- 1
-  
-  location_names <- pnames[notna$location]
-  scale_names <- pnames[notna$scale]
+
+  location_names <- pnames[notna[[1]]]
+  scale_names <- pnames[notna[[2]]]
+
   for (i in 1:nchain) {
-    tmp1 <- t(x$phi[[1]][chain.idx[i], notna$location , indx[is.in]]) ## nmc x npar matrix
+      tmp1 <- t(x$phi[[1]][chain.idx[i], notna[[1]] , indx[is.in]]) ## nmc x npar matrix
     ## attach parnames with h1
-    
+
     dimnames(tmp1)[[2]] <- paste(location_names, "h1", sep=".")
     # tmp1 <- tmp1[, ok1]   ## exclude NA parameter
 
-    tmp2 <- t(x$phi[[2]][chain.idx[i], notna$scale , indx[is.in]])
+    tmp2 <- t(x$phi[[2]][chain.idx[i], notna[[2]] , indx[is.in]])
     dimnames(tmp2)[[2]] <- paste(scale_names, "h2", sep=".")
     # tmp2 <- tmp2[,ok2]
 
@@ -342,11 +341,11 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
 
   if (split) {
     for (i in 1:nchain) {
-      tmp1 <- t(x$phi[[1]][chain.idx[i], notna$location , indx[not.is.in]])
+      tmp1 <- t(x$phi[[1]][chain.idx[i], notna[[1]], indx[not.is.in]])
       dimnames(tmp1)[[2]] <- paste(location_names,"h1", sep=".")
       # tmp1 <- tmp1[,ok1]
-      
-      tmp2 <- t(x$phi[[2]][chain.idx[i], notna$scale , indx[not.is.in]])
+
+      tmp2 <- t(x$phi[[2]][chain.idx[i], notna[[2]], indx[not.is.in]])
       dimnames(tmp2)[[2]] <- paste(scale_names,"h2", sep=".")
       # tmp2 <- tmp2[,ok2]
       # Remove cases with !has.sigma
@@ -355,12 +354,12 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
     }
   }
 
-  if (length(ok1) != x$n.pars | length(ok2) != x$n.pars) { 
+  if (length(ok1) != x$n.pars | length(ok2) != x$n.pars) {
     new.npar <- sum(unlist(notna))
   } else {
     new.npar <- x$n.pars * 2
   }
-    
+
   attr(lst, "nchain") <- nchain
   attr(lst, "npar")   <- new.npar
   attr(lst, "thin")   <- thin
@@ -442,7 +441,7 @@ gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
       if (verbose) {
         message("Diagnosing a single participant, theta. Rhat = ", round(out$mpsrf, 2))
       }
-      
+
     } else {
       if (verbose) message("Diagnosing theta for many participants separately")
       out <- lapply(x, function(xx) {
@@ -626,7 +625,7 @@ summary_mcmc_list <- function(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
   varstats <- matrix(nrow = npar, ncol = length(statnames),
     dimnames = list(pnames, statnames))
   xtsvar <- matrix(nrow = nchain, ncol = npar)
-  
+
   if (is.matrix(object[[1]])) {
     for (i in 1:nchain) {
       for (j in 1:npar) {
@@ -660,7 +659,7 @@ summary_hyper <- function(x, start, end, hmeans, hci, prob, digits, verbose) {
   if (verbose) message("Summarise hierarchical model")
   hyper <- attr(x, "hyper")
   if (is.null(hyper)) stop("Samples are not from a hierarhcial model fit")
-  
+
   # message("end is missing detected.")
   if (is.na(end)) end <- hyper$nmc
   npar <- hyper$n.pars
@@ -694,9 +693,14 @@ summary_one <- function(x, start, end, prob, verbose) {
     prob = prob))
 }
 
+# x <- fit
+# start <- 151
+# end <- 500
+# prob <- c(0.025, 0.25, 0.5, 0.75, 0.975)
 ##' @importFrom matrixStats colMeans2
 summary_many <- function(x, start, end, prob, verbose) {
   if(verbose) message("Summary each participant separately")
+
   out1 <- lapply(x, function(xx, starti, endi, probi) {
           step1 <- summary_mcmc_list(theta2mcmclist(xx, starti, endi),
             prob = probi)
@@ -709,6 +713,7 @@ summary_many <- function(x, start, end, prob, verbose) {
   } else {
     df_form <- t(data.frame(lapply(out1, function(xx){xx[[1]][, 1]})))
     out2 <- rbind(df_form, matrixStats::colMeans2(df_form))
+    if(is.null(names(x))) names(x) <- 1:length(x)  ## prevent no name object
     row.names(out2) <- c(names(x), "Mean")
     return(out2)
   }
@@ -778,10 +783,10 @@ check_nonna <- function(x, type) {
     sapply(xx, function(xxx) { !is.na(attr(xxx, "dist")) } )
     }
   )
-  
+
   notnaidx <- notna[[type]]
-  theta <- x$phi[[type]][,notnaidx,] 
-  pnames <- x$p.names[notnaidx] 
+  theta <- x$phi[[type]][,notnaidx,]
+  pnames <- x$p.names[notnaidx]
   newnpar <- sum(notnaidx)
 
   return(list(theta, newnpar, pnames))

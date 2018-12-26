@@ -446,16 +446,17 @@ maker <- function (drifts, n, b, A, n_v, t0, st0 = 0, seed = NULL,
 ##' \code{plba2}, \code{plba3}, \code{lnr}, and \code{cnorm} models.
 ##'
 ##' @param type a character string indicating the model type
-##' @param pmat a matrox of accumulator x parameter
+##' @param pmat a matrix of accumulator x parameter
 ##' @param n number of simulations
 ##' @param seed an integer specifying if and how the random number generator
 ##' should be initialized.
+##' @param regressor independent variables in regression models
 ##' @importFrom rtdists rdiffusion
 ##' @export
 random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
 
   set.seed(seed)
-  
+
   if (type == "rd") {
     out <- rtdists::rdiffusion(n, a = pmat$a[1], v = pmat$v[1],
       t0 = pmat$t0[1],
@@ -502,10 +503,33 @@ random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
     # pmat is a data frame
     #       a   b   tau
     # r1 143 -1.2   8.8
-    X  <- sample(x = regressors, size = n, replace = TRUE)
-    mu <- pmat[1,1] + pmat[1,2] * X
-    sd <- 1/sqrt(pmat[1,3])
-    out <- cbind(rnorm(n, mu, sd), rep(1, n), X)
+
+    # X_  <- sample(x = regressors, size = n, replace = TRUE)
+    # mu <- pmat[1,1] + pmat[1,2] * X_
+    # sd <- 1/sqrt(pmat[1,3])
+    # out <- cbind(rep(1, n), X_, rnorm(n, mu, sd))
+
+    nbeta <- ncol(pmat) - 1
+    beta <- matrix(unlist(pmat[1, 1:nbeta]), ncol = 1)
+    tau  <- pmat[1, ncol(pmat)]
+    X_ <- sample(x = regressors, size = n, replace = TRUE)
+    X  <- as.matrix(cbind(rep(1, n), X_))
+    linpred <- X %*% beta
+    sd <- 1/sqrt(tau)
+    out <- cbind(X, rnorm(n, linpred, sd))
+
+  } else if (type == "logit") {
+    nbeta <- ncol(pmat) - 1
+    beta <- matrix(unlist(pmat[1, 1:nbeta]), ncol = 1)
+    X  <- as.matrix(cbind(rep(1, n), regressors,
+                    regressors[,1] * regressors[,2]))
+
+    b <- rnorm(n, 0, pmat[1, nbeta+1])
+    linpred <- X %*% beta + b
+
+    prob <- plogis(linpred, 0, 1, TRUE, FALSE)
+    ni <- sample(1:100, n, replace = TRUE)
+    out <- cbind(rep(1, n), rbinom(n, size = ni, prob = prob), ni)
 
   } else {
     stop("Model type yet created")
@@ -619,10 +643,10 @@ GetParameterMatrix <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
 }
 
 GetParameterMatrix_bk <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
-  
+
   message1 <- "Parameters are incompatible with model"
   pnames <- names(attr(x, "p.vector"))
-  
+
   if (anyNA(prior)) { ## use ps
     if (is.vector(ps)) {
       if (check_pvec(ps, x)) stop(message1)
@@ -635,38 +659,48 @@ GetParameterMatrix_bk <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
       if ((ns != dim(ps)[1])) stop("ps matrix must have ns rows")
       if (check_pvec(ps[1,], x)) stop(message1)
     }
-    
+
     rownames(psmat) <- 1:ns
   } else {  ## use prior; random-effect model
     if (!all( pnames %in% names(prior))) stop(message1)
     set.seed(seed)
     psmat <- rprior(prior[pnames], ns)
   }
-  
+
   return(psmat)
 }
 
+# ps <- c(a = 242.7, b = 6.185, tau = .01)
+# ps <- c(b0 = -.55, b1 = .08, b2 = -.81, b3 = 1.35, sd = .267)
+# ps <- c(b1 = .08, b2 = -.81, b3 = 1.35, sd = .267)
 # n <- 10
+# seed <- NULL
 simulate_one <- function(model, n, ps, seed) {
   if (check_pvec(ps, model)) stop("p.vector and model incompatible")
-  regressors <- attr(model, "regressors")
   resp <- attr(model, "responses")
   type <- attr(model, "type")
   levs <- attr(model, "factors")
   facs <- ggdmc:::createfacsdf(model)
   nvec <- ggdmc:::check_n(n, facs)
-  dat  <- ggdmc:::nadf(nvec, facs, levs)
+  dat  <- ggdmc:::nadf(nvec, facs, levs, type)
   row1 <- 1
 
-  ## random is set in the ggdmc_random.R
+  dfnames <- names(dat)
+  Xnames   <- dfnames[!dfnames %in% c("R", "N", "Y")]
+
+  # i <- 2
   for (i in 1:nrow(facs)) {
     pmat <- TableParameters(ps, i, model, FALSE) ## simulate use n1.order == FALSE
     rown <- row1 + nvec[i] - 1
-    
+
     if (type == "glm") {
-      dat$X <- NA
+      regressors <- attr(model, "regressors")
       tmp <- random(type, pmat, nvec[i], seed, regressors)
-      dat[row1:rown, c("RT", "R", "X")] <- tmp
+      dat[row1:rown, c("R", "X", "Y")] <- tmp
+    } else if (type == "logit") {
+      regressors <- dat[row1:rown, Xnames]
+      tmp <- random(type, pmat, nvec[i], seed, regressors)
+      dat[row1:rown, c("R", "Y", "N")] <- tmp
     } else {
       dat[row1:rown, c("RT", "R")] <- random(type, pmat, nvec[i], seed)
     }
@@ -775,4 +809,83 @@ simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
   return(out)
 }
 
+##' Post-predictive Simulation
+##'
+##' Simulate post-predictive data.
+##'
+##' @param object a model object of a subject.
+##' @param npost number of posterior predictive replications.
+##' @param nsub whether randomly select a npost estimated parameter values or
+##' select the first npost estimates
+##' @param factors experimental factors
+##' @param xlim trimming outlier, e.g., xlim = c(0, 5).
+##' @param seed an integer specifying if and how the random number generator
+##' should be initialized.
+##' @return a data frame
+##'
+##' @export
+predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
+                        xlim = NA, seed = NULL) {
 
+  model <- attributes(object$data)$model
+  facs <- names(attr(model, "factors"))
+  class(object$data) <- c("data.frame", "list")
+
+  if (!is.null(factors)) {
+    if (any(is.na(factors))) factors <- facs
+    if (!all(factors %in% facs))
+      stop(paste("Factors argument must contain one or more of:",
+                 paste(facs, collapse=",")))
+  }
+
+  resp <- names(attr(model, "responses"))
+  ns   <- table(object$data[,facs], dnn = facs)
+  npar   <- object$n.pars
+  nchain <- object$n.chains
+  nmc    <- object$nmc
+  ntsample <- nchain * nmc
+  pnames   <- object$p.names
+  # str(samples$theta) ## nchain x npar x nmc
+  # str(thetas)        ## (nchainx nmc) x npar
+  thetas <- matrix(aperm(object$theta, c(3,1,2)), ncol = npar)
+  colnames(thetas) <- pnames
+
+  if (is.na(npost)) {
+    use <- 1:ntsample
+  } else {
+    if (rand) {
+      use <- sample(1:ntsample, npost, replace = F)
+    } else {
+      use <- round(seq(1, ntsample, length.out = npost))
+    }
+  }
+
+  npost  <- length(use)
+  posts   <- thetas[use, ]
+  nttrial <- sum(ns) ## number of total trials
+  out <- data.frame(matrix(nrow = npost*nttrial, ncol = dim(object$data)[2]))
+
+  # for (i in 1:npost) {
+  #   tmp <- ggdmc:::simulate_one(model, n = ns, ps = posts[i,], seed = NULL)
+  #   out[(1+(i-1)*nttrial):(i*nttrial), names(tmp)] <- tmp
+  #   if ( (i %% report) == 0) cat(".")
+  # }
+
+  ## should replace with parallel
+  v <- lapply(1:npost, function(i) {
+    ggdmc:::simulate_one(model, n = ns, ps = posts[i,], seed = seed)
+  })
+  out <- data.table::rbindlist(v)
+  # names(out) <- names(object$data)
+  reps <- rep(1:npost, each = nttrial)
+  out <- cbind(reps, out)
+
+  if (!any(is.na(xlim))) {
+    out <- out[RT > xlim[1] & RT < xlim[2]]
+  }
+
+  attr(out, "data") <- object$data
+  return(out)
+}
+
+"%w/o%" <- function(x, y) x[!x %in% y] #--  x without y

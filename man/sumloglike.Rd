@@ -74,6 +74,5 @@ p.vector <- c(a = 1, v = 1, z = 0.5, sz = 0.25, sv = 0.2, t0 = .15)
 ## Set up a model-data instance
 dat <- simulate(m1, 128, ps = p.vector)
 dmi <- BuildDMI(dat, m1)
-## sumloglike(p.vector, dmi)
-## [1] 0.3796048
+## sum(likelihood_rd(p.vector, dmi))
 }

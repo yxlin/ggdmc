@@ -8,7 +8,7 @@
 \alias{StartNewHypersamples}
 \alias{RestartHypersamples}
 \alias{StartNewhiersamples}
-\title{Initialize New Samples}
+\title{Initialise New Samples}
 \usage{
 StartNewsamples(nmc, data = NULL, prior = NULL, thin = 1,
   nchain = NULL, rp = 0.001)
@@ -32,7 +32,7 @@ StartNewhiersamples(nmc, data = NULL, start = NULL, prior = NULL,
   thin = 1, nchain = NULL, rp = 0.001)
 }
 \arguments{
-\item{nmc}{numbers of Monte Carlo samples / iterations.}
+\item{nmc}{numbers of Monte Carlo samples.}
 
 \item{data}{a data model instance}
 
@@ -54,9 +54,9 @@ uniform or Gaussian distribution.}
 This must be a set of location and scale hyper prior distributions.}
 }
 \description{
-These functions use prior distributions, either from \code{p.prior} or joinly
-from \code{p.prior} and \code{pp.prior} in the case of hierarchical
-models to generate over-dispersed initial parameter values.
+Set points radnomly based on supplied / default prior distributions,
+either from \code{start}, or \code{prior} to generate over-dispersed
+initial parameter values.
 }
 \examples{
 m1 <- BuildModel(

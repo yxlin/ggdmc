@@ -152,7 +152,7 @@ void MutateDGMCChains(arma::mat& usetheta, arma::vec& uselp, arma::vec& usell,
   std::string type, std::vector<std::string> dim1,
   std::vector<std::string> dim2, std::vector<std::string> dim3,
   arma::umat n1idx, arma::uvec ise, arma::umat cellidx, arma::vec RT,
-  arma::uvec matchcell, arma::uvec isr1, bool posdrift, unsigned int ngroup, 
+  arma::uvec matchcell, arma::uvec isr1, bool posdrift, unsigned int ngroup,
   double rp, unsigned int npda, double bw, unsigned int ncore,
   unsigned int gpuid, arma::uvec& rj) {
 
@@ -525,7 +525,7 @@ void CrossoverDMCHyperchains(arma::field<arma::mat>& usephi,
     // theta: nsub x npar x nchain == ps: nchain x nsub x npar
     tmp_hlp = sumloghprior(tmp_loc, tmp_sca, ldists, sdists, lp1, sp1, lp2,
       sp2, llower, slower, lupper, supper, llog, slog);
-    
+
     tmp_hll = sumloghlike(theta.slice(k0), pdists, tmp_loc, tmp_sca, plower,
       pupper, plog);
     tmp_logpos = tmp_hlp + tmp_hll;
@@ -594,7 +594,7 @@ void CrossoverDMCHyperchains_blocked(arma::field<arma::mat>& usephi,
 
     double tmp_hlp = sumloghprior(tmp_loc, tmp_sca, ldists, sdists, lp1, sp1,
         lp2, sp2, llower, slower, lupper, supper, llog, slog);
-    double tmp_hll = sumloghlike(theta.slice(chains(i)), pdists, tmp_loc, 
+    double tmp_hll = sumloghlike(theta.slice(chains(i)), pdists, tmp_loc,
                                  tmp_sca, plower, pupper, plog);
     tmp_logpos = tmp_hlp + tmp_hll;
 
@@ -1785,7 +1785,7 @@ List run_dgmc(List samples, arma::uvec force, unsigned int report, double pm,
 }
 
 // [[Rcpp::export]]
-List run_dmc(List samples, arma::uvec force, unsigned int report, double pm, 
+List run_dmc(List samples, arma::uvec force, unsigned int report, double pm,
              double pm0, double gammamult, unsigned int ncore, bool slice) {
 
   List samples_in(clone(samples)); // so R' original samples stays
@@ -1938,7 +1938,7 @@ List run_hyper_dmc(List samples, unsigned int report, double pm, double pm0, dou
   List ppprior  = hyper["pp.prior"];     /* Extract pprior & ppprior */
   List lprior   = ppprior[0];
   List sprior   = ppprior[1];
-  
+
   std::vector<std::string> types(nsub);
   arma::vec pp1(npar), pp2(npar), plower(npar), pupper(npar), lp1(npar),
      lp2(npar), llower(npar), lupper(npar), sp1(npar), sp2(npar), slower(npar),

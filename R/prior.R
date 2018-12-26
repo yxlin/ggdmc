@@ -116,16 +116,16 @@ BuildPrior <- function(p1, p2,
                        upper   = rep(NA, length(p1)),
                        dists   = rep("tnorm", length(p1)),
                        untrans = rep("identity", length(p1)),
-                       types   = c("tnorm", "beta", "gamma", "lnorm", "unif", 
-                                   "constant", "tnorm2", NA)) 
+                       types   = c("tnorm", "beta", "gamma", "lnorm", "unif",
+                                   "constant", "tnorm2", NA))
 {
-  npar <- length(p1)  
+  npar <- length(p1)
   if (length(p2) == 1) { p2 <- rep(p2, npar) }
   name.untrans <- check_BuildPrior(p1, p2, lower, upper, dists, untrans, types)
   out <- vector("list", npar)
   pnames <- names(p1)
   names(out) <- pnames
-  
+
   for (i in 1:npar) {
     out[[i]] <- switch(dists[i],
                        tnorm = {
@@ -187,7 +187,7 @@ BuildPrior <- function(p1, p2,
                          attr(p, "dist") <- 7  ## "tnorm2"
                          p
                        },
-                       
+
                        {
                          p <- c(p1[i], p2[i], -Inf, Inf)
                          names(p) <- c("p1", "p2", "lower", "upper")
@@ -197,9 +197,9 @@ BuildPrior <- function(p1, p2,
                        }
     )
     out[[i]]$lg <- TRUE
-    
+
     if (!name.untrans) {
-      attr(out[[i]], "untrans") <- untrans[i] 
+      attr(out[[i]], "untrans") <- untrans[i]
     } else {
       if (is.na(untrans[pnames[i]])) {
         attr(out[[i]], "untrans") <- "identity"
@@ -208,7 +208,7 @@ BuildPrior <- function(p1, p2,
       }
     }
   }
-  
+
   class(out) <- c("prior", "list")
   return(out)
 }
@@ -218,15 +218,15 @@ BuildPrior_string <- function(p1, p2,
                            upper   = rep(NA, length(p1)),
                            dists   = rep("tnorm", length(p1)),
                            untrans = rep("identity", length(p1)),
-                           types   = c("tnorm", "beta", "gamma", "lnorm", "unif", "constant", "empty")) 
+                           types   = c("tnorm", "beta", "gamma", "lnorm", "unif", "constant", "empty"))
 {
-  np1 <- length(p1)  
-  if (length(p2) == 1) p2 <- rep(p2, np1) 
+  np1 <- length(p1)
+  if (length(p2) == 1) p2 <- rep(p2, np1)
   name.untrans <- check_BuildPrior(p1, p2, lower, upper, dists, untrans, types)
   out <- vector(mode = "list", length = np1)
   pnames <- names(p1)
   names(out) <- pnames
-  
+
   for (i in 1:np1) {
     out[[i]] <- switch(dists[i],
                        tnorm = {
@@ -297,9 +297,9 @@ BuildPrior_string <- function(p1, p2,
                        }
     )
     out[[i]]$lg <- TRUE
-    
+
     if (!name.untrans) {
-      attr(out[[i]], "untrans") <- untrans[i] 
+      attr(out[[i]], "untrans") <- untrans[i]
     } else {
       if (is.na(untrans[pnames[i]])) {
         attr(out[[i]], "untrans") <- "identity"
@@ -308,7 +308,7 @@ BuildPrior_string <- function(p1, p2,
       }
     }
   }
-  
+
   class(out) <- c("prior", "list")
   return(out)
 }
@@ -354,7 +354,8 @@ BuildPrior_string <- function(p1, p2,
 rprior <- function(prior, n = 1) {
   if (n == 1) {
     out <- rprior_vec(prior)
-  } else { 
+    # out <- tmp[!is.na(tmp)]
+  } else {
     out <- rprior_mat(prior, n)
   }
   return(out)
@@ -364,15 +365,15 @@ rprior <- function(prior, n = 1) {
 check_BuildPrior <- function(p1, p2, lower, upper, dists, untrans,types) {
   np1 <- length(p1)  ## number of parameter
   np2 <- length(p2)
-  
+
   if (np2 == 1) { p2 <- rep(p2, np1); np2 <- np1 }
   if (np1 != np2) stop("p1 and p2 must be equal length")
   if (np1 != length(lower) ) stop("p1 and lower must be equal length")
   if (np1 != length(upper) ) stop("p1 and upper must be equal length")
   if (np1 != length(dists) ) stop("p1 and dists must be equal length")
-  
+
   both.not.na <- !is.na(upper) & !is.na(lower)
-  
+
   if ( any(upper[both.not.na] <= lower[both.not.na]) )
     stop("All elements of upper must be greater than lower")
   if ( !all(dists %in% types) )

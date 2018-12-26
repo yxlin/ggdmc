@@ -345,7 +345,7 @@ arma::mat make_r(arma::mat drifts, arma::vec A, arma::vec b, arma::vec t0,
      if (debug) Rcout << "Inf/NaN found. Only " << finite_idx.n_elem << " RTs are returned\n";
      out = arma::join_horiz(finite_rt, finite_r);
   } else {
-     out = arma::join_horiz(RT, R);
+       out = arma::join_horiz(RT, R);
   }
   if (return_ttf) { return internal_rt; } else { return out; }
 }

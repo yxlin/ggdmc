@@ -1,8 +1,8 @@
 require(ggdmc); require(data.table); require(ggplot2); require(gridExtra)
 require(testthat)
-context("GLM")
+context("hglm")
 
-test_that("GLM", {
+test_that("hglm", {
   rm(list = ls())
   setwd("/media/yslin/KIWI/Documents/ggdmc/")
   model <- BuildModel(
@@ -25,23 +25,12 @@ test_that("GLM", {
     lower = c(NA, 0, 0),
     upper = rep(NA, npar))
   
-  png("~/myblog/images/BUGS/pop_prior.png", 800, 600)
+  # png("~/myblog/images/BUGS/pop_prior.png", 800, 600)
   plot(pop.prior, ps = pop.mean)
-  dev.off()
-  dat <- simulate(model, nsub = 1000, nsim = ntrial, prior = pop.prior)
+  # dev.off()
+  dat <- simulate(model, nsub = 30, nsim = ntrial, prior = pop.prior)
   dmi <- BuildDMI(dat, model)
   ps <- attr(dat, "parameters")
-  # mu_avg <- colMeans(ps)
-  # sd_avg <- matrixStats::colSds(ps)
-  # true_sd <- 1/sqrt(pop.scale)
-  # 
-  # mu_avg - pop.mean
-  
-  # d <- data.table(dat)
-  # d[, .N, .(s)]
-  
-  
-
   # p0 <- ggplot(dat, aes(x = X, y = RT, group = s, color = s)) +
   #   geom_point() + geom_line() + 
   #   ylab("Y") +
@@ -89,12 +78,12 @@ test_that("GLM", {
     upper = rep(NA, npar))
   prior <- list(p.prior, mu.prior, sigma.prior)
 
-  DT <- data.table(d)
-  DT[, .N, .(s)]
+  # DT <- data.table(d)
+  # DT[, .N, .(s)]
   
-  fit0 <- StartNewhiersamples(500, dmi, start, prior)
-  fit <- run(fit0)
-  thin <- 32
+  fit0 <- StartNewhiersamples(500, dmi, start, prior, thin = 8)
+  fit <- run(fit0, hpm = 0)
+  thin <- 2
   # repeat {
     fit <- run(RestartHypersamples(5e2, fit, thin = thin))
     save(fit0, fit, file = path[1])
@@ -105,25 +94,16 @@ test_that("GLM", {
   cat("Done ", path[1], "\n")
   setwd("/media/yslin/KIWI/Documents/ggdmc/")
 
-  
-  png("~/myblog/images/BUGS/traceplot_rats.png", 800, 600)
   p0 <- plot(fit, hyper = TRUE)
-  dev.off()
-  
-  p0 <- plot(fit, hyper = TRUE, start = 101)
-  
-  png("~/myblog/images/BUGS/densityplot_rats.png", 800, 600)
+  p0 <- plot(fit, hyper = TRUE, start = 201)
   p1 <- plot(fit, hyper = TRUE, pll = FALSE, den = TRUE)
-  dev.off()
+  
 
-  est1 <- summary(fit, hyper = TRUE, type = 1, verbose = TRUE, digits = 3)
-  
-  
   est1 <- summary(fit, hyper = TRUE, recover = TRUE,  
                   ps = pop.mean,  type = 1, verbose = TRUE, digits = 3)
   est2 <- summary(fit, hyper = TRUE, recover = TRUE, 
                   ps = pop.scale, type = 2, verbose = TRUE, digits = 3)
-  # est3 <- summary(fit, recover = TRUE, ps = ps, verbose = TRUE)
+  est3 <- summary(fit, recover = TRUE, ps = ps, verbose = TRUE)
   
   hes <- effectiveSize(fit, hyper = TRUE)
   es <- effectiveSize(fit)

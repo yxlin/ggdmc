@@ -83,15 +83,5 @@ double sumloglike(arma::vec pvec, std::vector<std::string> pnames,
                   unsigned int nsim, double bw, unsigned int ncore,
                   unsigned int gpuid, bool debug);
 
-double sumloglike_glm(arma::vec pvec,
-                      std::vector<std::string> pnames,
-                      arma::vec allpar,
-                      std::vector<std::string> parnames,
-                      arma::ucube model,
-                      std::string type,
-                      std::vector<std::string> dim1,
-                      std::vector<std::string> dim2,
-                      std::vector<std::string> dim3,
-                      arma::umat n1idx, arma::uvec ise,
-                      arma::umat cellidx, arma::vec RT,
-                      arma::uvec matchcell, arma::uvec isr1, arma::vec X);
+double sumloglike_glm(arma::vec pvec, std::string type, arma::mat X, 
+                      arma::mat Y);

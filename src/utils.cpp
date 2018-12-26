@@ -141,28 +141,31 @@ void TransformSubjects_glm(List samples,
                            arma::field<arma::vec>& useloglikes,
                            arma::uvec& store_i,
                            std::vector<std::string>& types,
-                           arma::field<arma::vec>& allpars, 
+                           arma::field<arma::vec>& allpars,
                            arma::field<arma::umat>& n1idxes,
-                           arma::field<arma::uvec>& matchcells, 
+                           arma::field<arma::uvec>& matchcells,
                            arma::field<arma::uvec>& emptycells,
-                           arma::field<arma::umat>& cellidxes, 
+                           arma::field<arma::umat>& cellidxes,
                            arma::field<std::vector<std::string>>& parnames,
                            arma::field<std::vector<std::string>>& dim1s,
                            arma::field<std::vector<std::string>>& dim2s,
                            arma::field<std::vector<std::string>>& dim3s,
                            arma::field<arma::uvec>& isr1s, arma::uvec& posdrift,
                            arma::field<arma::ucube>& models,
-                           arma::uvec& npdas, arma::vec& bws, arma::uvec& gpuids,
-                           arma::field<arma::vec>& RTs, 
-                           arma::field<arma::vec>& Xs) {
-  
+                           arma::uvec& npdas, arma::vec& bws,
+                           arma::uvec& gpuids,
+                           arma::field<arma::mat>& Ys,
+                           arma::field<arma::mat>& Xs) {
+
   unsigned int nsub = samples.size();
-  
+
   for (size_t i = 0; i < nsub; i++) {
     List subjecti      = samples[i];
     List data          = subjecti["data"];  // extract data-model options
-    arma::vec RT       = data["RT"];
-    arma::vec X        = data["X"];
+    arma::vec Y_       = data["Y"];
+    arma::mat Y        = Y_;
+    arma::vec X_vec   = data["X"]; // glm independent / predictor variable
+    arma::mat X = arma::join_horiz(arma::ones(X_vec.n_elem), X_vec);
     arma::ucube model  = data.attr("model");
     unsigned int npda  = data.attr("n.pda");
     double bw          = data.attr("bw");
@@ -181,7 +184,7 @@ void TransformSubjects_glm(List samples,
     std::vector<std::string> dim2 = modelDim[1]; // col; parameters
     std::vector<std::string> dim3 = modelDim[2]; // slice; response types; r1, r2
     arma::uvec isr1 = GetIsR1(modelAttr, type);
-    
+
     arma::cube thetai = subjecti["theta"]; // nchain x npar x nmc
     arma::mat lpi     = subjecti["summed_log_prior"]; // nmc x nchain
     arma::mat lli     = subjecti["log_likelihoods"];  // nmc x nchain
@@ -189,7 +192,7 @@ void TransformSubjects_glm(List samples,
     unsigned int start_C = start - 1;
     store_i(i) = start - 1;
     // Rcout << "store_i: " << store_i(i) << std::endl;
-    
+
     types[i] = type;
     allpars(i) = allpar;
     n1idxes(i) = n1idx;
@@ -204,11 +207,11 @@ void TransformSubjects_glm(List samples,
     npdas(i) = npda;
     bws(i) = bw;
     gpuids(i) = gpuid;
-    RTs(i) = RT;
+    Ys(i) = Y;
     Xs(i) = X;
-    
+
     posdrift(i) = posd;
-    
+
     thetas(i)    = thetai; // nchain x npar x nmc
     usethetas(i) = thetai.slice(start_C); // nchain x npar
     logpriors(i) = lpi; // nmc x nchain
@@ -444,7 +447,7 @@ void CheckHyperPnames(List samples) {
 //' @export
 // [[Rcpp::export]]
 arma::umat cellIdx2Mat(List data) {
-  // The nrow always equal the total number of trials, so unbalanced design 
+  // The nrow always equal the total number of trials, so unbalanced design
   // works, too.
 
   List cellidxlist = data.attr("cell.index"); // s1.r1,
@@ -460,8 +463,6 @@ arma::umat cellIdx2Mat(List data) {
   return(out);
 }
 
-
-
 NumericMatrix na_matrix(unsigned int nr, unsigned int nc) {
   NumericMatrix out(nr, nc);
   std::fill( out.begin(), out.end(), NumericVector::get_na() ) ;
@@ -469,18 +470,53 @@ NumericMatrix na_matrix(unsigned int nr, unsigned int nc) {
 }
 
 
+
 // [[Rcpp::export]]
-arma::mat ac_(arma::vec x, unsigned int nlag) {
-  unsigned int n = x.n_elem;
-
-  arma::mat out(n, nlag); out.fill(NA_REAL);
-  out.col(0) = x;
-
-  for (size_t i = 1; i < nlag; i++) {
-    arma::vec tmp1 = arma::shift(x, (int)i);
-    tmp1.rows(0, i-1).fill(NA_REAL);
-    out.col(i) = tmp1;
-  }
-  return(out);
+arma::vec invlogit(arma::vec x) {
+  arma::vec out = 1 / (1 + arma::exp(-x));
+  return out;
 }
+
+// [[Rcpp::export]]
+arma::vec invlogit2(arma::vec x) {
+  arma::vec out(x.n_elem);
+  for (size_t i = 0; i < x.n_elem; i++) {
+    // location = 0, scale = 1, lower.tail = T, log.p = F
+    out(i) = R::plogis(x(i), 0, 1, 1, 0);
+  }
+  return out;
+}
+
+// [[Rcpp::export]]
+arma::vec ac_(arma::vec x, unsigned int nlag) {
+  // # X <- list(Lag = 1:nLags, Autocorrelation = cor(X, use = "pairwise.complete.obs")[, 1])
+  // X <- data.frame(Lag = 1:nLags, Autocorrelation = cor(X, use = "pairwise.complete.obs")[, 1])
+
+  unsigned int n = x.n_elem;
+  unsigned int nm1 = n - 1;
+  arma::vec out(nlag);
+  arma::mat tmp0 = arma::cor(x, x);
+  out(0) = arma::as_scalar(tmp0);
+  arma::vec tmp1, tmp2;
+  for (size_t i = 1; i < nlag; i++) {
+     tmp1 = arma::shift(x, (int)i); // 0 to 499
+     tmp0 = arma::cor(x.rows(i, nm1), tmp1.rows(i, nm1)); // pairwise.complete.obs
+     out(i) = arma::as_scalar(tmp0);
+  }
+  return out;
+}
+
+// arma::mat ac_(arma::vec x, unsigned int nlag) {
+//   unsigned int n = x.n_elem;
+//
+//   arma::mat out(n, nlag); out.fill(NA_REAL);
+//   out.col(0) = x;
+//
+//   for (size_t i = 1; i < nlag; i++) {
+//     arma::vec tmp1 = arma::shift(x, (int)i);
+//     tmp1.rows(0, i-1).fill(NA_REAL);
+//     out.col(i) = tmp1;
+//   }
+//   return(out);
+// }
 

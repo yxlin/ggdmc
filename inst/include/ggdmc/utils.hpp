@@ -21,7 +21,7 @@ void TransformSubjects_glm(Rcpp::List samples,
                            arma::field<arma::uvec>& isr1s, arma::uvec& posdrift,
                            arma::field<arma::ucube>& models,
                            arma::uvec& npdas, arma::vec& bws, arma::uvec& gpuids,
-                           arma::field<arma::vec>& RTs, arma::field<arma::vec>& Xs);
+                           arma::field<arma::mat>& Ys, arma::field<arma::mat>& Xs);
 
 void TransformSubjects(Rcpp::List samples, arma::field<arma::cube>& thetas,
   arma::field<arma::mat>& usethetas, arma::field<arma::mat>& logpriors,

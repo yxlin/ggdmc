@@ -1,12 +1,217 @@
 ### Sampling  ----------------------------------------------------------------
-##' Initialize New Samples
+
+##' @export
+Startlogit <- function(nmc, data = NULL, start = NULL, prior = NULL,
+                       thin = 1, nchain = NULL, rp = .001) {
+  model  <- CheckDMI(data, prior, NULL, nchain)
+  pnames <- GetPNames(model)
+  npar   <- length(pnames)
+  if (is.null(nchain)) nchain <- 3*npar
+
+  datnames <- names(data)
+  Xnames   <- datnames[!datnames %in% c("R", "N", "Y")]
+  Ynames   <- c("Y", "N")
+
+  X_ <- data.matrix(data[, Xnames])
+
+  attr(data, "X") <- cbind(X_, X_[,1]*X_[,2])
+  attr(data, "Y") <- data.matrix(data[, Ynames])
+
+  out <- init_logit(nmc, data, start, prior, rp, thin, nchain)
+  return(out)
+}
+
+##' @export
+Startlogits <- function(nmc, data = NULL, start = NULL, prior = NULL,
+                        thin = 1, nchain = NULL, rp = .001) {
+  if (is.null(prior) || is.null(start)) stop("Neither p nor start priors supplied")
+  npar <- length(prior)
+  if (is.null(nchain)) nchain <- 3*npar
+
+  model1 <- attr(data[[1]], "model")
+  pnames <- GetPNames(model1)
+  type <- attr(model1, "type")
+  out <- vector("list", length = length(data))
+
+  for(i in 1:length(data)) {
+    out[[i]] <- Startlogit(nmc, data[[i]], start, prior, thin, nchain, rp)
+    dimnames(out[[i]]$theta) <- list(NULL, pnames, NULL)
+    class(out[[i]]) <- c("model", "list")
+  }
+  cat("\n")
+  return(out)
+
+
+}
+
+##' @export
+Starthlogit <- function(nmc, data = NULL, start = NULL, prior = NULL,
+                         thin = 1, nchain = NULL, rp = .001) {
+
+  nchain <- CheckHyperDMI(data, nchain)  ## If nchain=NULL, change it to default
+  if (is.null(prior)) stop("No prior")   ## Check priors
+  if (is.null(start)) stop("No start prior")
+  model1 <- attr(data[[1]], "model")
+  pnames <- GetPNames(model1)
+  ispok <- pnames %in% names(prior[[1]])
+  islok <- pnames %in% names(prior[[2]])
+  issok <- pnames %in% names(prior[[3]])
+  if (!all(ispok)) stop("p.prior incompatible with model")
+  if (!all(islok)) stop("location prior incompatible with model")
+  if (!all(issok)) stop("scale prior incompatible with model")
+  type <- attr(model1, "type")
+
+  out <- Startlogits(nmc, data, start[[1]], prior[[1]], thin, nchain, rp)
+
+  names(out) <- names(data)
+  class(out) <- c("model", "list")
+  return(out)
+}
+
+
+# nmc <- 5e2
+# data <- dmi
+# start <- start
+# prior <- p.prior
+# thin <- 1
+# nchain <- NULL
+# rp <- .001
+
+##' @export
+Start_glm <- function(nmc, data = NULL, start = NULL, prior = NULL,
+                     thin = 1, nchain = NULL, rp = .001) {
+
+  model  <- CheckDMI(data, prior, NULL, nchain)
+  pnames <- GetPNames(model)
+  npar   <- length(pnames)
+  if (is.null(nchain)) nchain <- 3*npar
+
+  datnames <- colnames(data)
+  Xnames   <- datnames[!datnames %in% c("R", "S", "Y")]
+  Ynames   <- c("Y")
+  attr(data, "X") <- data.matrix(data[, Xnames])
+  attr(data, "Y") <- data.matrix(data[, Ynames])
+  out <- ggdmc:::init_new_glm(nmc, data, start, prior, rp, thin, nchain)
+  return(out)
+
+}
+
+# nmc <- 100
+# data <- dmi
+# prior <- p.prior
+##' @export
+Start_glms <- function(nmc, data = NULL, start = NULL, prior = NULL,
+                      thin = 1, nchain = NULL, rp = .001) {
+  if (is.null(prior) || is.null(start)) stop("Neither p nor start priors supplied")
+  npar <- length(prior)
+  if (is.null(nchain)) nchain <- 3*npar
+  if (is.null(data[[1]]$X)) { stop("No regressors"); }
+
+  model1 <- attr(data[[1]], "model")
+  pnames <- GetPNames(model1)
+  type <- attr(model1, "type")
+  out <- vector("list", length = length(data))
+
+  for(i in 1:length(data)) {
+    out[[i]] <- Start_glm(nmc, data[[i]], start, prior, thin, nchain, rp)
+    dimnames(out[[i]]$theta) <- list(NULL, pnames, NULL)
+    class(out[[i]]) <- c("model", "list")
+  }
+  cat("\n")
+  return(out)
+}
+
+# nmc <- 10
+# data <- dmi
+# start <- start
+# prior <- prior
+# thin <- 1
+# nchain <- 9
+# rp <- .001
+##' @export
+Start_hglm <- function(nmc, data = NULL, start = NULL, prior = NULL,
+                      thin = 1, nchain = NULL, rp = .001) {
+
+    nchain <- CheckHyperDMI(data, nchain)  ## If nchain=NULL, change it to default
+    if (is.null(prior)) stop("No prior")   ## Check priors
+    if (is.null(start)) stop("No start prior")
+
+    model1 <- attr(data[[1]], "model")
+    pnames <- GetPNames(model1)
+
+    pprior <- prior[[1]]
+    lprior <- prior[[2]]
+    sprior <- prior[[3]]
+    pstart <- start[[1]]
+    lstart <- start[[2]]
+    sstart <- start[[3]]
+    ispok <- pnames %in% names(pprior)
+    islok <- pnames %in% names(lprior)
+    issok <- pnames %in% names(sprior)
+    if (!all(ispok)) stop("p.prior incompatible with model")
+    if (!all(islok)) stop("location prior incompatible with model")
+    if (!all(issok)) stop("scale prior incompatible with model")
+
+    npar <- length(pnames)
+    nsub <- length(data)
+
+    out <- Start_glms(nmc, data, pstart, pprior, thin, nchain, rp)
+    theta <- GetTheta0(out)
+
+    lower <- upper <- dist <- lg <- numeric(npar)
+      for(i in 1:npar) {
+        v <- pprior[[i]]
+        dist[i] <- attr(v, "dist")
+        lower[i] <- v$lower
+        upper[i] <- v$upper
+        lg[i] <- v$lg
+      }
+
+      ## containers
+      array_size <- c(nchain, npar, nmc)
+      location <- array(NA, dim = array_size)
+      scale <- array(NA, dim = array_size)
+      hlp <- matrix(-Inf, nrow = nmc, ncol = nchain)
+      hll <- matrix(-Inf, nrow = nmc, ncol = nchain)
+
+      # i <- 1
+    ## fill in containers
+    for(i in 1:nchain) {
+        lvec <- rprior(lstart)
+        svec <- rprior(sstart)
+        llik <- sumlogpriorNV(lvec, lprior)
+        slik <- sumlogpriorNV(svec, sprior)
+        hlp[1, i] <- llik + slik
+        location[i,,1] <- lvec
+        scale[i,,1] <- svec
+        tmp <- 0
+        for(j in 1:nsub) {
+            tmp <- tmp + ggdmc:::sumlogprior(theta[j,,i], dist, lvec, svec, lower, upper, lg)
+        }
+        hll[1, i] <- tmp
+    }
+
+    found_inf <- any(is.infinite(hll[1,]))
+    if (found_inf) { cat("\nFound infinite in hyper log likelihoods") }
+
+    phi <- list(location, scale)
+    ppprior <- list(lprior, sprior)
+    names(ppprior) <- c("location", "scale")
+    hyper <- list(phi, hlp, hll, ppprior, 1, npar, pnames, rp, nmc, thin, nchain)
+    names(hyper) <- c("phi", "h_summed_log_prior", "h_log_likelihoods", "pp.prior",
+                      "start", "n.pars", "p.names", "rp", "nmc", "thin", "n.chains")
+    attr(out, "hyper") <- hyper
+    class(out) <- c("model", "list")
+    return(out)
+}
+
+##' Initialise New Samples
 ##'
-##' These functions use prior distributions, either from \code{p.prior} or joinly
-##' from \code{p.prior} and \code{pp.prior} in the case of hierarchical
-##' models to generate over-dispersed initial parameter values.
+##' Set points radnomly based on supplied / default prior distributions,
+##' either from \code{start}, or \code{prior} to generate over-dispersed
+##' initial parameter values.
 ##'
-##'
-##' @param nmc numbers of Monte Carlo samples / iterations.
+##' @param nmc numbers of Monte Carlo samples.
 ##' @param data a data model instance
 ##' @param prior parameter prior distributions from \code{BuildPrior}.
 ##' @param ppprior hyper parameter prior distributions from \code{BuildPrior}.
@@ -131,9 +336,9 @@ StartNewsamples <- function(nmc, data = NULL, prior = NULL, thin = 1,
   npar  <- length(GetPNames(model))
   if (is.null(nchain)) nchain <- 3*npar
 
-  if (is.null(data)) stop("No Data-Model instance.")
-  if (is.null(prior)) stop("No p.prior no new samples")
-  if (length(prior) != npar) stop("p.vector and p.prior incompatialbe")
+  if (is.null(data)) stop("Please supply data-model instance.")
+  if (is.null(prior)) stop("Please supply prior distributions")
+  if (length(prior) != npar) stop("Different numbers of parameters in p.vector and p.prior ")
 
   ## Temporary measures
   if (is.null(attr(data, "n.pda"))) attr(data, "n.pda") <- 2^14
@@ -144,18 +349,18 @@ StartNewsamples <- function(nmc, data = NULL, prior = NULL, thin = 1,
   debug <- FALSE
 
   type <- attr(model, "type")
-  
+
   if (type == "glm") {
     if (is.null(data$X)) {
       message("Add dummy X column");
       data$X <- rep(1, nrow(data))
     }
     out <- init_new_glm(nmc, prior, data, rp, thin, nchain)
-    
+
   } else {
     out <- init_new(nmc, prior, data, rp, thin, nchain, ncore, debug)
   }
-  
+
   class(out) <- c("model", "list")
   cat("\n")
   return(out)
@@ -212,7 +417,7 @@ StartManynewsamples <- function(nmc, data = NULL, prior = NULL, thin = 1,
       attr(data[[i]], "gpuid") <- 0
     }
   }
-  
+
   model1 <- attr(data[[1]], "model")
   type <- attr(model1, "type")
   if (type == "glm") {
@@ -290,7 +495,7 @@ StartNewHypersamples <- function(nmc, data = NULL, prior = NULL,
       stop("No regressor");
     }
     out <- init_newhier_glm(nmc, data, prior, ppprior, rp, thin, nchain)
-    
+
   } else {
     out <- init_newhier(nmc, data, prior, ppprior, rp, thin, nchain)
   }
@@ -319,9 +524,9 @@ RestartHypersamples <- function(nmc, samples = NULL, thin = NULL, rp = .001,
     }
   } else {
     if (type == "glm") {
-      out <- init_oldhier_glm(nmc, samples, rp, thin) 
+      out <- init_oldhier_glm(nmc, samples, rp, thin)
     } else {
-      out <- init_oldhier(nmc, samples, rp, thin) 
+      out <- init_oldhier(nmc, samples, rp, thin)
     }
   }
   names(out) <- names(samples)
@@ -331,13 +536,13 @@ RestartHypersamples <- function(nmc, samples = NULL, thin = NULL, rp = .001,
 
 ##' @rdname StartNewsamples
 ##' @export
-StartNewhiersamples <- function(nmc, data = NULL, start = NULL, 
+StartNewhiersamples <- function(nmc, data = NULL, start = NULL,
                                 prior = NULL, thin = 1, nchain = NULL,
-                                rp = .001) 
+                                rp = .001)
 {
   ppprior <- prior[2:3]
-  
-  nchain <- CheckHyperDMI(data, nchain)    ## If nchain=NULL, change it to default
+
+  nchain <- CheckHyperDMI(data, nchain)  ## If nchain=NULL, change it to default
   if (is.null(prior)) stop("No prior")   ## Check priors
   if (is.null(start)) stop("No start prior")
   if (length(ppprior[[1]]) < length(ppprior[[2]])) {
@@ -352,7 +557,7 @@ StartNewhiersamples <- function(nmc, data = NULL, start = NULL,
       attr(data[[i]], "gpuid") <- 0
     }
   }
-  
+
   model1 <- attr(data[[1]], "model")
   pnames <- GetPNames(model1)
   isppriorok <- pnames %in% names(prior[[1]])
@@ -361,7 +566,7 @@ StartNewhiersamples <- function(nmc, data = NULL, start = NULL,
   if (!all(isppriorok)) stop("p.prior incompatible with model")
   if (!all(islpriorok)) stop("location prior incompatible with model")
   if (!all(isppriorok)) stop("scale prior incompatible with model")
-  
+
   type <- attr(model1, "type")
   if (type == "glm") {
     if (is.null(data[[1]]$X)) {
@@ -372,7 +577,7 @@ StartNewhiersamples <- function(nmc, data = NULL, start = NULL,
   } else {
     stop("Unknonw error")
   }
-  
+
   names(out) <- names(data)
   class(out) <- c("model", "list")
   return(out)
@@ -405,7 +610,7 @@ run_one <- function(samples, report, pm, pm0, qm, gammamult, ngroup, force,
   nchain <- samples$n.chains
   type <- attr(attr(samples$data, "model"), "type")
 
-  
+
   if (is.null(attr(samples$data, "n.pda"))) attr(samples$data, "n.pda") <- 2^14
   if (is.null(attr(samples$data, "bw")))    attr(samples$data, "bw")    <- .01
   if (is.null(attr(samples$data, "debug"))) attr(samples$data, "debug") <- 0
@@ -417,9 +622,11 @@ run_one <- function(samples, report, pm, pm0, qm, gammamult, ngroup, force,
     out <- run_dgmc(samples, force, report, pm, qm, gammamult, ncore, ngroup)
   } else if (sampler == "DE-MCMC") {
     message("DE-MCMC")
-    
+
     if (type == "glm") {
-      out <- run_glm(samples, force, report, pm, pm0, gammamult, ncore, slice)
+      out <- run_glm(samples, force, report, pm, pm0, gammamult, ncore)
+    } else if (type == "logit") {
+      out <- run_glm(samples, force, report, pm, pm0, gammamult, ncore)
     } else {
       out <- run_dmc(samples, force, report, pm, pm0, gammamult, ncore, slice)
     }
@@ -527,8 +734,8 @@ run_many <- function(samples, report, ncore, pm, pm0, qm, gammamult, ngroup,
 }
 
 run_many_glm <- function(samples, report, ncore, pm, pm0, qm, gammamult, ngroup,
-                     force, sampler, slice) {
-  
+                     force, sampler) {
+
   force <- MakeForce(samples[[1]], force)
   for(i in 1:length(samples)) {
     if (is.null(attr(samples[[i]]$data, "n.pda"))) {
@@ -544,56 +751,70 @@ run_many_glm <- function(samples, report, ncore, pm, pm0, qm, gammamult, ngroup,
       attr(samples[[i]]$data, "gpuid") <- 0
     }
   }
-  
+
   if (get_os() == "windows" & ncore > 1) {
     cl  <- parallel::makeCluster(ncore)
     if (sampler == "DGMC") {
       message("Run many subjects using DGMC in parallel")
-      
+
       out <- parallel::parLapply(cl, samples, run_dgmc, force, report, pm, qm,
                                  gammamult, ncore, ngroup)
     } else if (sampler == "DE-MCMC") {
       message("Run many subjects using DE-MCMC in parallel")
-      
+
       out <- parallel::parLapply(cl, samples, run_glm, force, report, pm, pm0,
-                                 gammamult, ncore, slice)
+                                 gammamult, ncore)
     } else {
       stop("Sampler unknown")
     }
     stopCluster(cl)
-    
+
   } else if (ncore > 1) {
     if (sampler == "DGMC") {
       message("Run many subjects using DGMC in parallel")
-      
+
       out <- parallel::mclapply(samples, run_dgmc, force, report, pm, qm,
                                 gammamult, ncore, ngroup, mc.cores=ncore)
     } else if (sampler == "DE-MCMC") {
       message("Run many subjects using DE-MCMC in parallel")
-      
+
       out <- parallel::mclapply(samples, run_glm, force, report, pm, pm0,
-                                gammamult, ncore, slice, mc.cores = ncore)
+                                gammamult, ncore, mc.cores = ncore)
     } else {
       stop("Sampler unknown")
     }
-    
+
   } else {
     if (sampler == "DGMC") {
       message("Run many subject using DGMC with lapply")
-      
+
       out <- lapply(samples, run_dgmc, force, report, pm, qm, gammamult, ncore,
                     ngroup)
     } else if (sampler == "DE-MCMC") {
       message("Run many subject using DE-MCMC lapply")
-      
-      out <- lapply(samples, run_glm, force, report, pm, pm0, gammamult, ncore, slice)
+
+      out <- lapply(samples, run_glm, force, report, pm, pm0, gammamult, ncore)
     } else {
       stop ("Sampler unknown")
     }
   }
-  
+
   for(i in 1:length(out)) {
     dimnames(out[[i]]$theta) <- list(NULL, out[[i]]$p.names, NULL)
+  }
+  return(out)
+}
+
+run_many_logit <- function(samples, report, ncore, pm, pm0, gammamult, force) {
+  force <- MakeForce(samples[[1]], force)
+  if (ncore > 1) {
+    message("Run many subjects using DE-MCMC in parallel (logit)")
+    out <- parallel::mclapply(samples, run_glm, force, report, pm, pm0,
+                              gammamult, ncore, mc.cores = ncore)
+  } else {
+    message("Run many subjects using DE-MCMC with lapply (logit)")
+    out <- lapply(samples, run_glm, force, report, pm, pm0,
+                  gammamult, ncore)
   }
   return(out)
 }
@@ -624,8 +845,9 @@ run_many_glm <- function(samples, report, ncore, pm, pm0, qm, gammamult, ngroup,
 ##' @param slice use for debugging blocked sampling
 ##'
 ##' @export
-run <- function(samples, report = 1e2, ncore = 1, pm = 0, pm0 = 0, qm = 0, hpm = 0, hpm0 = 0,
-  hqm = 0, gammamult = 2.38, ngroup = 5, force = FALSE,
+run <- function(samples, report = 1e2, ncore = 1, pm = 0, pm0 = 0, qm = 0,
+                hpm = 0, hpm0 = 0, hqm = 0, gammamult = 2.38, ngroup = 5,
+                force = FALSE,
   sampler = "DE-MCMC", slice = FALSE) {
 
   hyper <- attr(samples, "hyper")
@@ -640,19 +862,20 @@ run <- function(samples, report = 1e2, ncore = 1, pm = 0, pm0 = 0, qm = 0, hpm =
     }
 
     if (sampler == "DE-MCMC") {
-      type <- attr(attr(samples[[1]]$data, "model"), "type") 
-      
+      type <- attr(attr(samples[[1]]$data, "model"), "type")
+
       if (type == "norm" ) checklba(samples[[1]])
       message("DE-MCMC; hierarchical modeling")
-      
+
       if (type == "glm") {
-        out <- run_hyper_glm(samples, report, pm, pm0, hpm, hpm0, gammamult)
+        message("Run hglm")
+        out <- run_hglm(samples, report, pm, pm0, hpm, hpm0, gammamult)
       } else {
-        out <- run_hyper_dmc(samples, report, pm, pm0, hpm, hpm0, gammamult, 
+        out <- run_hyper_dmc(samples, report, pm, pm0, hpm, hpm0, gammamult,
                              ncore, FALSE)
       }
 
-      
+
     } else if (sampler == "DGMC") {
       if (attr(attr(samples[[1]]$data, "model"), "type") == "norm" ) checklba(samples[[1]])
 
@@ -669,7 +892,7 @@ run <- function(samples, report = 1e2, ncore = 1, pm = 0, pm0 = 0, qm = 0, hpm =
     #          sapply(x, function(y) { !is.na(attr(y, "dist")) } )
     #       }
     # )
-    
+
     pnames <- hyper$p.names
     # location_names <- pnames[notna$location]
     # scale_names <- pnames[notna$scale]
@@ -698,17 +921,20 @@ run <- function(samples, report = 1e2, ncore = 1, pm = 0, pm0 = 0, qm = 0, hpm =
     dimnames(out$theta) <- list(NULL, pnames, NULL)
 
   } else {  ## Multiple independent subjects
-    
+
     type <- attr(attr(samples[[1]]$data, "model"), "type")
     if (type == "norm" ) checklba(samples[[1]])
     if (type == "glm" ) {
-      out <- run_many_glm(samples, report, ncore, pm, pm0, qm, gammamult, ngroup, 
-                      force, sampler, slice)
+      out <- run_many_glm(samples, report, ncore, pm, pm0, qm, gammamult, ngroup,
+                      force, sampler)
+    } else if (type == "logit") {
+      out <- run_many_logit(samples, report, ncore, pm, pm0, gammamult, force)
+
     } else {
-      out <- run_many(samples, report, ncore, pm, pm0, qm, gammamult, ngroup, 
+      out <- run_many(samples, report, ncore, pm, pm0, qm, gammamult, ngroup,
                       force, sampler, slice)
     }
-    
+
     for(i in 1:length(out)) {
       pnames <- GetPNames(attr(out[[i]]$data, "model"))
       dimnames(out[[i]]$theta) <- list(NULL, pnames, NULL)
@@ -736,44 +962,5 @@ CheckConverged <- function(samples) {
   out <- c(isstuck, flat, mix, size)
   names(out) <- c("Stuck", "Flat", "Mix", "ES")
   return(out)
-}
-
-run_unstuck <- function(samples, nmc=NA, report=1e2,
-  cut = 10, nbad = 0, max.try = 100, pm = 0, qm = 0, gammamult=2.38, verbose=FALSE,
-  end.no.migrate = FALSE, sampler = "DE-MCMC", slice = FALSE) {
-  # Repeats sampling until <= nbad stuck chains as defined by cut or max.try
-  # If samples has no content fills it in then repeatedly gets new sets of nmc
-  # samples (nmc can be specified or taken from samples). If end.no.migrate
-  # runs one final time with migration off.
-  if (is.null(samples$theta)) stop("For multiple subjects use run_many_unstuck")
-  nchain <- samples$n.chain
-
-  if (any(is.na(samples$theta[,,2]))) {
-     samples <- run_one(samples = samples, report = report, pm=pm, qm = qm,
-       gammamult = gammamult, ngroup = 6, force = FALSE,
-        sampler = sampler, slice = slice)
-  }
-
-  if ( is.na(nmc) ) nmc <- samples$nmc
-  try.num <- 1
-
-  repeat {
-     cat(paste("\nTry", try.num, "\n"))
-     if ( length(PickStuck(samples, verbose = verbose)) <= nbad ) break
-
-     samples <- run_one(RestartSamples(nmc, samples),
-       report=report, pm=pm, qm = qm, gammamult = gammamult,
-       ngroup = 6, force = FALSE, sampler = sampler, slice = slice)
-     if (try.num >= max.try) break
-     try.num <- try.num + 1
-  }
-
-  if (end.no.migrate) {
-     samples <- run_one(RestartSamples(nmc, samples),
-       report=report, pm=0, qm = qm, gammamult = gammamult,
-       ngroup = 6, force = FALSE, sampler = sampler, slice = slice)
-  }
-
-  return(samples)
 }
 

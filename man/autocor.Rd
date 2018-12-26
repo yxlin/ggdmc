@@ -4,7 +4,7 @@
 \alias{autocor}
 \title{Autocorrelation Plot}
 \usage{
-autocor(x, start = 1, end = NA)
+autocor(x, start = 1, end = NA, nLags = 50, nsubchain = NULL)
 }
 \arguments{
 \item{x}{posterior samples}
@@ -12,6 +12,10 @@ autocor(x, start = 1, end = NA)
 \item{start}{start from which iteration.}
 
 \item{end}{end at which iteration}
+
+\item{nLags}{the number of lags of the autocorrelation plot.}
+
+\item{nsubchain}{plot only a chain subset}
 }
 \description{
 Plot the autocorrelation of posterior samples,

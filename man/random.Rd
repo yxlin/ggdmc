@@ -9,12 +9,14 @@ random(type, pmat, n, seed = NULL, regressors = NULL)
 \arguments{
 \item{type}{a character string indicating the model type}
 
-\item{pmat}{a matrox of accumulator x parameter}
+\item{pmat}{a matrix of accumulator x parameter}
 
 \item{n}{number of simulations}
 
 \item{seed}{an integer specifying if and how the random number generator
 should be initialized.}
+
+\item{regressor}{independent variables in regression models}
 }
 \description{
 A wrapper function to \code{rd}, \code{norm}, \code{norm_pda},

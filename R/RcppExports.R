@@ -223,11 +223,19 @@ density_plba1_gpu <- function(pVec, pnames, allpar, parnames, model, type, dim1,
     .Call('_ggdmc_density_plba1_gpu', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, nsim, bw, ncore, gpuid, nthread, debug)
 }
 
-density_glm <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, ise, cellidx, X, y) {
-    .Call('_ggdmc_density_glm', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, ise, cellidx, X, y)
+density_glm <- function(pvec, X, Y) {
+    .Call('_ggdmc_density_glm', PACKAGE = 'ggdmc', pvec, X, Y)
 }
 
-#' Calculate Log-likelihoods 
+density_logit <- function(pvec, X, Y) {
+    .Call('_ggdmc_density_logit', PACKAGE = 'ggdmc', pvec, X, Y)
+}
+
+density_logit_bk <- function(pvec, X, Y) {
+    .Call('_ggdmc_density_logit_bk', PACKAGE = 'ggdmc', pvec, X, Y)
+}
+
+#' Calculate Log-likelihoods
 #'
 #' The function calculates log-likelihood for every trial.  The input must
 #' be a data model instance.
@@ -270,15 +278,14 @@ density_glm <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2,
 #' ## Set up a model-data instance
 #' dat <- simulate(m1, 128, ps = p.vector)
 #' dmi <- BuildDMI(dat, m1)
-#' ## sumloglike(p.vector, dmi)
-#' ## [1] 0.3796048
+#' ## sum(likelihood_rd(p.vector, dmi))
 #' @export
 sumloglike <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, posdrift, nsim, bw, ncore, gpuid, debug) {
     .Call('_ggdmc_sumloglike', PACKAGE = 'ggdmc', pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, posdrift, nsim, bw, ncore, gpuid, debug)
 }
 
-sumloglike_glm <- function(pvec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, X) {
-    .Call('_ggdmc_sumloglike_glm', PACKAGE = 'ggdmc', pvec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, X)
+sumloglike_glm <- function(pvec, type, X, Y) {
+    .Call('_ggdmc_sumloglike_glm', PACKAGE = 'ggdmc', pvec, type, X, Y)
 }
 
 profile_rd <- function(pVec, pnames, allpar, parnames, model, type, dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, pname, ps) {
@@ -331,8 +338,56 @@ StartIteration <- function(samples) {
     invisible(.Call('_ggdmc_StartIteration', PACKAGE = 'ggdmc', samples))
 }
 
-init_new_glm <- function(nmc, prior, data, rp, thin, nchain) {
-    .Call('_ggdmc_init_new_glm', PACKAGE = 'ggdmc', nmc, prior, data, rp, thin, nchain)
+init_new <- function(nmc, pprior, data, rp, thin, nchain, ncore = 1L, debug = FALSE) {
+    .Call('_ggdmc_init_new', PACKAGE = 'ggdmc', nmc, pprior, data, rp, thin, nchain, ncore, debug)
+}
+
+init_old <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_old', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_add <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_add', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_newnonhier <- function(nmc, data, pprior, rp, thin, nchain) {
+    .Call('_ggdmc_init_newnonhier', PACKAGE = 'ggdmc', nmc, data, pprior, rp, thin, nchain)
+}
+
+init_oldnonhier <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_oldnonhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_addnonhier <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_addnonhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_newhier <- function(nmc, data, pprior, ppprior, rp, thin, nchain) {
+    .Call('_ggdmc_init_newhier', PACKAGE = 'ggdmc', nmc, data, pprior, ppprior, rp, thin, nchain)
+}
+
+init_oldhier <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_oldhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_addhier <- function(nmc, samples, rp, thin) {
+    .Call('_ggdmc_init_addhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
+}
+
+init_new_glm <- function(nmc, data, start, prior, rp, thin, nchain) {
+    .Call('_ggdmc_init_new_glm', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
+}
+
+init_logit <- function(nmc, data, start, prior, rp, thin, nchain) {
+    .Call('_ggdmc_init_logit', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
+}
+
+init_logits <- function(nmc, data, start, prior, rp, thin, nchain) {
+    .Call('_ggdmc_init_logits', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
+}
+
+init_hlogit <- function(nmc, data, start, prior, rp, thin, nchain) {
+    invisible(.Call('_ggdmc_init_hlogit', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain))
 }
 
 init_add_glm <- function(nmc, samples, rp, thin) {
@@ -373,42 +428,6 @@ init_newnonhier_start <- function(nmc, data, start, prior, rp, thin, nchain) {
 
 init_newhier_start <- function(nmc, data, start, prior, rp, thin, nchain) {
     .Call('_ggdmc_init_newhier_start', PACKAGE = 'ggdmc', nmc, data, start, prior, rp, thin, nchain)
-}
-
-init_new <- function(nmc, pprior, data, rp, thin, nchain, ncore = 1L, debug = FALSE) {
-    .Call('_ggdmc_init_new', PACKAGE = 'ggdmc', nmc, pprior, data, rp, thin, nchain, ncore, debug)
-}
-
-init_old <- function(nmc, samples, rp, thin) {
-    .Call('_ggdmc_init_old', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
-}
-
-init_add <- function(nmc, samples, rp, thin) {
-    .Call('_ggdmc_init_add', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
-}
-
-init_newnonhier <- function(nmc, data, pprior, rp, thin, nchain) {
-    .Call('_ggdmc_init_newnonhier', PACKAGE = 'ggdmc', nmc, data, pprior, rp, thin, nchain)
-}
-
-init_oldnonhier <- function(nmc, samples, rp, thin) {
-    .Call('_ggdmc_init_oldnonhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
-}
-
-init_addnonhier <- function(nmc, samples, rp, thin) {
-    .Call('_ggdmc_init_addnonhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
-}
-
-init_newhier <- function(nmc, data, pprior, ppprior, rp, thin, nchain) {
-    .Call('_ggdmc_init_newhier', PACKAGE = 'ggdmc', nmc, data, pprior, ppprior, rp, thin, nchain)
-}
-
-init_oldhier <- function(nmc, samples, rp, thin) {
-    .Call('_ggdmc_init_oldhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
-}
-
-init_addhier <- function(nmc, samples, rp, thin) {
-    .Call('_ggdmc_init_addhier', PACKAGE = 'ggdmc', nmc, samples, rp, thin)
 }
 
 #' Generate Random Choice RT Data from LNR Model
@@ -585,20 +604,12 @@ RestorePrior <- function(pprior, p1, p2, lower, upper, lg, dists, pnames) {
     .Call('_ggdmc_RestorePrior', PACKAGE = 'ggdmc', pprior, p1, p2, lower, upper, lg, dists, pnames)
 }
 
-sumloghprior <- function(location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog) {
-    .Call('_ggdmc_sumloghprior', PACKAGE = 'ggdmc', location, scale, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog)
+sumloghprior <- function(loc, sca, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog) {
+    .Call('_ggdmc_sumloghprior', PACKAGE = 'ggdmc', loc, sca, ldists, sdists, lp1, sp1, lp2, sp2, llower, slower, lupper, supper, llog, slog)
 }
 
 sumloghlike <- function(thetak, dists, p1, p2, lower, upper, islog) {
     .Call('_ggdmc_sumloghlike', PACKAGE = 'ggdmc', thetak, dists, p1, p2, lower, upper, islog)
-}
-
-run_glm <- function(samples, force, report, pm, pm0, gammamult, ncore, slice) {
-    .Call('_ggdmc_run_glm', PACKAGE = 'ggdmc', samples, force, report, pm, pm0, gammamult, ncore, slice)
-}
-
-run_hyper_glm <- function(samples, report, pm, pm0, hpm, hpm0, gammamult) {
-    .Call('_ggdmc_run_hyper_glm', PACKAGE = 'ggdmc', samples, report, pm, pm0, hpm, hpm0, gammamult)
 }
 
 #' Generate a Gamma Vector
@@ -713,6 +724,14 @@ run_hyper_dmc <- function(samples, report, pm, pm0, hpm, hpm0, gammamult, ncore,
 
 run_hyper_dgmc <- function(samples, report, pm, hpm, qm, hqm, gammamult, ngroup, ncore) {
     .Call('_ggdmc_run_hyper_dgmc', PACKAGE = 'ggdmc', samples, report, pm, hpm, qm, hqm, gammamult, ngroup, ncore)
+}
+
+run_glm <- function(samples, force, report, pm, pm0, gammamult, ncore) {
+    .Call('_ggdmc_run_glm', PACKAGE = 'ggdmc', samples, force, report, pm, pm0, gammamult, ncore)
+}
+
+run_hglm <- function(samples, report, pm, pm0, hpm, hpm0, gammamult) {
+    .Call('_ggdmc_run_hglm', PACKAGE = 'ggdmc', samples, report, pm, pm0, hpm, hpm0, gammamult)
 }
 
 rtn_scalar <- function(mean, sd, l, u) {
@@ -878,6 +897,14 @@ CheckHyperPnames <- function(samples) {
 #' @export
 cellIdx2Mat <- function(data) {
     .Call('_ggdmc_cellIdx2Mat', PACKAGE = 'ggdmc', data)
+}
+
+invlogit <- function(x) {
+    .Call('_ggdmc_invlogit', PACKAGE = 'ggdmc', x)
+}
+
+invlogit2 <- function(x) {
+    .Call('_ggdmc_invlogit2', PACKAGE = 'ggdmc', x)
 }
 
 ac_ <- function(x, nlag) {

@@ -3,6 +3,26 @@
 
 using namespace Rcpp;
 
+// Value-Defintions of the different String values
+enum ModelType { typeNotDefined,
+                type1, type2, type3, type4, type5,
+                type6, type7, type8, type9, type10,
+                typeDefault };
+
+ModelType resolve_option(std::string type) {
+  if( type == "norm" ) return type1;
+  if( type == "norm_pda" ) return type2;
+  if( type == "plba1" ) return type3;
+  if( type == "plba1_gpu" ) return type4;
+  if( type == "rd" ) return type5;
+  if( type == "plba0_gpu" ) return type6;
+  if( type == "norm_pda_gpu" ) return type7;
+  if( type == "cnorm" ) return type8;
+  if( type == "glm" ) return type9;
+  if( type == "logit" ) return type10;
+  return typeNotDefined;  // 0
+}
+
 arma::mat transform_ddm(arma::mat parmat, std::string cell,
   std::vector<std::string> dim1, arma::uvec isr1) {
   //   0  1  2   3  4   5   6  7    8   9
@@ -605,28 +625,76 @@ arma::vec density_plba1_gpu(arma::vec pVec, std::vector<std::string> pnames,
 }
 
 // [[Rcpp::export]]
-arma::vec density_glm(arma::vec pVec, std::vector<std::string> pnames,
-                      arma::vec allpar, std::vector<std::string> parnames,
-                      arma::ucube model,
-                      std::string type,
-                      std::vector<std::string> dim1,
-                      std::vector<std::string> dim2,
-                      std::vector<std::string> dim3,
-                      arma::uvec ise, arma::umat cellidx,
-                      arma::vec X, arma::vec y) {
-  arma::vec out(y.n_elem);
-  arma::vec mu =  pVec(0) + pVec(1) * X;
-  double sd = 1/std::sqrt(pVec(2));
-  // double sd = pVec(2);
-  for (size_t i = 0; i < y.n_elem; i++) {
-    out(i) = R::dnorm(y(i), mu(i), sd, 0);
-    // out(i) = R::dnorm(y(i), mu(i), pVec(2), 0);
+arma::vec density_glm(arma::vec pvec, arma::mat X, arma::mat Y) {
+  arma::vec out(Y.n_elem);
+  unsigned int nbeta = pvec.n_elem - 1; // 2
+  arma::uvec idx = arma::linspace<arma::uvec>(0, nbeta - 1, nbeta);
+  arma::vec mu = X * pvec(idx); // matrix multiplication
+  // arma::vec mu =  pVec(0) + pVec(1) * X;
+  double sd = 1 / std::sqrt(pvec(nbeta));
+  for (size_t i = 0; i < Y.n_rows; i++) {
+    out(i) = R::dnorm(Y(i,0), mu(i), sd, 0);
   }
   return out;
 }
 
 
-//' Calculate Log-likelihoods 
+// [[Rcpp::export]]
+arma::vec density_logit(arma::vec pvec, arma::mat X, arma::mat Y) {
+
+
+  arma::vec out(Y.n_rows);
+  unsigned int nbeta = pvec.n_elem - 1;
+  arma::uvec idx = arma::linspace<arma::uvec>(0, nbeta - 1, nbeta);
+
+  // double b = R::rnorm(0, pvec(nbeta));
+  arma::vec linpred = X * pvec(idx); // matrix multiplication
+  double prob, tmp1, tmp2;
+
+  for (size_t i = 0; i < linpred.n_elem; i++) {
+    // col 1 = counts of success
+    // col 2 = total counts N of each observation unit
+    prob = Y(i,0) / Y(i,1);
+    tmp1 = R::qlogis(prob, 0, 1, 1, 0);
+    tmp2 = R::dnorm(tmp1, linpred(i), pvec(nbeta), 0);
+    // location = 0, scale = 1, lower.tail = T, log.p = F
+    // prob = R::plogis( linpred(i), 0, 1, 1, 0 );
+    // tmp1 = R::dbinom(Y(i,0), Y(i,1), prob, 0);
+    if(std::isnan(tmp2)) { tmp2 = 1e-10; }
+    out(i) = std::max(tmp2, 1e-10);
+  }
+
+  return out;
+}
+
+
+// [[Rcpp::export]]
+arma::vec density_logit_bk(arma::vec pvec, arma::mat X, arma::mat Y) {
+
+  arma::vec out(Y.n_rows);
+  unsigned int nbeta = pvec.n_elem - 1;
+  arma::uvec idx = arma::linspace<arma::uvec>(0, nbeta - 1, nbeta);
+
+  // double b = R::rnorm(0, pvec(nbeta));
+  arma::vec linpred = X * pvec(idx); // matrix multiplication
+  double prob, tmp1, tmp2;
+
+  for (size_t i = 0; i < linpred.n_elem; i++) {
+    // location = 0, scale = 1, lower.tail = T, log.p = F
+    prob = R::plogis( linpred(i), 0, 1, 1, 0 );
+    // col 1 = counts of success
+    // col 2 = total counts N of each observation unit
+    tmp1 = R::dbinom(Y(i,0), Y(i,1), prob, 0);
+    //    tmp2 = R::dnorm(b, 0, pvec(nbeta));
+    // if(std::isnan(tmp)) { tmp = 1e-10; }
+    // out(i) = std::max(tmp, 1e-10);
+    out(i) = tmp1;
+
+  }
+
+  return out;
+}
+//' Calculate Log-likelihoods
 //'
 //' The function calculates log-likelihood for every trial.  The input must
 //' be a data model instance.
@@ -669,8 +737,7 @@ arma::vec density_glm(arma::vec pVec, std::vector<std::string> pnames,
 //' ## Set up a model-data instance
 //' dat <- simulate(m1, 128, ps = p.vector)
 //' dmi <- BuildDMI(dat, m1)
-//' ## sumloglike(p.vector, dmi)
-//' ## [1] 0.3796048
+//' ## sum(likelihood_rd(p.vector, dmi))
 //' @export
 // [[Rcpp::export]]
 double sumloglike(arma::vec pVec,
@@ -687,92 +754,81 @@ double sumloglike(arma::vec pVec,
                 arma::uvec matchcell, arma::uvec isr1, bool posdrift,
                 unsigned int nsim, double bw, unsigned int ncore,
                 unsigned int gpuid, bool debug) {
-  std::string type1 ("norm");      // Available model type in ggdmc
-  std::string type2 ("norm_pda");
-  std::string type3 ("plba1");
-  std::string type4 ("plba1_gpu");
-  std::string type5 ("rd");
-  std::string type6 ("plba0_gpu");
-  std::string type7 ("norm_pda_gpu");
-  std::string type8 ("cnorm");
 
   arma::vec den; den.fill(NA_REAL);
-
-  if (type == type1) {         // LBA norm
-     den = density_norm(pVec, pnames, allpar, parnames, model, type,
+  unsigned int nthread;
+  switch(resolve_option(type)) {
+    case type1: // LBA norm
+      den = density_norm(pVec, pnames, allpar, parnames, model, type,
+                         dim1, dim2, dim3, n1idx, ise, cellidx, RT,
+                         matchcell, isr1, posdrift);
+      break;
+    case type2: // LBA norm_pda
+      den = density_norm_pda(pVec, pnames, allpar, parnames, model, type,
+                             dim1, dim2, dim3, n1idx, ise, cellidx, RT,
+                             matchcell, isr1, nsim, bw, debug);
+      break;
+    case type3:
+      den = density_plba1(pVec, pnames, allpar, parnames, model, type,
+                          dim1, dim2, dim3, n1idx, ise, cellidx, RT,
+                          matchcell, isr1, nsim, bw, ncore, debug);
+      break;
+    case type4:
+      nthread = 32;
+      den = density_plba1_gpu(pVec, pnames, allpar, parnames, model, type,
+                              dim1, dim2, dim3, n1idx, ise, cellidx, RT,
+                              matchcell, isr1, nsim, bw, ncore, gpuid, nthread,
+                              debug);
+    case type5:
+      den = density_rd(pVec, pnames, allpar, parnames, model, type,
+                     dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1);
+      break;
+    case type6:
+      nthread = 32;
+      den = density_plba0_gpu(pVec, pnames, allpar, parnames, model, type,
                             dim1, dim2, dim3, n1idx, ise, cellidx, RT,
-                            matchcell, isr1, posdrift);
-  } else if (type == type2) { // LBA norm_pda
-     den = density_norm_pda(pVec, pnames, allpar, parnames, model, type,
-                                dim1, dim2, dim3, n1idx, ise, cellidx, RT,
-                                matchcell, isr1, nsim, bw, debug);
-  } else if (type == type7) { // LBA norm_pda_gpu call gpda package
-    unsigned int nthread = 32;
-    den = density_norm_gpu(pVec, pnames, allpar, parnames, model, type,
-      dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, nsim, bw,
-      gpuid, nthread, debug);
-
-  } else if (type == type3) {
-    den = density_plba1(pVec, pnames, allpar, parnames, model, type,
-      dim1, dim2, dim3, n1idx, ise, cellidx, RT,
-      matchcell, isr1, nsim, bw, ncore, debug);
-  } else if (type == type4) {
-    unsigned int nthread = 32;
-    den = density_plba1_gpu(pVec, pnames, allpar, parnames, model, type,
-      dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, nsim, bw,
-      ncore, gpuid, nthread, debug);
-
-  } else if (type == type5) {
-    den = density_rd(pVec, pnames, allpar, parnames, model, type,
-      dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1);
-
-  } else if (type == type6) {
-
-    unsigned int nthread = 32;
-    den = density_plba0_gpu(pVec, pnames, allpar, parnames, model, type,
-      dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, nsim, bw,
-      ncore, gpuid, nthread, debug);
-
-  } else if (type == type8) {
-    den = density_cnorm_pda(pVec, pnames, allpar, parnames, model, type,
-      dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell, isr1, nsim, bw, debug);
-  } else {
-    Rcout << "Type not defined.\n";
-    den.fill(1e-10);
+                            matchcell, isr1, nsim, bw, ncore, gpuid, nthread,
+                            debug);
+    break;
+    case type7: // LBA norm_pda_gpu call gpda package
+      nthread = 32;
+      den = density_norm_gpu(pVec, pnames, allpar, parnames, model, type,
+                           dim1, dim2, dim3, n1idx, ise, cellidx, RT, matchcell,
+                           isr1, nsim, bw, gpuid, nthread, debug);
+      break;
+    case type8:
+      den = density_cnorm_pda(pVec, pnames, allpar, parnames, model, type,
+                            dim1, dim2, dim3, n1idx, ise, cellidx, RT,
+                            matchcell, isr1, nsim, bw, debug);
+      break;
+    default:
+      Rcout << "Type undefined\n";
+      den.fill(1e-10);
+    break;
   }
 
   double out = arma::accu(arma::log(den));
-  if (std::isnan(out)) out = -arma::datum::inf;
+  if (std::isnan(out)) out = R_NegInf;
   return out;
 }
 
 // [[Rcpp::export]]
-double sumloglike_glm(arma::vec pvec,
-                      std::vector<std::string> pnames,
-                      arma::vec allpar,
-                      std::vector<std::string> parnames,
-                      arma::ucube model,
-                      std::string type,
-                      std::vector<std::string> dim1,
-                      std::vector<std::string> dim2,
-                      std::vector<std::string> dim3,
-                      arma::umat n1idx, arma::uvec ise,
-                      arma::umat cellidx, arma::vec RT,
-                      arma::uvec matchcell, arma::uvec isr1, 
-                      arma::vec X) {
-  
-  std::string type9 ("glm");
-  arma::vec den; 
-  den.fill(NA_REAL);
-  
-  if (type == type9) {
-    den = density_glm(pvec, pnames, allpar, parnames, model, type,
-                      dim1, dim2, dim3, ise, cellidx, X, RT);
-  } else {
-    Rcout << "Type not defined.\n";
-    den.fill(1e-10);
+double sumloglike_glm(arma::vec pvec, std::string type, arma::mat X,
+                      arma::mat Y) {
+
+  arma::vec den;
+  switch(resolve_option(type)) {
+    case type9: // glm
+      den = density_glm(pvec, X, Y);
+      break;
+    case type10:
+      den = density_logit(pvec, X, Y);
+      break;
+    default:
+      Rcout << "Type undefined\n";
+      den.fill(1e-10);
   }
-  
+
   double out = arma::accu(arma::log(den));
   if (std::isnan(out)) out = R_NegInf;
   return out;

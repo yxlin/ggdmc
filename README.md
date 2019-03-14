@@ -174,6 +174,7 @@ for(i in 1:length(fit))
 2. The DDM, type = "rd",
 
 ## PDA-based models 
+< Removed. See OSF site >
 3. The Piecewise LBA model 0; CPU-based PDA likelihoods; type = "plba0",
 4. The Piecewise LBA model 1; CPU-based PDA likelihoods; type = "plba1", 
 5. The Piecewise LBA model 0; GPU-based PDA likelihoods; type = "plba0_gpu", 
@@ -190,9 +191,8 @@ more details.
 
 ## Prerequisites
  - R (>= 3.4.0)
- - R packages: Rcpp (>= 0.12.10), RcppArmadillo (>= 0.7.700.3.0), ggplot2 (>= 2.1.0),
- rtdists (>= 0.6-6), coda (>= 0.16-1) tmvtnorm, matrixStats,
- data.table
+ - R packages: Rcpp (>= 0.12.10), RcppArmadillo (>= 0.7.700.3.0), 
+   ggplot2 (>= 2.1.0), coda (>= 0.16-1), matrixStats, data.table
  - Windows users need Rtools (>= 3.3.0.1959) 
  - Mac OS users need to make clang understand OpenMP flag
  - Linux/Unix users may need to install Open MPI library, if it has not 

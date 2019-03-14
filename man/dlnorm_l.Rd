@@ -17,7 +17,7 @@ dlnorm_l(x, p1, p2, lower, upper, lg = FALSE)
 
 \item{upper}{upper bound}
 
-\item{log}{log density?}
+\item{lg}{log density?}
 }
 \description{
 A modified dlnorm functions

@@ -29,6 +29,8 @@ parameter.}
 \item{...}{other plotting arguments passing through dot dot dot.}
 
 \item{x}{prior distributions}
+
+\item{ps}{true parameter vectors or matrix in the case of many observation units}
 }
 \description{
 \code{plot_prior} plots the ith member of the list created by

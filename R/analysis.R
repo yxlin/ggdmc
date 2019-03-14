@@ -22,7 +22,7 @@ isstuck <- function(x, cut = 10, verbose = FALSE) {
 
 gmcmc <- function(x) {
   coda::mcmc(matrix(aperm(x$theta, c(1, 3, 2)),
-                    ncol = dim(x$theta)[2], dimnames = list(NULL, dimnames(x$theta)[[2]])))
+            ncol = dim(x$theta)[2], dimnames = list(NULL, dimnames(x$theta)[[2]])))
 }
 
 
@@ -244,13 +244,13 @@ theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   }
 
   for (i in 1:nchain) {
-    lst[[i]] <- coda::mcmc( t(x$theta[cidx[i], , iter[is.in]]),
+    lst[[i]] <- coda::mcmc( t(x$theta[, cidx[i], iter[is.in]]),
       thin = thin)
   }
 
   if (split) {
     for (i in 1:nchain) {
-      lst[[i + nchain]] <- coda::mcmc( t(x$theta[cidx[i], , iter[not.is.in]]),
+      lst[[i + nchain]] <- coda::mcmc( t(x$theta[, cidx[i], iter[not.is.in]]),
         thin = thin)
     }
   }
@@ -323,13 +323,15 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   scale_names <- pnames[notna[[2]]]
 
   for (i in 1:nchain) {
-      tmp1 <- t(x$phi[[1]][chain.idx[i], notna[[1]] , indx[is.in]]) ## nmc x npar matrix
+    ## nmc x npar matrix
+    ## now phi[[1]] becomes npar x nchain x nmc
+    tmp1 <- t( x$phi[[1]][notna[[1]], chain.idx[i],  indx[is.in]] )
     ## attach parnames with h1
 
     dimnames(tmp1)[[2]] <- paste(location_names, "h1", sep=".")
     # tmp1 <- tmp1[, ok1]   ## exclude NA parameter
 
-    tmp2 <- t(x$phi[[2]][chain.idx[i], notna[[2]] , indx[is.in]])
+    tmp2 <- t(x$phi[[2]][notna[[2]], chain.idx[i], indx[is.in]])
     dimnames(tmp2)[[2]] <- paste(scale_names, "h2", sep=".")
     # tmp2 <- tmp2[,ok2]
 
@@ -341,13 +343,12 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
 
   if (split) {
     for (i in 1:nchain) {
-      tmp1 <- t(x$phi[[1]][chain.idx[i], notna[[1]], indx[not.is.in]])
-      dimnames(tmp1)[[2]] <- paste(location_names,"h1", sep=".")
-      # tmp1 <- tmp1[,ok1]
+      tmp1 <- t( x$phi[[1]][notna[[1]], chain.idx[i], indx[not.is.in]] )
+      dimnames(tmp1)[[2]] <- paste(location_names, "h1", sep=".")
 
-      tmp2 <- t(x$phi[[2]][chain.idx[i], notna[[2]], indx[not.is.in]])
-      dimnames(tmp2)[[2]] <- paste(scale_names,"h2", sep=".")
-      # tmp2 <- tmp2[,ok2]
+      tmp2 <- t(x$phi[[2]][notna[[2]], chain.idx[i], indx[not.is.in]])
+      dimnames(tmp2)[[2]] <- paste(scale_names, "h2", sep=".")
+
       # Remove cases with !has.sigma
       # tmp2 <- tmp2[,!apply(tmp2,2,function(x){all(is.na(x))})]
       lst[[i + nchain]] <- coda::mcmc(cbind(tmp1, tmp2), thin = thin)
@@ -420,7 +421,8 @@ gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
   transform=TRUE, autoburnin = FALSE, multivariate = TRUE, split = TRUE,
   subchain = FALSE, nsubchain = 3, digits = 2, verbose = FALSE, ...) {
 
-  if ( hyper ) {
+  if ( hyper )
+  {
     if (verbose) message("Diagnosing the hyper parameters, phi")
     hyper <- attr(x, "hyper")
     if (is.null(hyper)) stop("Posterior samples are not from a hierarchical fit")
@@ -431,7 +433,9 @@ gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
     out <- coda::gelman.diag(mcmclist, confidence, transform, autoburnin,
       multivariate)
 
-  } else {
+  }
+  else
+  {
     ## if x is one subject samples, we should found an elemnet called theta
     if ( !is.null(x$theta) ) {
       if (is.na(end)) end <- x$nmc
@@ -470,8 +474,8 @@ gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
 ##' @rdname gelman
 ##' @export
 hgelman <- function(x, start = 1, end = NA, confidence = 0.95, transform = TRUE,
-  autoburnin = FALSE, split = TRUE, subchain = FALSE,
-  nsubchain = 3, digits = 2, verbose = FALSE, ...) {
+  autoburnin = FALSE, split = TRUE, subchain = FALSE, nsubchain = 3, digits = 2,
+  verbose = FALSE, ...) {
 
   step1 <- lapply(gelman(x, start = start, end = end, confidence = confidence,
     transform = transform, autoburnin = autoburnin, multivariate = TRUE,
@@ -629,7 +633,7 @@ summary_mcmc_list <- function(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
   if (is.matrix(object[[1]])) {
     for (i in 1:nchain) {
       for (j in 1:npar) {
-        xtsvar[i, j] <- ggdmc:::safespec0(object[[i]][, j])
+        xtsvar[i, j] <- safespec0(object[[i]][, j]) ## ggdmc:::
       }
       xlong <- do.call("rbind", object)
     }
@@ -725,7 +729,7 @@ summary_recoverone <- function(object, start, end, ps, digits, prob, verbose) {
   # end <- 500
   # prob <- c(0.025, 0.25, 0.5, 0.75, 0.975)
   # ps = pop.mean
-  qs <- ggdmc:::summary_one(object, start, end, prob, FALSE)$quantiles
+  qs <- summary_one(object, start, end, prob, FALSE)$quantiles
   parnames <- dimnames(qs)[[1]]
 
   if (!is.null(ps) && ( !all(parnames %in% names(ps)) ) )
@@ -756,7 +760,7 @@ summary_recovermany <- function(object, start, end, ps, digits, prob) {
   ## object <- fit
   # start = 201
   # end <- 500
-  est <- ggdmc:::summary_many(object, start, end, prob, TRUE)
+  est <- summary_many(object, start, end, prob, TRUE)
 
   df_form <- t(data.frame(lapply(est, function(x){x[[1]][, 1]})))
 
@@ -797,7 +801,7 @@ summary_recoverhyper <- function(object, start, end, ps, type, digits, prob,
   # object <- fit
   # type <- 1
   hyper <- attr(object, "hyper")
-  res <- ggdmc:::check_nonna(hyper, type)
+  res <- check_nonna(hyper, type)
 
   samples <- list(theta = res[[1]])
   samples$n.chains <- hyper$n.chains
@@ -1027,23 +1031,24 @@ unstick_one <- function(x, bad) {
 ##'
 ##' @param object posterior samples
 ##' @param ... other plotting arguments passing through dot dot dot.
+##' @importFrom stats var
 ##' @export
 deviance.model <- function(object, ...) {
+
   D <- -2*object$log_likelihoods
+
   ## Average across chains and iterations
   mtheta <- apply(object$theta, 2, mean)
-  model <- attr(object$data, "model")
-  type  <- attr(model, "type")
+  model  <- attr(object$data, "model")
+  type   <- attr(model, "type")
 
-  if (type == "norm") {
-    Dmean <- -2*sum(log(likelihood_norm(mtheta, object$data)))
-  } else if (type == "rd") {
-    Dmean <- -2*sum(log(likelihood_rd(mtheta, object$data)))
-  } else if (type == "glm") {
-    Dmean <- -2*sum(log(likelihood_glm(mtheta, object$data)))
-  } else {
-    stop("Type not defined")
-  }
+  # if (type == "norm") {
+  Dmean <- -2*sum(log(likelihood(mtheta, object$data)))
+  # } else if (type == "rd") {
+  #   Dmean <- -2*sum(log(likelihood_rd(mtheta, object$data)))
+  # } else {
+  #   stop("Type not defined")
+  # }
 
   # A list with mean (meanD), variance (varD) and min (minD)
   # of Deviance, deviance of mean theta (Dmean)

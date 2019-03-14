@@ -4,12 +4,12 @@
 \alias{GetParameterMatrix}
 \title{Return ns-npar matrix}
 \usage{
-GetParameterMatrix(x, ns, prior = NA, ps = NA, seed = NULL)
+GetParameterMatrix(x, nsub, prior = NA, ps = NA, seed = NULL)
 }
 \arguments{
 \item{x}{a model object}
 
-\item{ns}{number of subjects.}
+\item{nsub}{number of subjects.}
 
 \item{prior}{a list of parameter prior distributions}
 

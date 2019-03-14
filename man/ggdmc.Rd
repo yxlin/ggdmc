@@ -27,7 +27,7 @@ algorithm Differential Evolution: easy Bayesian computing for real
 parameter spaces. \emph{Statistics and Computing}, 16, 239-249.
 }
 \author{
-Yi-Shin Lin <yishin.lin@utas.edu.au> \cr
+Yi-Shin Lin <yishinlin001@gmail.com> \cr
 Andrew Heathcote <andrew.heathcote@utas.edu.au>
 }
 \keyword{package}

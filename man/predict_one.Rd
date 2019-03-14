@@ -12,15 +12,15 @@ predict_one(object, npost = 100, rand = TRUE, factors = NA,
 
 \item{npost}{number of posterior predictive replications.}
 
+\item{rand}{whether randomly select a npost estimated parameter values or
+select the first npost estimates}
+
 \item{factors}{experimental factors}
 
 \item{xlim}{trimming outlier, e.g., xlim = c(0, 5).}
 
 \item{seed}{an integer specifying if and how the random number generator
 should be initialized.}
-
-\item{nsub}{whether randomly select a npost estimated parameter values or
-select the first npost estimates}
 }
 \value{
 a data frame

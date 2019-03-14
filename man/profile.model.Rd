@@ -35,8 +35,8 @@ GPU-based PDA probability density functions)}
 \item{...}{additional optional arguments.}
 }
 \description{
-This function produces data for profiling model likelihoods based on a data
-model instance (ie \code{fitted}).
+Investigates the profile log-likelihood function for a fitted model of class
+"model".  That is, a data model instance.
 }
 \details{
 The argument, \code{pname} indicates which model parameter to profile.
@@ -66,8 +66,8 @@ p.prior <- BuildPrior(
   dists = rep("tnorm", 6),
   p1=c(a=2,   v=2.5, z=0.5, sz=0.3, sv=1,  t0=0.3),
   p2=c(a=0.5, v=.5,  z=0.1, sz=0.1, sv=.3, t0=0.05),
-  lower=c(0,-5, 0, 0, 0, 0),
-  upper=c(5, 7, 2, 2, 2, 2))
+  lower=c(0, -5, 0, 0, 0, 0),
+  upper=c(5,  7, 2, 2, 2, 2))
 
 p.vector <- c(a=1,v=1, z=0.5, sz=0.25, sv=0.2,t0=.15)
 dat <- simulate(model, 1e2, ps = p.vector)

@@ -1,68 +1,10 @@
-##' Autocorrelation Plot
-##'
-##' Plot the autocorrelation of posterior samples,
-##'
-##' @param x posterior samples
-##' @param start start from which iteration.
-##' @param end end at which iteration
-##' @param nLags the number of lags of the autocorrelation plot.
-##' @param nsubchain plot only a chain subset
-##' @export
-autocor <- function(x, start = 1, end = NA, nLags = 50, nsubchain = NULL) {
-
-  if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
-  if (is.null(x$theta)) stop("Use hyper mcmc_list")
-  if ( is.na(end) ) end <- x$nmc
-  if ( end <= start ) stop("End must be greater than start")
-  if (!is.null(nsubchain)) idx <- sample(1:x$n.chains, nsubchain) else idx <- 1:x$n.chains
-
-  d <- ConvertChains(x, start, end, FALSE)
-  DT <- d[, .SD[, .(Lag = 1:nLags,
-                    Autocorrelation = ggdmc:::ac_(value, nLags))],
-              .(Parameter, Chain)]
-
-  p0 <- ggplot(DT[Chain %in% idx],
-               aes(x = Lag, y = Autocorrelation, colour = Chain, fill = Chain)) +
-    geom_bar(stat = "identity", position = "identity") +
-    ylim(-1, 1) +
-    scale_fill_discrete(name = "Chain") +
-    scale_colour_discrete(name = "Chain") +
-    facet_grid(Parameter ~ Chain) +
-    theme(legend.position = "none") +
-    theme(axis.text.x  = element_blank())
-  print(p0)
-  invisible(p0)
-}
-
-##' Correlation Matrix
-##'
-##' Plot the correlation matrix of posterior samples,
-##'
-##' @param x posterior samples
-##' @param start start from which iteration.
-##' @param end end at which iteration.
-##' @param ... other arguments
-##' @importFrom ggmcmc ggs_pairs
-##' @export
-pairs.model <- function(x, start = 1, end = NA, ...) {
-
-  if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
-  if (is.null(x$theta)) stop("Use hyper mcmc_list")
-  if ( is.na(end) ) end <- x$nmc
-  if ( end <= start ) stop("End must be greater than start")
-
-  d <- ConvertChains(x, start, end, FALSE)
-  ggs_pairs(d, lower = list(continuous = "density"))
-
-}
+### Generic  ---------------------------------------------
 
 ##' @export
-##' @importFrom ggmcmc ggs
 plot.model <- function(x, y = NULL, hyper = FALSE, start = 1,
   end = NA, pll = TRUE, save = FALSE, den = FALSE, subchain = FALSE,
-  nsubchain = 3, chains = NA, ...) {
-
-
+  nsubchain = 3, chains = NA, ...)
+{
   if (hyper) {
     out <- plot_phi(x, start, end, pll, save, den, subchain, nsubchain,
       chains)
@@ -78,6 +20,7 @@ plot.model <- function(x, y = NULL, hyper = FALSE, start = 1,
 }
 
 
+### One Subject  ---------------------------------------------
 ##' @import ggplot2
 ##' @importFrom coda mcmc mcmc.list
 preplot_one <- function(x, start, end, pll) {
@@ -85,12 +28,13 @@ preplot_one <- function(x, start, end, pll) {
   if ( is.na(end) ) end <- x$nmc
   if ( end <= start ) stop("End must be greater than start")
   nchain <- x$n.chains
-  # thin   <- x$thin
 
   if (pll) {
-    lp <- x$summed_log_prior[start:end,] + x$log_likelihoods[start:end,]
-    colnames(lp) <- 1:nchain
-    step1 <- lapply(data.frame(lp), function(xx){
+    ## nchain x nmc
+    lp <- x$summed_log_prior[,start:end] + x$log_likelihoods[,start:end]
+
+    rownames(lp) <- 1:nchain
+    step1 <- lapply(data.frame(t(lp)), function(xx){
       coda::mcmc(as.matrix(xx), start, end, thin = 1)
     })
     d <- coda::mcmc.list(step1) ## log-posterior likelihood
@@ -129,17 +73,8 @@ plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
     DT <- DT[ DT$Chain %in% chains, ]
   }
 
-  if (pll) {
-    DT$Parameter <- "lp"
-
-    f1 <- ggplot(DT, aes_string(x = "Iteration", y = "value", color = "Chain")) +
-      geom_line() +
-      ylab("Posterior log-likelihood") +
-      theme(legend.position = "none")
-    print(f1)
-
-  } else if (den) {
-
+  if (den)
+  {
     f1 <- ggplot(DT, aes_string(x = "value", colour = "Chain", fill = "Chain")) +
       geom_density(alpha = 0.3) +
       scale_fill_discrete(name = "Chain") +
@@ -148,8 +83,19 @@ plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
       xlab("") + ylab("Density") + theme(legend.position="none") +
       geom_rug(alpha = 0.1)
     print(f1)
+  }
+  else if (pll)
+  {
+    DT$Parameter <- "lp"
 
-  } else {
+    f1 <- ggplot(DT, aes_string(x = "Iteration", y = "value", color = "Chain")) +
+      geom_line() +
+      ylab("Posterior log-likelihood") +
+      theme(legend.position = "none")
+    print(f1)
+  }
+  else
+  {
     f1 <- ggplot(DT, aes_string(x = "Iteration", y = "value", colour = "Chain")) +
       geom_line(alpha = 0.7) +
       scale_colour_discrete(name = "Chain") +
@@ -159,6 +105,50 @@ plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
   }
   if (save) { return(DT) } else { return(f1) }
 }
+
+##' Autocorrelation Plot
+##'
+##' Plot the autocorrelation of posterior samples,
+##'
+##' @param x posterior samples
+##' @param start start from which iteration.
+##' @param end end at which iteration
+##' @param nLags the number of lags of the autocorrelation plot.
+##' @param nsubchain plot only a chain subset
+##' @param base_size the size of fonts in the figure
+##' @import data.table
+##' @export
+autocor <- function(x, start = 1, end = NA, nLags = 50, nsubchain = NULL,
+                    base_size = 14)
+{
+
+  if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
+  if (is.null(x$theta)) stop("Use hyper mcmc_list")
+  if ( is.na(end) ) end <- x$nmc
+  if ( end <= start ) stop("End must be greater than start")
+  if (!is.null(nsubchain)) idx <- sample(1:x$n.chains, nsubchain) else idx <- 1:x$n.chains
+
+  d <- ConvertChains(x, start, end, FALSE)
+  DT <- d[, .SD[, .(Lag = 1:nLags,
+                    Autocorrelation = ac_(value, nLags))],
+          .(Parameter, Chain)]
+
+  p0 <- ggplot(DT[Chain %in% idx],
+               aes(x = Lag, y = Autocorrelation, colour = Chain, fill = Chain)) +
+    geom_bar(stat = "identity", position = "identity") +
+    ylim(-1, 1) +
+    scale_fill_discrete(name = "Chain") +
+    scale_colour_discrete(name = "Chain") +
+    facet_grid(Parameter ~ Chain) +
+    theme_minimal(base_size = base_size) +
+    theme(legend.position = "none") +
+    theme(axis.text.x  = element_blank())
+  print(p0)
+  return(invisible(p0))
+}
+
+
+### Many Subjects  ---------------------------------------------
 
 ##' @import ggplot2
 preplot_many <- function(x, start = 1, end = NA, pll = TRUE) {
@@ -180,11 +170,13 @@ plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
   chains, ...) {
 
   nsub <- length(x)
-  DT <- ggdmc:::preplot_many(x, start, end, pll)
+  DT <- preplot_many(x, start, end, pll)
 
   if (subchain) {
     if (missing(nsubchain)) stop("Please supply nsubchain")
     if (any(is.na(chains))) chains <- base::sample(x[[1]]$n.chains, nsubchain)
+    if (nsubchain != length(chains))
+      message("nsubchain and chains are inconsistent. Ignore nsubchain")
     cat("Plot chains: ", chains, "\n")
   }
 
@@ -233,7 +225,8 @@ plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
   if (save) { return(x0) } else { return(f1) }
 }
 
-##' @importFrom ggmcmc ggs
+### Phi  ---------------------------------------------
+
 preplot_phi <- function(x, start = 1, end = NA, pll = TRUE, ...) {
   # x <- fit1
   # start <- 1
@@ -245,11 +238,13 @@ preplot_phi <- function(x, start = 1, end = NA, pll = TRUE, ...) {
   # thin   <- xx$thin
 
   if (pll) {
-    lp <- xx$h_summed_log_prior[start:end,] + xx$h_log_likelihoods[start:end,]
-    colnames(lp) <- 1:nchain
-    step1 <- lapply(data.frame(lp), function(xxx){
+    lp <- xx$h_summed_log_prior[,start:end] + xx$h_log_likelihoods[,start:end]
+    rownames(lp) <- 1:nchain
+    step1 <- lapply(data.frame(t(lp)), function(xxx){
       coda::mcmc(as.matrix(xxx), start, end, thin = 1) ## thin must be 1 for coda
     })
+
+
     d <- coda::mcmc.list(step1) ## log-posterior likelihood
     attr(d, "nchain") <- nchain
     attr(d, "npar")   <- xx$n.pars
@@ -315,40 +310,10 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
   if (save) { return(DT) } else { return(f1) }
 }
 
-
-#' @import ggplot2
-#' @importFrom graphics plot
-plot_subchain <- function(x, nchain, hyper = FALSE, start = 1,
-  end = NA, idx = NA) {
-
-  if ( is.na(end) ) end <- x$nmc
-  if ( end <= start ) stop("End must be greater than start")
-  if (x$n.chain < nchain) stop("nchain is too large")
-
-  if (is.na(idx)) idx <- sample(1:x$n.chains, nchain)
-  lp <- x$summed_log_prior[start:end,idx] + x$log_likelihoods[start:end,idx]
-  d <- coda::mcmc.list(lapply(data.frame(lp),
-    function(xx){coda::mcmc(as.matrix(xx))}))
-
-  DT <- ggmcmc::ggs(d)
-
-  DT$Chain <- factor(DT$Chain)
-  levels(DT$Chain)
-
-  DT$Parameter <- "lp"
-  f2 <- ggplot(DT, aes_string(x = "Iteration", y = "value", color = "Chain")) +
-    geom_line() +
-    ylab("Log-posterior likelihood") +
-    theme_minimal() +
-    theme(legend.position = "none")
-  print(f2)
-  return(invisible(DT))
-}
-
 ##' Profile a model object
 ##'
-##' This function produces data for profiling model likelihoods based on a data
-##' model instance (ie \code{fitted}).
+##' Investigates the profile log-likelihood function for a fitted model of class
+##' "model".  That is, a data model instance.
 ##'
 ##' The argument, \code{pname} indicates which model parameter to profile.
 ##' For example, if we want to profile the boundary separation \emph{a} in a
@@ -394,8 +359,8 @@ plot_subchain <- function(x, nchain, hyper = FALSE, start = 1,
 ##'   dists = rep("tnorm", 6),
 ##'   p1=c(a=2,   v=2.5, z=0.5, sz=0.3, sv=1,  t0=0.3),
 ##'   p2=c(a=0.5, v=.5,  z=0.1, sz=0.1, sv=.3, t0=0.05),
-##'   lower=c(0,-5, 0, 0, 0, 0),
-##'   upper=c(5, 7, 2, 2, 2, 2))
+##'   lower=c(0, -5, 0, 0, 0, 0),
+##'   upper=c(5,  7, 2, 2, 2, 2))
 ##'
 ##' p.vector <- c(a=1,v=1, z=0.5, sz=0.25, sv=0.2,t0=.15)
 ##' dat <- simulate(model, 1e2, ps = p.vector)
@@ -477,11 +442,11 @@ profile.model <- function(fitted, pname, minp, maxp, p.vector,
       dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]],
       n1idx, ise, cellidx, RT, mc, isr1, pname, ps)
 
-  } else if (type == "cnorm") {
-
-    ll <- profile_cnorm_pda(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-      ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw)
+  # } else if (type == "cnorm") {
+  #
+  #   ll <- profile_cnorm_pda(p.vector, pnames, allpar, parnames, model, type,
+  #     dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
+  #     ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw)
 
   } else {
     stop("Type not defined")
@@ -492,7 +457,7 @@ profile.model <- function(fitted, pname, minp, maxp, p.vector,
   ll[ll==max(ll)]
 }
 
-
+### Prior  ---------------------------------------------
 ##' Plot Prior Distributions
 ##'
 ##' \code{plot_prior} plots the ith member of the list created by
@@ -518,6 +483,7 @@ profile.model <- function(fitted, pname, minp, maxp, p.vector,
 ##' @param npoint default to plot 100
 ##' @param trans default NA. trans can be a scalar or vector.
 ##' @param save whether to save the data out
+##' @param ps true parameter vectors or matrix in the case of many observation units
 ##' @param ... other plotting arguments passing through dot dot dot.
 ##' @import ggplot2
 ##' @export
@@ -640,6 +606,8 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
 
 }
 
+##' @import ggplot2
+##' @importFrom data.table data.table melt.data.table
 ##' @rdname plot_prior
 ##' @export
 plot.prior <- function(x, save = FALSE, ps = NULL, ...) {
@@ -664,9 +632,9 @@ plot.prior <- function(x, save = FALSE, ps = NULL, ...) {
     print(p0)
     invisible(return(p0))
   } else if ((!is.null(ps) & is.matrix(ps))) {
-    wide <- data.frame(ps)
+    wide <- data.table::data.table(ps)
     wide$s <- factor(1:nrow(ps))
-    pveclines <- melt(wide, id.vars = "s", variable.name = "Parameter",
+    pveclines <- data.table::melt.data.table(wide, id.vars = "s", variable.name = "Parameter",
                  value.name = "true")
     p0 <- ggplot(pD, aes_string(x = "xpos", y = "ypos")) +
       geom_line() +
@@ -687,5 +655,24 @@ plot.prior <- function(x, save = FALSE, ps = NULL, ...) {
   }
 }
 
+
+
+# pairs.model <- function(x, start = 1, end = NA, ...) {
+#   ## Make this function invisible;
+#   if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
+#   if (is.null(x$theta)) stop("Use hyper mcmc_list")
+#   if (is.na(end)) end <- x$nmc
+#   if (end <= start) stop("End must be greater than start")
+#
+#   d <- ConvertChains(x, start, end, FALSE)
+#   D_wide <- data.table::dcast.data.table(d, Iteration + Chain ~ Parameter, value.var = "value")
+#
+#   bracket_names <- names(D_wide)
+#   par_cols <- !(bracket_names %in% c("Iteration", "Chain"))
+#   p0 <- GGally::ggpairs(D_wide, columnLabels = bracket_names[par_cols],
+#                         columns = which(par_cols), ...)
+#   print(p0)
+#   return(invisible(p0))
+# }
 
 

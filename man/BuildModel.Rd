@@ -19,6 +19,8 @@ BuildModel(p.map, responses, regressors = NULL, factors = list(A =
 
 \item{responses}{Response (accumulator) names}
 
+\item{regressors}{a temporary argument for fitting GLM}
+
 \item{factors}{specifying factors and factor levels}
 
 \item{match.map}{matching stimuli and responses}

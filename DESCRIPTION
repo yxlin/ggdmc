@@ -4,15 +4,14 @@ Title: Cognitive Models
 Version: 0.2.5.5
 Date: 2018-08-27
 Author: Yi-Shin Lin [aut, cre], Andrew Heathcote [aut]
-Maintainer: Yi-Shin Lin <yishin.lin@utas.edu.au>
+Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
 Description: Hierarchical Bayesian modelling. The 'ggdmc' package provides tools designed for fitting cognitive models, using population-based Markov Chain Monte Carlo (pMCMC) and fast C++ libraries. The paper by Heathcote, Lin, Reynolds, Strickland, Gretton, and Matzke (2018, <doi:10.3758/s13428-018-1067-y>) describes the early prototype of the package (by the version 0.4.2). The paper accompanied with the revamped latest version (> 0.2.4.5) is under preparation Lin, Strickland, Reynold, and Heathcote (2018) and a further paper regarding the new pMCMC sampling modified based on Hu and Tsai's (2010) work is also under preparation. See 'citation("ggdmc")' for details.
 License: GPL-2
 URL: https://github.com/yxlin/ggdmc
 BugReports: https://github.com/yxlin/ggdmc/issues
 LazyData: TRUE
-Imports: Rcpp (>= 0.12.10), coda, rtdists, ggmcmc (>= 0.7.3), stats,
-        utils, data.table (>= 1.10.4), tmvtnorm, ggplot2, matrixStats
-Depends: R (>= 3.4.0)
+Imports: Rcpp (>= 0.12.10), coda, stats, utils, ggplot2, matrixStats, data.table (>= 1.10.4)
+Depends: R (>= 3.4.0) 
 LinkingTo: Rcpp (>= 0.12.10), RcppArmadillo (>= 0.7.100.3.0), BH
 RoxygenNote: 6.1.1
 Encoding: UTF-8

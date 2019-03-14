@@ -18,8 +18,6 @@ dbeta_lu(x, p1, p2, lower, upper, lg = FALSE)
 \item{upper}{upper bound}
 
 \item{lg}{logical; if TRUE, return log density.}
-
-\item{n}{number of simulations}
 }
 \description{
 A modified dbeta function

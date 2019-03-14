@@ -1,3 +1,69 @@
+######### r-functions -----------------------------------
+rdiffusion <- function (n,
+                        a, v, z = 0.5*a, d = 0, sz = 0, sv = 0, t0 = 0, st0 = 0,
+                        s = 1, precision = 3, stop_on_error = TRUE)
+{
+  ## @author Underlying C code by Jochen Voss and Andreas Voss. Porting and R
+  ## wrapping by Matthew Gretton, Andrew Heathcote, Scott Brown, and Henrik
+  ## Singmann.
+  ## \code{qdiffusion} by Henrik Singmann. This function is extracted from
+  ## rtdists written by the above authors.
+
+  if(any(missing(a), missing(v), missing(t0)))
+    stop("a, v, and/or t0 must be supplied")
+
+  s <- rep(s, length.out = n)
+  a <- rep(a, length.out = n)
+  v <- rep(v, length.out = n)
+  z <- rep(z, length.out = n)
+  z <- z/a  # transform z from absolute to relative scale (which is currently required by the C code)
+  d <- rep(d, length.out = n)
+  sz <- rep(sz, length.out = n)
+  sz <- sz/a # transform sz from absolute to relative scale (which is currently required by the C code)
+  sv <- rep(sv, length.out = n)
+  t0 <- rep(t0, length.out = n)
+  st0 <- rep(st0, length.out = n)
+  t0 <- recalc_t0 (t0, st0)
+
+  # Build parameter matrix (and divide a, v, and sv, by s)
+  params <- cbind (a/s, v/s, z, d, sz, sv/s, t0, st0)
+
+  # Check for illegal parameter values
+  if(ncol(params)<8)
+    stop("Not enough parameters supplied: probable attempt to pass NULL values?")
+  if(!is.numeric(params))
+    stop("Parameters need to be numeric.")
+  if (any(is.na(params)) || !all(is.finite(params)))
+    stop("Parameters need to be numeric and finite.")
+
+  randRTs    <- vector("numeric",length=n)
+  randBounds <- vector("numeric",length=n)
+
+  #uniques <- unique(params)
+  parameter_char <- apply(params, 1, paste0, collapse = "\t")
+  parameter_factor <- factor(parameter_char, levels = unique(parameter_char))
+  parameter_indices <- split(seq_len(n), f = parameter_factor)
+
+  for (i in seq_len(length(parameter_indices)))
+  {
+    ok_rows <- parameter_indices[[i]]
+
+    # Calculate n for this row
+    current_n <- length(ok_rows)
+
+    out <- r_fastdm (current_n,
+                     params[ok_rows[1],1:8],
+                     precision,
+                     stop_on_error=stop_on_error)
+    #current_n, uniques[i,1:8], precision, stop_on_error=stop_on_error)
+
+    randRTs[ok_rows]    <- out$rt
+    randBounds[ok_rows] <- out$boundary
+  }
+  response <- factor(randBounds, levels = 0:1, labels = c("lower", "upper"))
+  data.frame(rt = randRTs, response)
+}
+
 ##' Piecewise LBA model
 ##'
 ##' Density and random generation of the PLBA Model Type 0, 1, and 2.
@@ -27,7 +93,7 @@
 ##' @references Holmes, R. W., Trueblood, J. & Heathcote, A. (2016). A new
 ##' framework for modeling decisions about changing information: The Piecewise
 ##' Linear Ballistic Accumulator model. \emph{Cognitive Psychology}, 85, 1--29,
-##' doi: http://dx.doi.org/10.1016/j.cogpsych.2015.11.002.Approximate
+##' doi: 10.1016/j.cogpsych.2015.11.002.Approximate
 ##' @examples
 ##' #########################################################################80
 ##' ## rplba1
@@ -315,130 +381,8 @@ rplba3R <- function(n=10, pVec=c(A1=1.5, A2=1.5, B1=1.2, B2=1.2, C1=.3, C2=.3,
   data.frame(R=choice, RT=pVec["t0"] + rt)
 }
 
-rlnrR <- function (n, meanlog, sdlog, t0, st0 = 0) {
-  n_acc <- ifelse(is.null(dim(meanlog)), length(meanlog), dim(meanlog)[1])
-  dt    <- matrix(rlnorm(n = n*n_acc, meanlog = meanlog, sdlog = sdlog),
-               nrow = n_acc) + t0
-  winner <- apply(dt, 2, which.min)
-  if (st0[1] == 0) {
-    out <- data.frame(RT = dt[cbind(winner, 1:n)], R = winner)
-  } else {
-    out <- data.frame(RT = dt[cbind(winner, 1:n)] + runif(n, 0, st0[1]),
-      R = winner)
-  }
-  return(out)
-}
 
-##' Generate random number from a correlated accumulator model
-##'
-##' @param n number of observatoins
-##' @param A start point variability
-##' @param b decision threshold
-##' @param t0 non-decision time
-##' @param mean_v mean drift rate vector
-##' @param sd_v standard deviation of the drift rates
-##' @param st0 non-decision time variability
-##' @param corr_v correlations among accumulators
-##' @param return_ttf a Boolean switch to return time to finish matrix
-##' @importFrom tmvtnorm rtmvnorm
-##' @export
-rca <- function (n, A, b, t0, mean_v, sd_v, st0 = 0, corr_v = 0,
-  return_ttf = FALSE) {
-
-  ## Turn off check to prevent Bayesian stop
-  ## if (any(b < A)) stop("b cannot be smaller than A!")
-  nv    <- ifelse(is.null(dim(mean_v)), length(mean_v), nrow(mean_v))
-  Sigma <- make_sigma(nv, sd_v, corr_v)
-  if (!is.vector(mean_v)) mean_v <- mean_v[,1]
-
-  drifts <- tmvtnorm::rtmvnorm(n = n, mean = mean_v, sigma = Sigma,
-    lower = rep(0, (nv)), algorithm = "gibbs")
-
-  return(make_r(drifts, A, b, t0, st0, return_ttf))
-}
-
-# dca <- function(n, mean = rep(0, nrow(sigma)), sigma = diag(length(mean)),
-#   lower = rep(-Inf, length = length(mean)), upper = rep(Inf,
-#   length = length(mean)), D = diag(length(mean)), H = NULL, ...) {
-#
-#   tmvtnorm::rtmvnorm(n, mean, sigma, lower, upper, D, H, "gibbs")
-# }
-
-
-##' Canonical Linear Ballistic Accumulation/Accumualtor Model
-##'
-##' \code{makeR} stands for making/generating/simulating responses from
-##' a LBA model. \code{make_r} and \code{make.r} use C++ function. These
-##' make \code{r}, \code{_r}, \code{.r} functions are essentially \code{rLBA},
-##' including \code{rlba_norm}. They uses a LBA model with parameters, b, A,
-##' mean_v, sd_v and t0 (no st0) to generate choice RT random deviates.
-##'
-##' \code{make_v} draws drift rate from normal or truncated normal distribution.
-##' Each trial is stored as a row and each column is a drift rate for an
-##' accumulator. You need to transpose drift rates generated by make_v for
-##' \code{makeR}.
-##'
-##' \code{make.r} is a wrapper function of \code{make_r}. You may
-##' need to use ":::" to call make.r, because of S3 method naming convention. If
-##' you call \code{make_r} directly, beware it returns C index and is only a
-##' numeric matrix. It does not carry a string vector for the column names, RTs
-##' and responses. See timing test to see why it might be a good idea not to
-##' return it as a data frame. \code{rlbaCnorm} is R version of correlated LBA
-##' model.
-##'
-##' \code{rlba_norm} adds checks and calls \code{make_v} and \code{make_r}.
-##' \code{rlba_norm} is only slightly quicker than \code{make_r}.
-##'
-##' \code{n1PDFfixedt0} is defective density function for the fisrt node LBA
-##' model. Defective means its probability does not normally normalize to 1.
-##' Only the probabilities from all nodes/accumulators add to 1.
-##' \code{n1PDFfixedt0} is equation (3) on  page 159 in Brown and
-##' Heathcote (2008).  This equation assumes st0 is 0.
-##'
-##' \code{fptcdf} and \code{fptpdf} are distribution and density functions with
-##' four parameters A, b, v and sv, assuming t0 is zero. \code{fptcdf} and
-##' \code{fptpdf} are respectively equation (1) and equation (2) on page 159 in
-##' Brown and Heathcote (2008).
-##'
-##' @param drifts a n x n_v drift rate matrix. It can be a vector with 2 or more
-##' elements. n is the numbers of observation. n_v is the numbers of
-##' response/accumulator.
-##' @param b decision threshold, a vector or a scalar.
-##' @param A start point upper bound, a vector of a scalar.
-##' @param n_v numbers of response/accumulator, an integer. Note n_v must match
-##' the length/size of \code{drifts} vector.
-##' @param t0 nondecision time, a vector or a scalar.
-##' @param st0 nondecision time variation, a vector of a scalar. It is the upper
-##' bound of a uniform distribution for t0 variability.
-##' @param n numbers of observation/model simulations. This must be a scalar.
-##' @param seed an integer specifying if and how the random number generator
-##' should be initialized.
-##' @param return_ttf a boolean switch indicating if return RTs for all
-##' accumulators. When \code{return_ttf} is TRUE, a n_v x n ttf matrix is
-##' returned.
-##'
-##' @return \code{make_r} gives either a time-to-finish (ttf) matrix or a n x 2
-##' matrix, storing RTs (first column) and responses (second column). \code{n}
-##' equals to number of model simulations. ttf is a n_v x n matrix with RTs from
-##' all accumulators.
-##
-##' @export
-maker <- function (drifts, n, b, A, n_v, t0, st0 = 0, seed = NULL,
-  return_ttf = FALSE) {
-
-  set.seed(seed)
-  tmp <- make_r(drifts, A, b, t0, st0, return_ttf)
-
-  if (return_ttf) {
-    out <- tmp
-  } else {
-    out <- data.frame(RT = tmp[,1], R = tmp[,2])
-  }
-  attr(out, "seed") <- seed
-  return(out)
-}
-
-
+######### Generic functions -----------------------------------
 ##' Generate random variates of various cognitive models
 ##'
 ##' A wrapper function to \code{rd}, \code{norm}, \code{norm_pda},
@@ -450,15 +394,14 @@ maker <- function (drifts, n, b, A, n_v, t0, st0 = 0, seed = NULL,
 ##' @param n number of simulations
 ##' @param seed an integer specifying if and how the random number generator
 ##' should be initialized.
-##' @param regressor independent variables in regression models
-##' @importFrom rtdists rdiffusion
 ##' @export
-random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
+random <- function(type, pmat, n, seed = NULL) {
 
   set.seed(seed)
 
   if (type == "rd") {
-    out <- rtdists::rdiffusion(n, a = pmat$a[1], v = pmat$v[1],
+
+    out <- rdiffusion(n, a = pmat$a[1], v = pmat$v[1],
       t0 = pmat$t0[1],
       z  = pmat$z[1]*pmat$a[1], # convert to absolute
       d  = pmat$d[1],
@@ -466,12 +409,11 @@ random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
       sv = pmat$sv[1], st0 = pmat$st0[1], stop_on_error = TRUE)
 
   } else if (type %in% c("norm", "norm_pda", "norm_pda_gpu")) {
-
     ## pmat: A b t0 mean_v sd_v st0
-    # print(n)
-    # print(pmat)
-    out <- rlba_norm(n, pmat[, 1], pmat[, 2], matrix(pmat[, 4]), pmat[, 5],
-      pmat[,3], pmat[1,6])
+    posdrift <- TRUE
+
+    out <- rlba_norm(n, pmat[, 1], pmat[, 2], pmat[, 4], pmat[, 5],
+      pmat[,3], pmat[1,6], posdrift)
 
   } else if (type %in% c("plba0_gpu") ) {
 
@@ -491,46 +433,6 @@ random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
     out <- rplba3(n, pmat[,1], pmat[,2], pmat[,3],
       pmat[,4], pmat[,5], pmat[,6], pmat[,7], pmat[1, 8],
       pmat[1, 9], pmat[1, 11], pmat[1, 10])
-  } else if (type == "lnr") {
-
-    out <- rlnrDF(n, pmat[,1],  pmat[,2], pmat[,3], pmat[1,4])
-  } else if (type == "cnorm") {
-
-    out <- rca(n, pmat[,1], pmat[,2], pmat[,3], pmat[,4], pmat[,5], pmat[,7],
-      unique(pmat[,6]))
-
-  } else if (type == "glm") {
-    # pmat is a data frame
-    #       a   b   tau
-    # r1 143 -1.2   8.8
-
-    # X_  <- sample(x = regressors, size = n, replace = TRUE)
-    # mu <- pmat[1,1] + pmat[1,2] * X_
-    # sd <- 1/sqrt(pmat[1,3])
-    # out <- cbind(rep(1, n), X_, rnorm(n, mu, sd))
-
-    nbeta <- ncol(pmat) - 1
-    beta <- matrix(unlist(pmat[1, 1:nbeta]), ncol = 1)
-    tau  <- pmat[1, ncol(pmat)]
-    X_ <- sample(x = regressors, size = n, replace = TRUE)
-    X  <- as.matrix(cbind(rep(1, n), X_))
-    linpred <- X %*% beta
-    sd <- 1/sqrt(tau)
-    out <- cbind(X, rnorm(n, linpred, sd))
-
-  } else if (type == "logit") {
-    nbeta <- ncol(pmat) - 1
-    beta <- matrix(unlist(pmat[1, 1:nbeta]), ncol = 1)
-    X  <- as.matrix(cbind(rep(1, n), regressors,
-                    regressors[,1] * regressors[,2]))
-
-    b <- rnorm(n, 0, pmat[1, nbeta+1])
-    linpred <- X %*% beta + b
-
-    prob <- plogis(linpred, 0, 1, TRUE, FALSE)
-    ni <- sample(1:100, n, replace = TRUE)
-    out <- cbind(rep(1, n), rbinom(n, size = ni, prob = prob), ni)
-
   } else {
     stop("Model type yet created")
   }
@@ -549,7 +451,7 @@ random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
 ##' from prior distributions.
 ##'
 ##' @param x a model object
-##' @param ns number of subjects.
+##' @param nsub number of subjects.
 ##' @param prior a list of parameter prior distributions
 ##' @param ps a vector or matirx. Each row indicates a set of true parameters
 ##' for a participant.
@@ -598,77 +500,41 @@ random <- function(type, pmat, n, seed = NULL, regressors = NULL) {
 ##' ## [2,] 1 1 0.5 0.2  1 0.15
 ##'
 ##' @export
-GetParameterMatrix <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
-
+GetParameterMatrix <- function(x, nsub, prior = NA, ps = NA, seed = NULL)
+## Used in simulate.model and simulate_many
+{
   message1 <- "Parameters are incompatible with model"
-  # message2 <- "Must supply either a list of p.prior or a parameter vector."
-  # if(anyNA(prior) & anyNA(ps)) stop(message2)
   pnames <- names(attr(x, "p.vector"))
 
-  if (anyNA(prior)) { ## use ps
+  ## use ps; fixed-effect model
+  if (anyNA(prior))
+  {
     if (is.vector(ps)) {
       if (check_pvec(ps, x)) stop(message1)
       ps    <- ps[pnames]
-      pss   <- rep(ps, each = ns)
-      psmat <- matrix(pss, ns, dimnames = list(NULL, pnames))
+      pss   <- rep(ps, each = nsub)
+      psmat <- matrix(pss, nsub, dimnames = list(NULL, pnames))
     } else if (is.matrix(ps)) {
-      psmat <- matrix(ps, ns, dimnames = list(NULL, pnames))
+      ps    <- ps[, pnames]
+      psmat <- matrix(ps, nsub, dimnames = list(NULL, pnames))
     } else {
-      if ((ns != dim(ps)[1])) stop("ps matrix must have ns rows")
+      if ((nsub != dim(ps)[1])) stop("ps matrix must have nsub rows")
       if (check_pvec(ps[1,], x)) stop(message1)
     }
 
-    rownames(psmat) <- 1:ns
-  } else {  ## use prior; random-effect model
+    rownames(psmat) <- 1:nsub
+  }
+  else  ## use prior; random-effect model
+  {
     if (!all( pnames %in% names(prior))) stop(message1)
     set.seed(seed)
-    psmat <- rprior(prior[pnames], ns)
+    psmat <- rprior(prior[pnames], nsub)
 
-    ## A nasty way to deal with MG's error gate; ie keep redrawing until we
-    ## pass his checks.
-    # if (attr(x, "type") == "rd") {
-    #   facs <- ggdmc::createfacsdf(x)
-    #
-    #   for (i in 1:ns) {
-    #     for (j in 1:nrow(facs)) {
-    #       psmat_allpar <- TableParameters(psmat[i,], j, x, FALSE)
-    #       psmat_allpar <- checkddm3(psmat_allpar, j, x, prior)
-    #       psmat[i,] <- as.numeric(psmat_allpar[1, pnames])
-    #     }
-    #   }
-    # }
   }
 
   return(psmat)
 }
 
-GetParameterMatrix_bk <- function(x, ns, prior = NA, ps = NA, seed = NULL) {
-
-  message1 <- "Parameters are incompatible with model"
-  pnames <- names(attr(x, "p.vector"))
-
-  if (anyNA(prior)) { ## use ps
-    if (is.vector(ps)) {
-      if (check_pvec(ps, x)) stop(message1)
-      ps    <- ps[pnames]
-      pss   <- rep(ps, each = ns)
-      psmat <- matrix(pss, ns, dimnames = list(NULL, pnames))
-    } else if (is.matrix(ps)) {
-      psmat <- matrix(ps, ns, dimnames = list(NULL, pnames))
-    } else {
-      if ((ns != dim(ps)[1])) stop("ps matrix must have ns rows")
-      if (check_pvec(ps[1,], x)) stop(message1)
-    }
-
-    rownames(psmat) <- 1:ns
-  } else {  ## use prior; random-effect model
-    if (!all( pnames %in% names(prior))) stop(message1)
-    set.seed(seed)
-    psmat <- rprior(prior[pnames], ns)
-  }
-
-  return(psmat)
-}
 
 # ps <- c(a = 242.7, b = 6.185, tau = .01)
 # ps <- c(b0 = -.55, b1 = .08, b2 = -.81, b3 = 1.35, sd = .267)
@@ -680,9 +546,9 @@ simulate_one <- function(model, n, ps, seed) {
   resp <- attr(model, "responses")
   type <- attr(model, "type")
   levs <- attr(model, "factors")
-  facs <- ggdmc:::createfacsdf(model)
-  nvec <- ggdmc:::check_n(n, facs)
-  dat  <- ggdmc:::nadf(nvec, facs, levs, type)
+  facs <- createfacsdf(model)
+  nvec <- check_n(n, facs)
+  dat  <- nadf(nvec, facs, levs, type)
   row1 <- 1
 
   dfnames <- names(dat)
@@ -693,17 +559,7 @@ simulate_one <- function(model, n, ps, seed) {
     pmat <- TableParameters(ps, i, model, FALSE) ## simulate use n1.order == FALSE
     rown <- row1 + nvec[i] - 1
 
-    if (type == "glm") {
-      regressors <- attr(model, "regressors")
-      tmp <- random(type, pmat, nvec[i], seed, regressors)
-      dat[row1:rown, c("R", "X", "Y")] <- tmp
-    } else if (type == "logit") {
-      regressors <- dat[row1:rown, Xnames]
-      tmp <- random(type, pmat, nvec[i], seed, regressors)
-      dat[row1:rown, c("R", "Y", "N")] <- tmp
-    } else {
-      dat[row1:rown, c("RT", "R")] <- random(type, pmat, nvec[i], seed)
-    }
+    dat[row1:rown, c("RT", "R")] <- random(type, pmat, nvec[i], seed)
     row1 <- rown+1
   }
 
@@ -712,7 +568,8 @@ simulate_one <- function(model, n, ps, seed) {
   return(dat)
 }
 
-simulate_many <- function(model, n, ns, prior, ps, seed) {
+simulate_many <- function(model, n, ns, prior, ps, seed)
+{
 
   n  <- GetNsim(model, n, ns)
   ps <- GetParameterMatrix(model, ns, prior, ps, seed)
@@ -722,6 +579,7 @@ simulate_many <- function(model, n, ns, prior, ps, seed) {
 
   ndatai <- cumsum(c(0, matrixStats::rowSums2(n))); ## index boundaries
   datr <- (ndatai[1] + 1):(ndatai[2]); ## First subject's trial index
+
   ## Simulate first subject; modeli must be 'model' class
   dat <- cbind(s = rep.int(1, length(datr)),
     simulate_one(modeli, n[1,], ps[1,], seed))
@@ -792,7 +650,8 @@ simulate_many <- function(model, n, ns, prior, ps, seed) {
 ##'
 ##' @export
 simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
-  prior = NA, ps = NA, ...) {
+  prior = NA, ps = NA, ...)
+{
   if (is.na(nsub)) {
     if (is.na(nsim)) stop("How many response you want to generate? Must supply n")
     if (anyNA(ps)) {
@@ -809,29 +668,32 @@ simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
   return(out)
 }
 
-##' Post-predictive Simulation
+##' Simulate Post-predictive Data
 ##'
 ##' Simulate post-predictive data.
 ##'
 ##' @param object a model object of a subject.
 ##' @param npost number of posterior predictive replications.
-##' @param nsub whether randomly select a npost estimated parameter values or
+##' @param rand whether randomly select a npost estimated parameter values or
 ##' select the first npost estimates
 ##' @param factors experimental factors
 ##' @param xlim trimming outlier, e.g., xlim = c(0, 5).
 ##' @param seed an integer specifying if and how the random number generator
 ##' should be initialized.
 ##' @return a data frame
-##'
+##' @import data.table
 ##' @export
 predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
-                        xlim = NA, seed = NULL) {
-
+                        xlim = NA, seed = NULL)
+{
+  # object <- fit
+  # factors = NA
   model <- attributes(object$data)$model
   facs <- names(attr(model, "factors"))
   class(object$data) <- c("data.frame", "list")
 
-  if (!is.null(factors)) {
+  if (!is.null(factors))
+  {
     if (any(is.na(factors))) factors <- facs
     if (!all(factors %in% facs))
       stop(paste("Factors argument must contain one or more of:",
@@ -845,9 +707,13 @@ predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
   nmc    <- object$nmc
   ntsample <- nchain * nmc
   pnames   <- object$p.names
-  # str(samples$theta) ## nchain x npar x nmc
-  # str(thetas)        ## (nchainx nmc) x npar
-  thetas <- matrix(aperm(object$theta, c(3,1,2)), ncol = npar)
+  # str(object$theta) ## npar x nchain x nmc
+  # str(thetas)       ## (nchain x nmc) x npar
+  thetas <- matrix(aperm(object$theta, c(3,2,1)), ncol = npar)
+
+  # head(thetas)
+  # head(object$theta[,,1:2])
+
   colnames(thetas) <- pnames
 
   if (is.na(npost)) {
@@ -863,7 +729,7 @@ predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
   npost  <- length(use)
   posts   <- thetas[use, ]
   nttrial <- sum(ns) ## number of total trials
-  out <- data.frame(matrix(nrow = npost*nttrial, ncol = dim(object$data)[2]))
+  ## out <- data.frame(matrix(nrow = npost*nttrial, ncol = dim(object$data)[2]))
 
   # for (i in 1:npost) {
   #   tmp <- ggdmc:::simulate_one(model, n = ns, ps = posts[i,], seed = NULL)
@@ -873,7 +739,7 @@ predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
 
   ## should replace with parallel
   v <- lapply(1:npost, function(i) {
-    ggdmc:::simulate_one(model, n = ns, ps = posts[i,], seed = seed)
+    simulate_one(model, n = ns, ps = posts[i,], seed = seed)
   })
   out <- data.table::rbindlist(v)
   # names(out) <- names(object$data)
@@ -888,4 +754,13 @@ predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
   return(out)
 }
 
+######### Utility functions -----------------------------------
+## [MG 20150616]
+## In line with LBA, adjust t0 to be the lower bound of the non-decision time distribution
+## rather than the average
+## Called from prd, drd, rrd (Extracted from rtdists)
+recalc_t0 <- function (t0, st0) { t0 <- t0 + st0/2 }
+
 "%w/o%" <- function(x, y) x[!x %in% y] #--  x without y
+
+

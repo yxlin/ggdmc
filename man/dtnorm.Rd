@@ -2,14 +2,11 @@
 % Please edit documentation in R/RcppExports.R
 \name{dtnorm}
 \alias{dtnorm}
-\alias{dtnorm2}
 \alias{rtnorm}
 \alias{ptnorm}
 \title{Truncated Normal Distribution}
 \usage{
 dtnorm(x, p1, p2, lower, upper, lg = FALSE)
-
-dtnorm2(x, p1, p2, lower, upper, lg = FALSE)
 
 rtnorm(n, p1, p2, lower, upper)
 

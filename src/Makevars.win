@@ -2,7 +2,7 @@
 PKG_CXXFLAGS = -I../inst/include $(SHLIB_OPENMP_CXXFLAGS)
 ## -- linking for OpenMP
 PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS) -fopenmp -lgomp
-CXX_STD = CXX11
+## CXX_STD = CXX11
 
 ## Windows specific
 CXXFLAGS= -O2

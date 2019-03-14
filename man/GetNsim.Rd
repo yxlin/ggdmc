@@ -7,28 +7,27 @@
 GetNsim(model, n, ns)
 }
 \arguments{
-\item{model}{a model object}
+\item{model}{a model object.}
 
-\item{n}{number of trials / responses.}
+\item{n}{number of trials.}
 
 \item{ns}{number of subjects.}
 }
 \description{
 Constructs a matrix, showing how many responses to in each
 cell. It also checks if the format of \code{n} and \code{ns}
-conform to the standard.
+conform.
 }
 \details{
 \code{n} can be:
 \enumerate{
-\item one integer for a balanced design,
+\item an integer for a balanced design,
 \item a matrix for an unbalanced design, where rows are subjects and
 columns are cells. If the matrix is a row vector, all subjects
 have the same \code{n} in each cell. If it is a column vector, all
 cells have the same \code{n}. Otherwise each entry specifies the \code{n}
-for a particular subject x design cell combination. See below
-for concrete examples.
-}
+for a particular subject x cell combination. See below for concrete
+examples.}
 }
 \examples{
 model <- BuildModel(

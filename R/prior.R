@@ -2,7 +2,6 @@
 ##' A modified dbeta function
 ##'
 ##' @param x quantile
-##' @param n number of simulations
 ##' @param p1 shape1 parameter
 ##' @param p2 shape2 parameter
 ##' @param lower lower bound
@@ -10,8 +9,9 @@
 ##' @param lg logical; if TRUE, return log density.
 ##' @export
 ##' @importFrom stats dbeta
-dbeta_lu <- function(x, p1, p2, lower, upper, lg = FALSE) {
-  # Used with beta prior
+dbeta_lu <- function(x, p1, p2, lower, upper, lg = FALSE)
+## Used with beta prior
+{
   if (!lg) {
     out <- dbeta((x-lower)/(upper-lower), p1, p2, log = FALSE) / (upper-lower)
   } else {
@@ -41,7 +41,7 @@ dgamma_l <- function(x, p1, p2, lower, upper, lg = FALSE) {
 ##' @param p2 sdlog parameter
 ##' @param lower lower bound
 ##' @param upper upper bound
-##' @param log log density?
+##' @param lg log density?
 ##' @importFrom stats dlnorm
 ##' @export
 dlnorm_l <- function(x, p1, p2, lower, upper, lg = FALSE) {
@@ -82,6 +82,7 @@ dconstant <- function(x, p1, p2, lower, upper, lg = FALSE) {
 dunif_ <- function(x, p1, p2, lower, upper, lg = FALSE) {
   dunif(x, min = p1, max = p2, log = lg)
 }
+
 
 ### Main functions --------------------
 ##' Specifying Parameter Prior Distributions
@@ -209,7 +210,7 @@ BuildPrior <- function(p1, p2,
     }
   }
 
-  class(out) <- c("prior", "list")
+  class(out) <- c("list", "prior")
   return(out)
 }
 
@@ -351,14 +352,9 @@ BuildPrior_string <- function(p1, p2,
 ##'   upper = c(5, 7, 2, 2, 2, 2))
 ##'
 ##' @export
-rprior <- function(prior, n = 1) {
-  if (n == 1) {
-    out <- rprior_vec(prior)
-    # out <- tmp[!is.na(tmp)]
-  } else {
-    out <- rprior_mat(prior, n)
-  }
-  return(out)
+rprior <- function(prior, n = 1)
+{
+  rprior_mat(prior, n)
 }
 
 
@@ -443,3 +439,5 @@ print.prior <- function(x, ...) {
   rownames(out) <- names(x)
   return(out)
 }
+
+### Back up (to be removed) ------------------------------------------------------

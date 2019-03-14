@@ -10,7 +10,7 @@
 ##' @keywords package
 ##' @name ggdmc
 ##' @docType package
-##' @author  Yi-Shin Lin <yishin.lin@utas.edu.au> \cr
+##' @author  Yi-Shin Lin <yishinlin001@gmail.com> \cr
 ##' Andrew Heathcote <andrew.heathcote@utas.edu.au>
 ##' @references
 ##' Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M. &
@@ -60,6 +60,7 @@ grepl_dot <- function(pattern, x) {
 ##' @param factors specifying factors and factor levels
 ##' @param constants setting parameters as constant value
 ##' @param responses Response (accumulator) names
+##' @param regressors a temporary argument for fitting GLM
 ##' @param type using character string to specifying model type.
 ##' @param posdrift enforce postive drift rate, using truncated normal or
 ##' just using normal distribution. This is used only by norm type (any
@@ -256,7 +257,12 @@ BuildModel <- function(
 ##' @export
 print.model <- function(x, p.vector = NULL, ...) {
 
-  if (!is.array(unclass(x))) stop("model is not an array. Do you attempt to print posterior samples?")
+  if (!is.array(unclass(x)))
+  {
+    message("model is not an array. ")
+    stop("Do you attempt to print posterior samples or multiple models?")
+  }
+
 
   if (is.null(p.vector)) {
     nr <- length(attr(x, "response"))
@@ -281,6 +287,7 @@ print.model <- function(x, p.vector = NULL, ...) {
 }
 
 ##' @rdname BuildModel
+##' @importFrom utils head
 ##' @export
 print.dmi <- function(x, ...) {
   model <- attr(x, "model")
@@ -459,7 +466,7 @@ make_level_array <- function(x = NA) {
 ##' by likelihood functions, assigning a trial to a cell for calculating
 ##' probability densities.
 ##'
-##' @param x a parameter vector
+##' @param pvector a parameter vector
 ##' @param cell a string or an integer indicating a design cell, e.g.,
 ##' \code{s1.f1.r1} or 1. Note the integer cannot exceed the number of cell.
 ##' use \code{length(dimnames(model))} to check the upper bound.
@@ -508,19 +515,24 @@ make_level_array <- function(x = NA) {
 ##' ##    A b  t0 mean_v sd_v st0
 ##' ## 0.75 1 0.2    2.5    1   0
 ##' ## 0.75 1 0.2    1.5    1   0
-TableParameters <- function(x, cell, model, n1order = TRUE) {
+TableParameters <- function(pvector, cell, model, n1order) {
   pnames   <- names(attr(model, "p.vector"))
   allpar   <- attr(model, "all.par")
   parnames <- attr(model, "par.names")
   type     <- attr(model, "type")
-  n1       <- attr(model, "n1.order")
+  n1idx    <- attr(model, "n1.order")
   resp     <- attr(model, "responses")
-  cell     <- ggdmc:::check_cell(cell, model)
+  cell     <- check_cell(cell, model)
   isr1     <- check_rd(type, model)
 
-  out <- as.data.frame(p_df(x, cell, pnames, allpar, parnames,
-    model, type, dimnames(model)[[1]], dimnames(model)[[2]],
-    dimnames(model)[[3]], isr1, n1, n1order))
+  dim0 <- dimnames(model)[[1]]
+  dim1 <- dimnames(model)[[2]]
+  dim2 <- dimnames(model)[[3]]
+
+  parmeter_matrix <- p_df(pvector, cell, type, pnames, parnames, dim0, dim1,
+                          dim2, allpar, model,  isr1, n1idx, n1order)
+
+  out <- as.data.frame(parmeter_matrix)
 
   if(type == "rd") {
     names(out) <- c("a","v","z","d","sz","sv","t0","st0")
@@ -551,21 +563,6 @@ TableParameters <- function(x, cell, model, n1order = TRUE) {
   if(type %in% c("plba3")) {
     names(out) <- c("A", "B", "C","mean_v","mean_w","sd_v","sd_w", "rD", "tD",
       "t0","swt")
-  }
-
-  if(type %in% c("lnr")) {
-    names(out) <- c("meanlog", "sdlog", "t0", "st0")
-    rownames(out) <- attr(model, "response")
-  }
-
-  if(type %in% c("cnorm")) {
-    names(out) <- c("A", "b", "t0", "mean_v", "sd_v", "corr_v", "st0")
-    rownames(out) <- attr(model, "response")
-  }
-
-  if(type %in% c("glm")) {
-    names(out) <- c("a", "b", "tau")
-    rownames(out) <- attr(model, "response")
   }
 
   return(out)
@@ -899,33 +896,6 @@ checkddm1 <- function(p.map, responses,  type) {
   if (type =="rd"  & ( any(is.M) | any(is.R) )) stop(message2)
 }
 
-checkddm3 <- function(pmat, i, model, p.prior, debug = FALSE) {
-  ## RT = .3, precision = 2.5 are dummies
-  if (anyNA(p.prior)) stop("p.prior not found in checkddm3")
-  ps <- c(pmat$a[1], pmat$v[1], pmat$z[1], pmat$d[1], pmat$sz[1], pmat$sv[1],
-    pmat$t0[1], pmat$st0[1], .3, 2.5)
-  isbadparameter <- checkddm2(ps)
-  j <- 0
-
-  repeat {
-    if (isbadparameter) {
-      j <- j+1
-      ps <- rprior(p.prior)
-      pmat <- TableParameters(ps, i, model, FALSE)
-      ps <- c(pmat$a[1], pmat$v[1], pmat$z[1], pmat$d[1], pmat$sz[1], pmat$sv[1],
-        pmat$t0[1], pmat$st0[1], .3, 2.5)
-      isbadparameter <- checkddm2(ps)
-      if (debug) message("ps changed")
-    } else if (j >= 1e3) {
-      stop("Fail to simulate DDM data");
-      break
-    } else {
-      break
-    }
-
-  }
-  return(pmat)
-}
 
 
 checkdesign  <- function(match.map, levelarray) {
@@ -976,41 +946,6 @@ check_rd <- function(type, model) {
 }
 
 
-##' Check Data Model Instance
-##'
-##' Return a model object extracted either from a data model instance or
-##' an object storing posterior samples. The function checks also
-##' \enumerate{
-##' \item When x stores DMI of one participant, if DMI is a \code{data.frame},
-##' \item When x is an object of posterior samples, if x is a list of many subjects,
-##' \item whether model is successfully created,
-##' \item whether prior is suppled or we can extract it from 'samples'
-##' }
-##'
-##' @param x a data-model instance
-##' @param prior a parameter prior list
-##' @param theta1 a user-supplied theta cube
-##' @param nchain number of MCMC chains
-##' @export
-CheckDMI <- function(x = NULL, prior = NULL, theta1 = NULL, nchain = NULL) {
-  ## x == data == DMI
-  ## Been used in StartNewsamples
-
-  if (!is.null(x) && !is.data.frame(x)) stop("Data must be a data frame")
-  if (is.null(x)) {
-    stop("No data model instance")
-  } else {
-    model <- attr(x, "model")
-  }
-
-  npar <- length(GetPNames(model))
-  if (is.null(nchain)) nchain <- 3*npar
-  if (is.null(model)) stop("Must specify a model")
-  if (is.null(prior)) stop("Must specify a prior argument")
-  if (!is.null(theta1) && !is.matrix(theta1) || (!all(dim(theta1)==c(nchain, npar))))
-    stop("theta1 must be a nchain x npar matrix")
-  return(model)
-}
 
 
 ######### Simulation checks -----------------------------------------------------
@@ -1091,7 +1026,7 @@ FlipResponse_rd <- function(model, data, facs) {
 ######### CUSTOM MAP MAKING for PM -------------------------------
 MakeEmptyMap <- function(FR, levels) {
   ## This derives from DMC's empty.map
-  level_array <- MakeLevelArray(FR)
+  level_array <- make_level_array(FR)
   map <- rep("", length = length(level_array))
   names(map) <- level_array
   factor(map, levels = levels)

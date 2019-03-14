@@ -4,7 +4,8 @@
 \alias{autocor}
 \title{Autocorrelation Plot}
 \usage{
-autocor(x, start = 1, end = NA, nLags = 50, nsubchain = NULL)
+autocor(x, start = 1, end = NA, nLags = 50, nsubchain = NULL,
+  base_size = 14)
 }
 \arguments{
 \item{x}{posterior samples}
@@ -16,6 +17,8 @@ autocor(x, start = 1, end = NA, nLags = 50, nsubchain = NULL)
 \item{nLags}{the number of lags of the autocorrelation plot.}
 
 \item{nsubchain}{plot only a chain subset}
+
+\item{base_size}{the size of fonts in the figure}
 }
 \description{
 Plot the autocorrelation of posterior samples,

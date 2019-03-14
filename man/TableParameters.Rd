@@ -4,10 +4,10 @@
 \alias{TableParameters}
 \title{Table response and parameter}
 \usage{
-TableParameters(x, cell, model, n1order = TRUE)
+TableParameters(pvector, cell, model, n1order)
 }
 \arguments{
-\item{x}{a parameter vector}
+\item{pvector}{a parameter vector}
 
 \item{cell}{a string or an integer indicating a design cell, e.g.,
 \code{s1.f1.r1} or 1. Note the integer cannot exceed the number of cell.

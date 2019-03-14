@@ -2,164 +2,54 @@
 % Please edit documentation in R/sampling.R
 \name{StartNewsamples}
 \alias{StartNewsamples}
-\alias{RestartSamples}
-\alias{StartManynewsamples}
-\alias{RestartManysamples}
-\alias{StartNewHypersamples}
-\alias{RestartHypersamples}
-\alias{StartNewhiersamples}
-\title{Initialise New Samples}
+\alias{run}
+\alias{CheckConverged}
+\title{Start new model fits}
 \usage{
-StartNewsamples(nmc, data = NULL, prior = NULL, thin = 1,
-  nchain = NULL, rp = 0.001)
+StartNewsamples(data, prior = NULL, nmc = 500, thin = 1,
+  nchain = NULL, report = 100, rp = 0.001, gammamult = 2.38,
+  pm0 = 0.05, pm1 = 0.05, block = TRUE, ncore = 1)
 
-RestartSamples(nmc, samples = NULL, thin = NULL, rp = 0.001,
+run(samples, nmc = 500, thin = 1, report = 100, rp = 0.001,
+  gammamult = 2.38, pm0 = 0, pm1 = 0, block = TRUE, ncore = 1,
   add = FALSE)
 
-StartManynewsamples(nmc, data = NULL, prior = NULL, thin = 1,
-  nchain = NULL, rp = 0.001)
-
-RestartManysamples(nmc, samples = NULL, thin = NULL, rp = 0.001,
-  add = FALSE)
-
-StartNewHypersamples(nmc, data = NULL, prior = NULL, ppprior = NULL,
-  thin = 1, nchain = NULL, rp = 0.001)
-
-RestartHypersamples(nmc, samples = NULL, thin = NULL, rp = 0.001,
-  add = FALSE)
-
-StartNewhiersamples(nmc, data = NULL, start = NULL, prior = NULL,
-  thin = 1, nchain = NULL, rp = 0.001)
+CheckConverged(samples)
 }
 \arguments{
-\item{nmc}{numbers of Monte Carlo samples.}
+\item{data}{data model instance(s)}
 
-\item{data}{a data model instance}
+\item{prior}{prior distributions. For hierarchical model, this must be a
+list with three sets of prior distributions. Each is named, "pprior",
+"location", and "scale".}
 
-\item{prior}{parameter prior distributions from \code{BuildPrior}.}
+\item{nmc}{number of Monte Carlo sampling}
 
-\item{thin}{thinning length.}
+\item{thin}{thinning length}
 
-\item{nchain}{numbers of Markov chains. Default is 3 times the numbers of
-model parameters.}
+\item{nchain}{number of chains}
 
-\item{rp}{DE-MCMC tuning parameter to generate random noise either from
-uniform or Gaussian distribution.}
+\item{report}{progress report interval}
 
-\item{samples}{a collection fo posterior samples.}
+\item{rp}{tuning parameter 1}
 
-\item{add}{add more samples onto an existing samples}
+\item{gammamult}{tuning parameter 2, step size of parameter search}
 
-\item{ppprior}{hyper parameter prior distributions from \code{BuildPrior}.
-This must be a set of location and scale hyper prior distributions.}
+\item{pm0}{probability of migration type 0 (Hu & Tsui, 2010)}
+
+\item{pm1}{probability of migration type 1 (Turner et al., 2013)}
+
+\item{block}{Only for hierarchical modeling. Update one parameter at a time}
+
+\item{ncore}{Only for non-hierarchical modeling with many subjects.}
+
+\item{samples}{model fit(s).}
 }
 \description{
-Set points radnomly based on supplied / default prior distributions,
-either from \code{start}, or \code{prior} to generate over-dispersed
-initial parameter values.
-}
-\examples{
-m1 <- BuildModel(
-    p.map     = list(a = "1", v = "F", z = "1", d = "1", sz = "1", sv = "1",
-                t0 = "1", st0 = "1"),
-    constants = c(st0 = 0, d = 0),
-    match.map = list(M = list(s1 = "r1", s2 = "r2")),
-    factors   = list(S = c("s1","s2"), F = c("f1", "f2")),
-    responses = c("r1","r2"),
-    type      = "rd")
-
-## m1 is "model" class
-class(m1)
-## [1] "model"
-
-pVec <- c(a = 1, v.f1 = 1, v.f2 = 1.5, z = .5, sz = .25, sv = .2, t0 = .15)
-dat  <- simulate(m1, nsim = 1e2, ps = pVec)
-str(dat)
-## 'data.frame':	400 obs. of  4 variables:
-## $ S : Factor w/ 2 levels "s1","s2": 1 1 1 1 1 1 1 1 1 1 ...
-## $ F : Factor w/ 2 levels "f1","f2": 1 1 1 1 1 1 1 1 1 1 ...
-## $ R : Factor w/ 2 levels "r1","r2": 1 1 1 2 1 1 1 1 2 1 ...
-## $ RT: num  0.26 0.255 0.572 0.25 0.518 ...
-
-dmi1 <- BuildDMI(dat, m1)
-npar <- length(GetPNames(m1))
-
-p.prior <- BuildPrior(
-   dists = rep("tnorm", npar),
-   p1    = c(a=2,  v.f1=2.5, v.f2=1.25, z=.5, sz=.3, sv=1,  t0=.3),
-   p2    = c(a=.5, v.f1=.5,  v.f2=.35,  z=.1, sz=.1, sv=.3, t0=.05),
-   lower = c(0,-5, -5, 0, 0, 0, 0),
-   upper = c(5, 7,  7, 2, 2, 2, 2))
-
-## Set up a new DMC sample with 16 iteration. The default thin is 1
-sam0 <- StartNewsamples(nmc = 16, data = dmi1, prior = p.prior)
-sam0$nmc
-## [1] 16
-
-sam1 <- RestartSamples(16, sam0)
-sam1$nmc
-## [1] 16
-sam1 <- RestartSamples(16, sam1, add = TRUE)
-sam1$nmc
-## [1] 32
-
-#####################28
-## Hierarchical      ##
-#####################28
-model <- BuildModel(
-        p.map     = list(A = "1", B = "R", t0 = "1", mean_v = c("D", "M"),
-          sd_v = "M", st0 = "1"),
-        match.map = list(M = list(s1 = 1, s2 = 2)),
-        factors   = list(S = c("s1", "s2"), D = c("d1", "d2")),
-        constants = c(sd_v.false = 1, st0 = 0),
-        responses = c("r1", "r2"),
-        type      = "norm")
-
-## Population distribution, rate effect on F
-pop.mean <- c(A=.4, B.r1=.6, B.r2=.8, t0=.3,
-  mean_v.d1.true  = 1.5,
-  mean_v.d2.true  = 1.0,
-  mean_v.d1.false = 0,
-  mean_v.d2.false = 0,  sd_v.true = .25)
-pop.scale <-c(A=.1, B.r1=.1, B.r2=.1, t0=.05,
-  mean_v.d1.true  =.2,
-  mean_v.d2.true  =.2,
-  mean_v.d1.false =.2,
-  mean_v.d2.false =.2,  sd_v.true = .1)
-
-pop.prior <- BuildPrior(
-  dists = rep("tnorm", 9),
-  p1 = pop.mean,
-  p2 = pop.scale,
-  lower = c(0,0,0,   .1, NA,NA,NA,NA, 0),
-  upper = c(NA,NA,NA, 1, NA,NA,NA,NA, NA))
-
-dat <- simulate(model, nsub = 6, nsim = 30, prior = pop.prior)
-dmi <- BuildDMI(dat, model)
-p.prior <- BuildPrior(
-  dists = rep("tnorm", 9),
-  p1   = pop.mean,
-  p2   = pop.scale*5,
-  lower=c(0,0,0,   .1, NA,NA,NA,NA, 0),
-  upper=c(NA,NA,NA,NA, NA,NA,NA,NA, NA)
-)
-
-mu.prior <- BuildPrior(
-  dists = rep("tnorm",  9),
-  p1    = pop.mean,
-  p2    = c(1,   1,  1,  1,   2,  2,  2, 2,  1),
-  lower = c(0,   0,  0, .01, NA, NA, NA, NA, 0),
-  upper = c(NA, NA, NA,  NA, NA, NA, NA, NA, NA)
-)
-
-sigma.prior <- BuildPrior(
-  dists = rep("beta", length(p.prior)),
-  p1    = c(A = 1, B.r1 = 1, B.r2 = 1, t0 = 1, mean_v.d1.true = 1,
-    mean_v.d2.true = 1, mean_v.d1.false = 1, mean_v.d2.false = 1,
-    sd_v.true = 1),
-  p2    = rep(1, 9))
-
-pp.prior <- list(mu.prior, sigma.prior)
-hsam <- StartNewHypersamples(32, dmi, pop.prior, pp.prior)
-
+Modelling a hierarchical or a fixed-effect model, using Bayeisan
+optimisation.  We use a specific type of pMCMC algorithm, the DE-MCMC,
+which includes crossover and two different migration operators. The latter
+two operators essentially are population-version random-walk Metroplolis.
+They will be less efficient to locate a target parameter space, if been
+applied alone.
 }

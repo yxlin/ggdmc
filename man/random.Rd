@@ -4,7 +4,7 @@
 \alias{random}
 \title{Generate random variates of various cognitive models}
 \usage{
-random(type, pmat, n, seed = NULL, regressors = NULL)
+random(type, pmat, n, seed = NULL)
 }
 \arguments{
 \item{type}{a character string indicating the model type}
@@ -15,8 +15,6 @@ random(type, pmat, n, seed = NULL, regressors = NULL)
 
 \item{seed}{an integer specifying if and how the random number generator
 should be initialized.}
-
-\item{regressor}{independent variables in regression models}
 }
 \description{
 A wrapper function to \code{rd}, \code{norm}, \code{norm_pda},

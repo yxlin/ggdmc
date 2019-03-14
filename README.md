@@ -180,6 +180,7 @@ for(i in 1:length(fit))
 6. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
 7. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
 8. The correlated accumualtor model; type = "cnorm".
+
 < 3 to 8 are removed. For PDA-based models see my BRM paper in OSF site >
 
 For the details regarding PLBA types, please see 

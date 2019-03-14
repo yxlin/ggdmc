@@ -174,13 +174,13 @@ for(i in 1:length(fit))
 2. The DDM, type = "rd",
 
 ## PDA-based models 
-< Removed. See OSF site >
 3. The Piecewise LBA model 0; CPU-based PDA likelihoods; type = "plba0",
 4. The Piecewise LBA model 1; CPU-based PDA likelihoods; type = "plba1", 
 5. The Piecewise LBA model 0; GPU-based PDA likelihoods; type = "plba0_gpu", 
 6. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
 7. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
 8. The correlated accumualtor model; type = "cnorm".
+< 3 to 8 are removed. For PDA-based models see my BRM paper in OSF site >
 
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)

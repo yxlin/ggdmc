@@ -1,6 +1,7 @@
 library(testthat)
 library(ggdmc)
 library(ggplot2)
+library(data.table)
 
 cat("Start running testthat\n")
 cat("in the directory:", getwd(), "\n")

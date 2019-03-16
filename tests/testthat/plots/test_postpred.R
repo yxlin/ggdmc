@@ -110,7 +110,7 @@ test_that("Post-predictive", {
   pp$type <- "Simulation"
   tmp0 <- rbind(dat0, pp)
 
-  dplyr::tbl_df(tmp0)
+
   p1 <- ggplot(tmp0, aes(RT, color = reps, size = type)) +
     geom_freqpoly(binwidth = .05) +
     scale_size_manual(values = c(1, .3)) +

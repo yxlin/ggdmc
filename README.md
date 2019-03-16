@@ -172,23 +172,25 @@ for(i in 1:length(fit))
 ## List of models currently hard-wired in _ggdmc_
 1. The LBA model, type = "norm",
 2. The DDM, type = "rd",
+3. The Wiener diffusion, type = "rd" and set sv=0 and sz=0
 
 ## PDA-based models 
-3. The Piecewise LBA model 0; CPU-based PDA likelihoods; type = "plba0",
-4. The Piecewise LBA model 1; CPU-based PDA likelihoods; type = "plba1", 
-5. The Piecewise LBA model 0; GPU-based PDA likelihoods; type = "plba0_gpu", 
-6. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
-7. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
-8. The correlated accumualtor model; type = "cnorm".
+4. The Piecewise LBA model 0; CPU-based PDA likelihoods; type = "plba0",
+5. The Piecewise LBA model 1; CPU-based PDA likelihoods; type = "plba1", 
+6. The Piecewise LBA model 0; GPU-based PDA likelihoods; type = "plba0_gpu", 
+7. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
+8. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
+9. The correlated accumualtor model; type = "cnorm".
 
-< 3 to 8 are removed. For PDA-based models see my BRM paper in OSF site >
+< 4 to 9 are separated from ggdmc package. For these PDA-based models see 
+my BRM paper and associated packages at my OSF site >
 
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
 
 ## Further information  
 Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
-more details.
+more examples.
 
 ## Prerequisites
  - R (>= 3.4.0)
@@ -275,12 +277,12 @@ genetic algorithm, and R helper functions and R packaging are
 developed by Yi-Shin Lin. DMC is developed 
 by Andrew Heathcote (Heathcote et al., 2018).
 
-_ggdmc_ evolves from DMC.  Although these two tools share some similarities, 
-they have some differences.  They are designed to tackle different problems, 
-although some may overlap.  _ggdmc_ implements almost all time-critical
-Bayesian routines in C++, but uses similar attribute naming system, so 
-samples drawn from DMC may be piped into ggdmc C++ samplers.  Please report bugs
-to [me](mailto:yishinlin001@gmail.com).
+One aim in designing _ggdmc_ is to read objects from DMC, so it shares many 
+similarities with the DMC.  They have few differences.  For example, the theta 
+and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
+The matices of log_likelihoods and summed_log_prior are nchain x nmc. DMC uses
+nmc x nchain.  Remember to tranpose or flip the matices or arraies. 
+Please report bugs to [me](mailto:yishinlin001@gmail.com).
 
 ## License
 

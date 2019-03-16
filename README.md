@@ -203,22 +203,22 @@ more details.
 
 ## Installation
 
-From CRAN: 
+From CRAN (0.2.5.5): 
 > install.packages("ggdmc")
 
 From source: 
 
-> install.packages("ggdmc_0.2.5.5.tar.gz", repos = NULL, type="source")
+> install.packages("ggdmc_0.2.5.6.tar.gz", repos = NULL, type="source")
 
-From GitHub (you will need to install _devtools_:
+From GitHub (you need _devtools_):
 
 > devtools::install_github(“yxlin/ggdmc”)
 
 For Mac Users:
 
-1. You will need to install [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries#MacOS).
-As to 27, Aug, 2018, please install gfortran 6.1, even you are using a macOS 
-High Sierra Version 10.13.4. gfortran 6.3 may not work.
+1. Install [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries#MacOS).
+As to 27, Aug, 2018, the gfortran version has to be 6.1, even you are using a 
+macOS High Sierra Version 10.13.4. gfortran 6.3 may not work.
 
 2. Install clang4-r. 
 [James Balamuta](https://thecoatlessprofessor.com/programming/openmp-in-r-on-os-x/)
@@ -231,11 +231,8 @@ However we have not looked into the source code of clang4-r. Use it at your
 own risk.
 
 ## How to install many supporting packages
-One common hurlde in install a large R package is to install many supporting
-packages.  One useful method to mitigate such hurdle is use a convenient
-command line script. 
-
-This works in Unix-like OS. First of all, you need the littler package.
+One method to install many supporting R packages is to use a command line 
+script. This works in Unix-like OS. A simple guide is below.
 
 > sudo apt-get install r-cran-littler
 
@@ -260,10 +257,10 @@ install.packages(argv, lib.loc, repos)
 > chmod +x install.r
 
 Finally, at the command line, enter the following:
-> install.r Rcpp RcppArmadillo ggplot2 ggmcmc coda tmvtnorm matrixStats data.table
+> install.r Rcpp RcppArmadillo ggplot2 coda matrixStats data.table
 
 This shall install all supporting packages at once. 
-This useful method is from Dirk Eddelbuettel's [littler]<http://dirk.eddelbuettel.com/code/littler.html>.
+This method is from Dirk Eddelbuettel's [littler]<http://dirk.eddelbuettel.com/code/littler.html>.
 
 ## Citation
 
@@ -291,7 +288,7 @@ GPL-2
 
 ## Acknowledgments
 
-* The PDF, CDF and random deviates generation of DDM are derived from 
+* The PDF, CDF and random number generation of DDM are derived from 
 Voss & Voss's fast-dm 30.2 and rtdists 0.9-0. 
 * Truncated normal functions are originally based on 
 [Jonathan Olmsted's](mailto:jpolmsted@gmail.com) RcppTN 0.1-8 at
@@ -300,6 +297,6 @@ https://github.com/olmjo/RcppTN,
 and Robert (1995, Statistics & Computing). 
 * Armadillo is a collection of C++ library, conducting linear
 algebra <http://arma.sourceforge.net/>. 
-* Thanks to Matthew Gretton's sharing his know-how in rtdists. 
+* Thanks to Matthew Gretton's consultation regarding the rtdists. 
 * Thanks to Andrew Heathcote for lending me his MacBook Air. 
 _ggdmc_ works on OS X (macOS High Sierra Version 10.13.4) 

@@ -64,336 +64,15 @@ rdiffusion <- function (n,
   data.frame(rt = randRTs, response)
 }
 
-##' Piecewise LBA model
-##'
-##' Density and random generation of the PLBA Model Type 0, 1, and 2.
-##'
-##' @param n number of observations.
-##' @param x vector of quantiles.
-##' @param A upper bound of start point. It can be an integer or a 2-element
-##' vector.
-##' @param b response threshold. It can be an integer or a 2-element vector.
-##' @param mean_v stage 1 mean drift rate. It must be a 2-element vector
-##' @param mean_w stage 2 mean drift rate. It must be a 2-element vector
-##' @param sd_v common standard deviation of the piece 1 drift rates. If
-##' sd_w is not present, this will also be used as the piece 2 drift rate
-##' standard deviation, which cannot be negative.
-##' @param sd_w standard deviation of the piece 2 drift rates
-##' @param rD drift rate delay (in second)
-##' @param swt switch time (in second)
-##' @param t0 nondecision time (in second)
-##' @param h bandwidth for the kernel function
-##' @param ncore number of CPU cores for running Open MP.
-##' @param debug internal debug switch
-##' @param B first stage traveling distance
-##' @param C second stage traveling distance
-##' @param tD threshold delay time
-##' @param pVec PLBA parameter vector
-##' @return a [RT R] matrix (C++) or a data frame (R)
-##' @references Holmes, R. W., Trueblood, J. & Heathcote, A. (2016). A new
-##' framework for modeling decisions about changing information: The Piecewise
-##' Linear Ballistic Accumulator model. \emph{Cognitive Psychology}, 85, 1--29,
-##' doi: 10.1016/j.cogpsych.2015.11.002.Approximate
-##' @examples
-##' #########################################################################80
-##' ## rplba1
-##' #########################################################################80
-##' \dontrun{
-##' n <- 2^20; n
-##' A <- 1.5
-##' b <- 2.7
-##' mean_v <- c(3.3, 2.2)
-##' mean_w <- c(1.5, 3.7)
-##' sd_v <- c(1, 1)
-##' rD    <- .3
-##' swt   <- .5
-##' t0    <- .08
-##' ncore <- 12
-##' dat1 <- rplba1R(n, A, b, t0, mean_v, mean_w, sd_v, rD, swt)
-##' dat2 <- rplba1(n, A, b, t0, mean_v, mean_w, sd_v, rD, swt, ncore)
-##' dat3 <- ppda::rplba1(n, A, b, t0, mean_v, mean_w, sd_v, rD, swt)
-##'
-##' dat1r1 <- dat1[dat1[, 2] == 1, 1]
-##' dat1r2 <- dat1[dat1[, 2] == 2, 1]
-##' dat2r1 <- dat2[dat2[, 2] == 1, 1]
-##' dat2r2 <- dat2[dat2[, 2] == 2, 1]
-##' dat3r1 <- dat3[dat3[, 2] == 1, 1]
-##' dat3r2 <- dat3[dat3[, 2] == 2, 1]
-##'
-##' xlim <- c(0, 3)
-##' ## Check if two methods produce SPDF overlaping with each other
-##' par(mfrow = c(4, 2), mar = c(4, 5.3, 0.82, 1))
-##' hist(dat1r1, breaks = "fd", freq = FALSE, main = "Choice1 R", xlim = xlim)
-##' hist(dat1r2, breaks = "fd", freq = FALSE, main = "Choice2 R", xlim = xlim)
-##' hist(dat2r1, breaks = "fd", freq = FALSE, main = "Choice1 C++", xlim = xlim)
-##' hist(dat2r2, breaks = "fd", freq = FALSE, main = "Choice2 C++", xlim = xlim)
-##' hist(dat3r1, breaks = "fd", freq = FALSE, main = "Choice1 GPU", xlim = xlim)
-##' hist(dat3r2, breaks = "fd", freq = FALSE, main = "Choice2 GPU", xlim = xlim)
-##'
-##' par(mfrow = c(1, 2))
-##' hist(dat1r1, breaks = "fd", freq = FALSE, main = "Choice1 R, C++, & GPU",
-##'   xlim = xlim, ylim = c(0, 3))
-##' hist(dat2r1, breaks = "fd", freq = FALSE, add = TRUE, col = "lightblue")
-##' hist(dat3r1, breaks = "fd", freq = FALSE, add = TRUE, col = "lightgreen")
-##'
-##' hist(dat1r2, breaks = "fd", freq = FALSE, main = "Choice2 R, C++ & GPU",
-##'   xlim = xlim, ylim = c(0, 3))
-##' hist(dat2r2, breaks = "fd", freq = FALSE, add = TRUE, col = "lightblue")
-##' hist(dat3r2, breaks = "fd", freq = FALSE, add = TRUE, col = "lightgreen")
-##' }
-##'
-##' #############20
-##' ## rplba2    ##
-##' #############20
-##' \dontrun{
-##' n <- 2^15
-##' ncore <- 4
-##' A <- c(1.5, 1.5)
-##' b <- c(2.7, 2.7)
-##' mean_v <- c(3.3, 2.2)
-##' mean_w <- c(1.5, 3.7)
-##' sd_v <- c(1, 1)
-##' sd_w <- c(1, 1)
-##' rD <- .3
-##' swt <- .5
-##' t0 <- .08
-##' dat1 <- rplba2R(n, A, b, t0, mean_v, mean_w, sd_v, sd_w, rD, swt)
-##' dat2 <- rplba2(n, A, b, t0, mean_v, mean_w, sd_v, sd_w, rD, swt, ncore)
-##' dat3 <- rplba2(n, A, b, t0, mean_v, mean_w, sd_v, sd_w, rD, swt)
-##' dat4 <- rplba2_test(n, A, b, t0, mean_v, mean_w, sd_v, sd_w, rD, swt)
-##'
-##' dat1r1 <- dat1[dat1[, 2] == 1, 1]
-##' dat1r2 <- dat1[dat1[, 2] == 2, 1]
-##' dat2r1 <- dat2[dat2[, 2] == 1, 1]
-##' dat2r2 <- dat2[dat2[, 2] == 2, 1]
-##' dat3r1 <- dat3[dat3[, 2] == 1, 1]
-##' dat3r2 <- dat3[dat3[, 2] == 2, 1]
-##' dat4r1 <- dat4[dat4[, 2] == 1, 1]
-##' dat4r2 <- dat4[dat4[, 2] == 2, 1]
-##'
-##' wesanderson::wes_palette("Royal1")
-##' palettes  <- wesanderson::wes_palettes$GrandBudapest
-##' palettes2 <- wesanderson::wes_palettes$GrandBudapest2
-##' xlim <- c(0, 3)
-##' ## Check if two methods produce SPDF overlaping with each other
-##' par(mfrow = c(4, 2), mar = c(4, 5.3, 0.82, 1))
-##' hist(dat1r1, breaks = "fd", freq = FALSE, main = "Choice1 R", xlim = xlim)
-##' hist(dat1r2, breaks = "fd", freq = FALSE, main = "Choice2 R", xlim = xlim)
-##' hist(dat2r1, breaks = "fd", freq = FALSE, main = "Choice1 C++", xlim = xlim)
-##' hist(dat2r2, breaks = "fd", freq = FALSE, main = "Choice2 C++", xlim = xlim)
-##' hist(dat3r1, breaks = "fd", freq = FALSE, main = "Choice1 GPU", xlim = xlim)
-##' hist(dat3r2, breaks = "fd", freq = FALSE, main = "Choice2 GPU", xlim = xlim)
-##' hist(dat4r1, breaks = "fd", freq = FALSE, main = "Choice1 test", xlim = xlim)
-##' hist(dat4r2, breaks = "fd", freq = FALSE, main = "Choice2 test", xlim = xlim)
-##'
-##' par(mfrow = c(1, 2))
-##' hist(dat1r1, breaks = "fd", freq = FALSE, main = "Choice1 R, C++, & GPU",
-##'   xlim = xlim, ylim = c(0, 3))
-##' hist(dat2r1, breaks = "fd", freq = FALSE, add = TRUE, col = palettes[1])
-##' hist(dat3r1, breaks = "fd", freq = FALSE, add = TRUE, col = palettes[2])
-##' hist(dat4r1, breaks = "fd", freq = FALSE, add = TRUE, col = palettes[4])
-##'
-##' hist(dat1r2, breaks = "fd", freq = FALSE, main = "Choice2 R, C++ & GPU",
-##'   xlim = xlim, ylim = c(0, 3))
-##' hist(dat2r2, breaks = "fd", freq = FALSE, add = TRUE, col = palettes2[1])
-##' hist(dat3r2, breaks = "fd", freq = FALSE, add = TRUE, col = palettes2[2])
-##' hist(dat4r2, breaks = "fd", freq = FALSE, add = TRUE, col = palettes2[3])
-##'
-##'
-##' }
-##' @importFrom stats runif
-##' @export
-rplba1R <- function(n, A, b, t0, mean_v, mean_w, sd_v, rD, swt) {
-  if (length(mean_v) != 2) stop("Current version fit only two accumulators.")
-  if (length(sd_v) != 2) stop("The length of sd_v and mean_v must match.")
-  eswt <- swt + rD
-  v1 <- rtnorm(n, mean_v[1], sd_v[1], 0, Inf)[,1] ## Stage 1 LBA
-  v2 <- rtnorm(n, mean_v[2], sd_v[2], 0, Inf)[,1]
-  sp <- matrix(runif(2*n, 0, A), 2)
-  dt1 <- rbind((b - sp[1,])/v1, (b - sp[2,])/v2) ## Race
-
-  ## dt[dt<0] <- Inf
-  choice    <- apply(dt1, 2, which.min)
-  chosen_dt <- dt1[cbind(choice, 1:n)]  ## convert to vector choose (row, col)
-
-  done <- (chosen_dt <= eswt)   ## Which are finished?
-  n2 <- sum(!done)
-
-  ## Distance left to travel for those not finished
-  B1 <- b - (sp[1, !done] + eswt*v1[!done])
-  B2 <- b - (sp[2, !done] + eswt*v2[!done])
-
-  w1 <- rtnorm(n2, mean_w[1], sd_v[1], 0, Inf)[,1]   ## Stage 2 LBA
-  w2 <- rtnorm(n2, mean_w[2], sd_v[2], 0, Inf)[,1]
-  dt2 <- rbind(B1/w1, B2/w2)   ## Race
-
-  choice[!done] <- apply(dt2, 2, which.min)
-  chosen_dt[!done] <- eswt + dt2[cbind(choice[!done], 1:n2)]
-
-  ## The last object automatically return
-  data.frame(cbind(RT=t0 + chosen_dt, R = choice))
-}
-
-##' @importFrom stats runif
-##' @rdname rplba1R
-##' @export
-rplba2R <- function(n, A, b, t0, mean_v, mean_w, sd_v, sd_w, rD, swt)
-{
-  # Calculate effective switch time
-  eswt <- swt + rD
-
-  # Stage 1 LBA Race
-  v <- t(cbind(rtnorm(n, mean_v[1], sd_v[1], 0, Inf), rtnorm(n, mean_v[2], sd_v[2], 0, Inf)))
-  sp <- matrix(runif(2*n, 0, A), 2)
-  dt <- (b- sp) / v
-  # dt[dt<0] <- Inf
-  choice <- apply(dt, 2, which.min)
-  chosen_dt <- dt[cbind(choice, 1:n)]
-
-  # Which are finished?
-  done <- (chosen_dt <= eswt)
-  n2   <- sum(!done)
-
-  # Distance left to travel for those not finished
-  B <- b - (sp[, !done] + eswt * v[, !done])
-
-  # Stage 2 LBA Race
-  w <- t(cbind(rtnorm(n2, mean_w[1], sd_w[1], 0, Inf), rtnorm(n2, mean_w[2], sd_w[2], 0, Inf)))
-  dt <- B / w
-  choice[!done] <- apply(dt, 2, which.min)
-  chosen_dt[!done] <- eswt + dt[ cbind(choice[!done], 1:n2) ]
-
-  # save results
-  ## The last object automatically return
-  data.frame(cbind(RT = t0 + chosen_dt, R = choice))
-}
-
-##' @importFrom stats runif
-##' @rdname rplba1R
-##' @export
-rplba3R <- function(n=10, pVec=c(A1=1.5, A2=1.5, B1=1.2, B2=1.2, C1=.3, C2=.3,
-  v1=3.32, v2=2.24, w1=1.51, w2=3.69, sv1=1, sv2=1,
-  sw1=1, sw2=1, rD=0.3, tD=.3, swt=0.5, t0=0.08)) {
-
-  # n <- 10
-  # pVec=c(A1=1.5, A2=1.5, B1=1.2, B2=1.2, C1=.3, C2=.3,
-  #   v1=3.32, v2=2.24, w1=1.51, w2=3.69, sv1=1, sv2=1,
-  #   sw1=1, sw2=1, rD=0.3, tD=.3, swt=0.5, t0=0.08)
-
-  # Stage 1 LBA
-  v1 <- rtnorm(n, pVec["v1"], pVec["sv1"], 0, Inf)[,1]
-  v2 <- rtnorm(n, pVec["v2"], pVec["sv2"], 0, Inf)[,1]
-  sp <- matrix(runif(2*n,0,pVec[c("A1","A2")]),nrow=2)
-
-  # Calcualte thresholds
-  b1 <- sum(pVec[c("A1","B1")])
-  b2 <- sum(pVec[c("A2","B2")])
-  c1 <- b1 + pVec[c("C1")]
-  c2 <- b2 + pVec[c("C2")]
-
-  # Race
-  dt <- rbind((c(b1,b2)-sp[1,])/v1,(c(b1,b2)-sp[2,])/v2)
-  # dt[dt<0] <- Inf
-  choice <- apply(dt,2,which.min)
-  rt <- dt[cbind(choice,1:n)]
-
-  # Calculate effective switch times
-  swt_b <- pVec["swt"] + pVec["tD"]
-  swt_r <- pVec["swt"] + pVec["rD"]
-
-  # Which switch is first
-  swt <- pmin(swt_b,swt_r)
-  if (swt_b==swt_r) {
-    change <- "both"
-  } else if (swt_r < swt_b) {
-    change <- "rate"
-  } else {
-    change <- "threshold"
-  }
-
-  # Which are finished?
-  done <- rt <= swt
-  n2 <- sum(!done)
-
-  # Stage 2 LBA
-
-  # Distance left to travel for those not finished
-  # threshold - distance already travelled
-  if ( change=="rate" ) {
-    B1 <- b1 - (sp[1,!done] + swt*v1[!done])
-    B2 <- b2 - (sp[2,!done] + swt*v2[!done])
-  } else {
-    B1 <- c1 - (sp[1,!done] + swt*v1[!done])
-    B2 <- c2 - (sp[2,!done] + swt*v2[!done])
-  }
-
-
-  # Change rates?
-  if ( change=="threshold" ) {
-    w1 <- v1[!done]; w2 <- v2[!done]
-  } else {
-    w1 <- rtnorm(n2, pVec["w1"], pVec["sw1"],0, Inf)[,1]
-    w2 <- rtnorm(n2, pVec["w2"], pVec["sw2"],0, Inf)[,1]
-  }
-
-  # Race
-  dt <- rbind(B1/w1,B2/w2)
-  # dt[dt<0] <- Inf
-  choice[!done] <- apply(dt,2,which.min)
-  rt[!done] <- swt+dt[cbind(choice[!done],1:n2)]
-
-  if ( change != "both" ) { # Stage 3 LBA
-
-    if ( change=="threshold" ) swt1 <- swt_r else swt1 <- swt_b
-    t2 <- swt1-swt
-
-    # Which are finished?
-    done1 <- rt[!done] < swt1
-    n2 <- sum(!done1)
-
-    if ( !all(done1) ) {
-
-      # Distance left to travel for those not finished
-      # Distance left at end of stage 1 - further travel
-      B1 <- B1[!done1] - t2*w1[!done1]
-      B2 <- B2[!done1] - t2*w2[!done1]
-
-      if ( change=="threshold" ) {
-        w1 <- rtnorm(n2,pVec["w1"],pVec["sw1"],0, Inf)[,1]
-        w2 <- rtnorm(n2,pVec["w2"],pVec["sw2"],0, Inf)[,1]
-      }  else {
-        w1 <- w1[!done1];
-        w2 <- w2[!done1]
-        B1 <- B1 + pVec["C1"]
-        B2 <- B2 + pVec["C2"]
-      }
-
-      # Race
-      dt <- rbind(B1/w1,B2/w2)
-      # dt[dt<0] <- Inf
-      choice[!done][!done1] <- apply(dt,2,which.min)
-      rt[!done][!done1] <- swt1+dt[cbind(choice[!done][!done1],1:n2)]
-    }
-
-  }
-
-  # save results
-  data.frame(R=choice, RT=pVec["t0"] + rt)
-}
-
-
 ######### Generic functions -----------------------------------
-##' Generate random variates of various cognitive models
+##' Generate random numbers
 ##'
-##' A wrapper function to \code{rd}, \code{norm}, \code{norm_pda},
-##' \code{norm_pda_gpu}, \code{plba0_gpu}, \code{plba1}, \code{plba_gpu},
-##' \code{plba2}, \code{plba3}, \code{lnr}, and \code{cnorm} models.
+##' A wrapper function for the model type, \code{rd}, \code{norm}.
 ##'
 ##' @param type a character string indicating the model type
-##' @param pmat a matrix of accumulator x parameter
+##' @param pmat a matrix of response x parameter
 ##' @param n number of simulations
-##' @param seed an integer specifying if and how the random number generator
-##' should be initialized.
+##' @param seed an integer specifying the random seed
 ##' @export
 random <- function(type, pmat, n, seed = NULL) {
 
@@ -410,29 +89,10 @@ random <- function(type, pmat, n, seed = NULL) {
 
   } else if (type %in% c("norm", "norm_pda", "norm_pda_gpu")) {
     ## pmat: A b t0 mean_v sd_v st0
-    posdrift <- TRUE
-
+    ## posdrift <- TRUE
     out <- rlba_norm(n, pmat[, 1], pmat[, 2], pmat[, 4], pmat[, 5],
-      pmat[,3], pmat[1,6], posdrift)
+      pmat[,3], pmat[1,6], TRUE)
 
-  } else if (type %in% c("plba0_gpu") ) {
-
-    out <- rplba0(n, pmat[,1], pmat[,2], pmat[1,7], pmat[,3], pmat[,5],
-      pmat[, 4], pmat[1,6], pmat[1,8])
-
-  } else if (type %in% c("plba1", "plba1_gpu") ) {
-
-    out <- rplba1(n, pmat[,1], pmat[,2], pmat[1,7], pmat[,3], pmat[,5],
-      pmat[, 4], pmat[1,6], pmat[1,8])
-
-  } else if (type == "plba2") {
-    out <- rplba2(n, pmat[,1], pmat[,2], pmat[,3], pmat[,4],
-      pmat[,5], pmat[,6], pmat[1, 7], pmat[1, 9], pmat[1, 8])
-
-  } else if (type == "plba3") {
-    out <- rplba3(n, pmat[,1], pmat[,2], pmat[,3],
-      pmat[,4], pmat[,5], pmat[,6], pmat[,7], pmat[1, 8],
-      pmat[1, 9], pmat[1, 11], pmat[1, 10])
   } else {
     stop("Model type yet created")
   }
@@ -455,8 +115,7 @@ random <- function(type, pmat, n, seed = NULL) {
 ##' @param prior a list of parameter prior distributions
 ##' @param ps a vector or matirx. Each row indicates a set of true parameters
 ##' for a participant.
-##' @param seed an integer specifying if and how the random number generator
-##' should be initialized.
+##' @param seed an integer specifying a random seed.
 ##' @examples
 ##' model <- BuildModel(
 ##' p.map     = list(a ="1", v = "1",z = "1", d = "1", sz = "1", sv = "1",
@@ -668,91 +327,71 @@ simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
   return(out)
 }
 
-##' Simulate Post-predictive Data
-##'
-##' Simulate post-predictive data.
-##'
-##' @param object a model object of a subject.
-##' @param npost number of posterior predictive replications.
-##' @param rand whether randomly select a npost estimated parameter values or
-##' select the first npost estimates
-##' @param factors experimental factors
-##' @param xlim trimming outlier, e.g., xlim = c(0, 5).
-##' @param seed an integer specifying if and how the random number generator
-##' should be initialized.
-##' @return a data frame
-##' @import data.table
-##' @export
-predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
-                        xlim = NA, seed = NULL)
-{
-  # object <- fit
-  # factors = NA
-  model <- attributes(object$data)$model
-  facs <- names(attr(model, "factors"))
-  class(object$data) <- c("data.frame", "list")
-
-  if (!is.null(factors))
-  {
-    if (any(is.na(factors))) factors <- facs
-    if (!all(factors %in% facs))
-      stop(paste("Factors argument must contain one or more of:",
-                 paste(facs, collapse=",")))
-  }
-
-  resp <- names(attr(model, "responses"))
-  ns   <- table(object$data[,facs], dnn = facs)
-  npar   <- object$n.pars
-  nchain <- object$n.chains
-  nmc    <- object$nmc
-  ntsample <- nchain * nmc
-  pnames   <- object$p.names
-  # str(object$theta) ## npar x nchain x nmc
-  # str(thetas)       ## (nchain x nmc) x npar
-  thetas <- matrix(aperm(object$theta, c(3,2,1)), ncol = npar)
-
-  # head(thetas)
-  # head(object$theta[,,1:2])
-
-  colnames(thetas) <- pnames
-
-  if (is.na(npost)) {
-    use <- 1:ntsample
-  } else {
-    if (rand) {
-      use <- sample(1:ntsample, npost, replace = F)
-    } else {
-      use <- round(seq(1, ntsample, length.out = npost))
-    }
-  }
-
-  npost  <- length(use)
-  posts   <- thetas[use, ]
-  nttrial <- sum(ns) ## number of total trials
-  ## out <- data.frame(matrix(nrow = npost*nttrial, ncol = dim(object$data)[2]))
-
-  # for (i in 1:npost) {
-  #   tmp <- ggdmc:::simulate_one(model, n = ns, ps = posts[i,], seed = NULL)
-  #   out[(1+(i-1)*nttrial):(i*nttrial), names(tmp)] <- tmp
-  #   if ( (i %% report) == 0) cat(".")
-  # }
-
-  ## should replace with parallel
-  v <- lapply(1:npost, function(i) {
-    simulate_one(model, n = ns, ps = posts[i,], seed = seed)
-  })
-  out <- data.table::rbindlist(v)
-  # names(out) <- names(object$data)
-  reps <- rep(1:npost, each = nttrial)
-  out <- cbind(reps, out)
-
-  if (!any(is.na(xlim))) {
-    out <- out[RT > xlim[1] & RT < xlim[2]]
-  }
-
-  attr(out, "data") <- object$data
-  return(out)
-}
+#### Post-predictive functions --------------
+# predict_one <- function(object, npost = 100, rand = TRUE, factors = NA,
+#                         xlim = NA, seed = NULL)
+# {
+#   # object <- fit
+#   # factors = NA
+#   model <- attributes(object$data)$model
+#   facs <- names(attr(model, "factors"))
+#   class(object$data) <- c("data.frame", "list")
+#
+#   if (!is.null(factors))
+#   {
+#     if (any(is.na(factors))) factors <- facs
+#     if (!all(factors %in% facs))
+#       stop(paste("Factors argument must contain one or more of:",
+#                  paste(facs, collapse=",")))
+#   }
+#
+#   resp <- names(attr(model, "responses"))
+#   ns   <- table(object$data[,facs], dnn = facs)
+#   npar   <- object$n.pars
+#   nchain <- object$n.chains
+#   nmc    <- object$nmc
+#   ntsample <- nchain * nmc
+#   pnames   <- object$p.names
+#   # str(object$theta) ## npar x nchain x nmc
+#   # str(thetas)       ## (nchain x nmc) x npar
+#   thetas <- matrix(aperm(object$theta, c(3,2,1)), ncol = npar)
+#
+#   # head(thetas)
+#   # head(object$theta[,,1:2])
+#
+#   colnames(thetas) <- pnames
+#
+#   if (is.na(npost)) {
+#     use <- 1:ntsample
+#   } else {
+#     if (rand) {
+#       use <- sample(1:ntsample, npost, replace = F)
+#     } else {
+#       use <- round(seq(1, ntsample, length.out = npost))
+#     }
+#   }
+#
+#   npost  <- length(use)
+#   posts   <- thetas[use, ]
+#   nttrial <- sum(ns) ## number of total trials
+#
+#   ## should replace with parallel
+#   v <- lapply(1:npost, function(i) {
+#     simulate_one(model, n = ns, ps = posts[i,], seed = seed)
+#   })
+#   out <- data.table::rbindlist(v)
+#   # names(out) <- names(object$data)
+#   reps <- rep(1:npost, each = nttrial)
+#   out <- cbind(reps, out)
+#
+#   if (!any(is.na(xlim)))
+#   {
+#     out <- out[RT > xlim[1] & RT < xlim[2]]
+#   }
+#
+#   attr(out, "data") <- object$data
+#   return(out)
+# }
 
 ######### Utility functions -----------------------------------
 ## [MG 20150616]

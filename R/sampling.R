@@ -130,6 +130,7 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
 ##' @param pm1 probability of migration type 1 (Turner et al., 2013)
 ##' @param block Only for hierarchical modeling. Update one parameter at a time
 ##' @param ncore Only for non-hierarchical modeling with many subjects.
+##' @param add Boolean whether to add new samples
 ##'
 ##' @export
 StartNewsamples <- function(data, prior=NULL, nmc=5e2, thin=1, nchain=NULL,
@@ -212,23 +213,6 @@ run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
 }
 
 ## Utilities ------------------------------------------------------------------
-
-##' @rdname StartNewsamples
-##' @export
-CheckConverged <- function(samples) {
-  stuck <- isstuck(samples, verbose = FALSE, cut = 10)
-  flat  <- isflat(samples, p1 = 1/3, p2 = 1/3,
-    cut_location = 0.25, cut_scale = Inf, verbose = FALSE)
-  mix  <- ismixed(samples, cut = 1.05, verbose = FALSE)
-  size <- iseffective(samples, minN = 512, nfun = "mean", FALSE)
-  isstuck <- TRUE
-  if (stuck == 0) isstuck <- FALSE
-
-  out <- c(isstuck, flat, mix, size)
-  names(out) <- c("Stuck", "Flat", "Mix", "ES")
-  return(out)
-}
-
 CheckDMI <- function(data = NULL, prior = NULL, nchain = NULL)
 {
   if (is.null(data))        stop("No data model instance")

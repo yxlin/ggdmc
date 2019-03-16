@@ -3,7 +3,6 @@
 \name{StartNewsamples}
 \alias{StartNewsamples}
 \alias{run}
-\alias{CheckConverged}
 \title{Start new model fits}
 \usage{
 StartNewsamples(data, prior = NULL, nmc = 500, thin = 1,
@@ -13,8 +12,6 @@ StartNewsamples(data, prior = NULL, nmc = 500, thin = 1,
 run(samples, nmc = 500, thin = 1, report = 100, rp = 0.001,
   gammamult = 2.38, pm0 = 0, pm1 = 0, block = TRUE, ncore = 1,
   add = FALSE)
-
-CheckConverged(samples)
 }
 \arguments{
 \item{data}{data model instance(s)}
@@ -44,6 +41,8 @@ list with three sets of prior distributions. Each is named, "pprior",
 \item{ncore}{Only for non-hierarchical modeling with many subjects.}
 
 \item{samples}{model fit(s).}
+
+\item{add}{Boolean whether to add new samples}
 }
 \description{
 Modelling a hierarchical or a fixed-effect model, using Bayeisan

@@ -79,6 +79,7 @@ dconstant <- function(x, p1, p2, lower, upper, lg = FALSE) {
   return(out)
 }
 
+##' @importFrom stats dunif
 dunif_ <- function(x, p1, p2, lower, upper, lg = FALSE) {
   dunif(x, min = p1, max = p2, log = lg)
 }

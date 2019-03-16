@@ -16,8 +16,7 @@ GetParameterMatrix(x, nsub, prior = NA, ps = NA, seed = NULL)
 \item{ps}{a vector or matirx. Each row indicates a set of true parameters
 for a participant.}
 
-\item{seed}{an integer specifying if and how the random number generator
-should be initialized.}
+\item{seed}{an integer specifying a random seed.}
 }
 \description{
 Contructs a ns x npar matrix, indicating the true paramters

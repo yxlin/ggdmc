@@ -280,7 +280,7 @@ print.model <- function(x, p.vector = NULL, ...) {
 
     out <- lapply(dim1, function(xx) {
       print(xx)
-      print(TableParameters(p.vector, xx, x))
+      print(TableParameters(p.vector, xx, x, TRUE))
     })
     return(invisible(out))
   }
@@ -383,68 +383,6 @@ BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
   }
 }
 
-# cell_matrix <- function(x, model) {
-#   out <- vector("list", dim(model)[1])
-#   dim1 <- dimnames(model)[[1]]
-#   names(out) <- row.names(model)
-#   ## scan trial-by-trial (every observation)
-#   for ( j in names(out) ) outs[[j]] <- cells %in% j
-#   return(out)
-# }
-
-
-
-##' Create an array of all factorial combinations of factor levels
-##'
-##' Take a list storing one or multiple string vectors and glues the strings in
-##' these vectors with a dot symbol.
-##'
-##' @param x a list storing one or multiple factor vectors. Each vector
-##' can have different numbers of level.  For example,
-##' \code{f <- list(E = c("nc", "wc"), S = c("n", "w", "pn", "pw"))}
-##' @return a table showing the combinations of factor levels.
-##'
-##' @examples
-##' ## Example 1
-##' factors <- list(S = c("s1", "s2"))
-##' MakeLevelArray(factors)
-##' ##   S
-##' ##  s1   s2
-##' ## "s1" "s2"
-##'
-##' factors <- list(S = c("left", "right"))
-##' MakeLevelArray(factors)
-##' ##      S
-##' ##   left   right
-##' ##  "left" "right"
-##'
-##' ## Example 2
-##' factors <- list(A = c("00", "45", "90", "135", "180"),
-##'                 S = c("mirror", "normal"))
-##' MakeLevelArray(factors)
-##' ##       S
-##' ## ------------------------------40
-##' ##   A        mirror       normal
-##' ## ------------------------------40
-##' ##  00   "00.mirror"  "00.normal"
-##' ##  45   "45.mirror"  "45.normal"
-##' ##  90   "90.mirror"  "90.normal"
-##' ## 135  "135.mirror" "135.normal"
-##' ## 180  "180.mirror" "180.normal"
-##'
-##' ## Example 3
-##' factors <- list(E = c("nc", "wc"),
-##'                 S = c("n", "w", "pn", "pw"))
-##' MakeLevelArray(factors)
-##'
-##' ##         S
-##' ## -------------------------------40
-##' ## E       n      w      pn      pw
-##' ## -------------------------------40
-##' ## nc "nc.n" "nc.w" "nc.pn" "nc.pw"
-##' ## wc "wc.n" "wc.w" "wc.pn" "wc.pw"
-##'
-##' @export
 make_level_array <- function(x = NA) {
   if (all(is.na(x))) stop("Found no factors!")
   out <- x[[1]]

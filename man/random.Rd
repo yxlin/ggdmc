@@ -2,22 +2,19 @@
 % Please edit documentation in R/random.R
 \name{random}
 \alias{random}
-\title{Generate random variates of various cognitive models}
+\title{Generate random numbers}
 \usage{
 random(type, pmat, n, seed = NULL)
 }
 \arguments{
 \item{type}{a character string indicating the model type}
 
-\item{pmat}{a matrix of accumulator x parameter}
+\item{pmat}{a matrix of response x parameter}
 
 \item{n}{number of simulations}
 
-\item{seed}{an integer specifying if and how the random number generator
-should be initialized.}
+\item{seed}{an integer specifying the random seed}
 }
 \description{
-A wrapper function to \code{rd}, \code{norm}, \code{norm_pda},
-\code{norm_pda_gpu}, \code{plba0_gpu}, \code{plba1}, \code{plba_gpu},
-\code{plba2}, \code{plba3}, \code{lnr}, and \code{cnorm} models.
+A wrapper function for the model type, \code{rd}, \code{norm}.
 }

@@ -50,10 +50,10 @@ bool Parameters::ValidateParams (bool print)
 
 void Parameters::Show(std::string str) const
 {
-  std::cout << str << ":\n";
-  std::cout << "[a\tv\tt0\td]  = " << "[" << a << "\t" << v << "\t" << t0
+  Rcout << str << ":\n";
+  Rcout << "[a\tv\tt0\td]  = " << "[" << a << "\t" << v << "\t" << t0
             << "\t" << d << "]" << std::endl;
-  std::cout << "[szr\tsv\tst0\tzr] = " << "[" << szr << "\t" << sv << "\t"
+  Rcout << "[szr\tsv\tst0\tzr] = " << "[" << szr << "\t" << sv << "\t"
             << st0 << "\t" << zr << "]" << std::endl;
 }
 

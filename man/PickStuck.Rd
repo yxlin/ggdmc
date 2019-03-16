@@ -53,7 +53,7 @@ p.prior <- BuildPrior(
 \dontrun{
 dat <- simulate(model, 30, ps = p.vector)
 dmi <- BuildDMI(dat, model)
-sam <- run(StartNewsamples(5e2, dmi, p.prior))
+sam <- run(StartNewsamples(dmi, p.prior))
 bad <- PickStuck(sam)
 }
 }

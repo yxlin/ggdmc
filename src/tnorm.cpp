@@ -5,6 +5,7 @@ tnorm::tnorm (double mu, double sig, double lower, double upper, bool lg) :
 // Constructor. Initialize with mu and sigma. The default with no arguments
 // is tnorm(0, 1, 0, Inf).
 {
+  // Bayesian optimization must allow bad values.
   // if (sig < 0.)
   // {
   //   Rcpp::Rcout << "Invalid sigma = " <<  sig << std::endl;
@@ -184,12 +185,12 @@ double tnorm::r ()
 //'      main = "Truncated normal distributions")
 //'
 //' ## ptn example
-//' x <- seq(-50, 10, length.out = 1e3)
+//' x <- seq(-10, 10, length.out = 1e2)
 //' mean <- 0
 //' sd <- 1
 //' lower <- 0
 //' upper <- 5
-//' dat1 <- ptnorm(x, 0, 1, 0, 5, log = TRUE)
+//' dat1 <- ptnorm(x, 0, 1, 0, 5, lg = TRUE)
 //' @export
 // [[Rcpp::export]]
 std::vector<double> dtnorm(std::vector<double> x, double p1, double p2,

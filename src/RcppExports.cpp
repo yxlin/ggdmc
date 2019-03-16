@@ -7,15 +7,15 @@
 using namespace Rcpp;
 
 // likelihood
-std::vector<double> likelihood(arma::vec pvector, List data, double minlik);
-RcppExport SEXP _ggdmc_likelihood(SEXP pvectorSEXP, SEXP dataSEXP, SEXP minlikSEXP) {
+std::vector<double> likelihood(arma::vec pvector, List data, double min_lik);
+RcppExport SEXP _ggdmc_likelihood(SEXP pvectorSEXP, SEXP dataSEXP, SEXP min_likSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec >::type pvector(pvectorSEXP);
     Rcpp::traits::input_parameter< List >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< double >::type minlik(minlikSEXP);
-    rcpp_result_gen = Rcpp::wrap(likelihood(pvector, data, minlik));
+    Rcpp::traits::input_parameter< double >::type min_lik(min_likSEXP);
+    rcpp_result_gen = Rcpp::wrap(likelihood(pvector, data, min_lik));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -49,8 +49,8 @@
 #' den <- likelihood (p.vector, dmi)
 #'
 #' @export
-likelihood <- function(pvector, data, minlik = 1e-10) {
-    .Call('_ggdmc_likelihood', PACKAGE = 'ggdmc', pvector, data, minlik)
+likelihood <- function(pvector, data, min_lik = 1e-10) {
+    .Call('_ggdmc_likelihood', PACKAGE = 'ggdmc', pvector, data, min_lik)
 }
 
 p_df <- function(pvector, cell, mtype, pnames, parnames, dim0, dim1, dim2, allpar, model, isr1, n1idx, n1order) {
@@ -134,12 +134,12 @@ rprior_mat <- function(prior, n) {
 #'      main = "Truncated normal distributions")
 #'
 #' ## ptn example
-#' x <- seq(-50, 10, length.out = 1e3)
+#' x <- seq(-10, 10, length.out = 1e2)
 #' mean <- 0
 #' sd <- 1
 #' lower <- 0
 #' upper <- 5
-#' dat1 <- ptnorm(x, 0, 1, 0, 5, log = TRUE)
+#' dat1 <- ptnorm(x, 0, 1, 0, 5, lg = TRUE)
 #' @export
 dtnorm <- function(x, p1, p2, lower, upper, lg = FALSE) {
     .Call('_ggdmc_dtnorm', PACKAGE = 'ggdmc', x, p1, p2, lower, upper, lg)

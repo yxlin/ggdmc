@@ -17,17 +17,17 @@ effectiveSize(x, hyper = FALSE, start = 1, end = NA, digits = 0,
   verbose = FALSE)
 }
 \arguments{
-\item{x}{a samples object}
+\item{x}{posterior samples}
 
 \item{start}{starting iteration}
 
 \item{end}{ending iteraton}
 
-\item{digits}{printing digits}
+\item{digits}{printing how many digits}
 
 \item{verbose}{printing more information}
 
-\item{hyper}{a switch to extract hyper attribute and calculate it}
+\item{hyper}{a Boolean switch to extract hyper attribute}
 }
 \description{
 \code{effectiveSize} calls \pkg{coda} effectiveSize to calculate
@@ -42,7 +42,7 @@ es1 <- effectiveSize_one(hsam[[1]], 1, 100, 2, TRUE)
 es2 <- effectiveSize_one(hsam[[1]], 1, 100, 2, FALSE)
 es3 <- effectiveSize_many(hsam, 1, 100, TRUE)
 es4 <- effectiveSize_many(hsam, 1, 100, FALSE)
-es5 <- effectiveSize_hyper(hsam, 1, 100, 2)
+es5 <- effectiveSize_hyper(hsam, 1, 100, 2, TRUE)
 es6 <- effectiveSize(hsam, TRUE, 1, 100, 2, TRUE)
 es7 <- effectiveSize(hsam, TRUE, 1, 100, 2, FALSE)
 es8 <- effectiveSize(hsam, FALSE, 1, 100, 2, TRUE)

@@ -106,46 +106,34 @@ plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
   if (save) { return(DT) } else { return(f1) }
 }
 
-##' Autocorrelation Plot
-##'
-##' Plot the autocorrelation of posterior samples,
-##'
-##' @param x posterior samples
-##' @param start start from which iteration.
-##' @param end end at which iteration
-##' @param nLags the number of lags of the autocorrelation plot.
-##' @param nsubchain plot only a chain subset
-##' @param base_size the size of fonts in the figure
-##' @import data.table
-##' @export
-autocor <- function(x, start = 1, end = NA, nLags = 50, nsubchain = NULL,
-                    base_size = 14)
-{
-
-  if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
-  if (is.null(x$theta)) stop("Use hyper mcmc_list")
-  if ( is.na(end) ) end <- x$nmc
-  if ( end <= start ) stop("End must be greater than start")
-  if (!is.null(nsubchain)) idx <- sample(1:x$n.chains, nsubchain) else idx <- 1:x$n.chains
-
-  d <- ConvertChains(x, start, end, FALSE)
-  DT <- d[, .SD[, .(Lag = 1:nLags,
-                    Autocorrelation = ac_(value, nLags))],
-          .(Parameter, Chain)]
-
-  p0 <- ggplot(DT[Chain %in% idx],
-               aes(x = Lag, y = Autocorrelation, colour = Chain, fill = Chain)) +
-    geom_bar(stat = "identity", position = "identity") +
-    ylim(-1, 1) +
-    scale_fill_discrete(name = "Chain") +
-    scale_colour_discrete(name = "Chain") +
-    facet_grid(Parameter ~ Chain) +
-    theme_minimal(base_size = base_size) +
-    theme(legend.position = "none") +
-    theme(axis.text.x  = element_blank())
-  print(p0)
-  return(invisible(p0))
-}
+# autocor <- function(x, start = 1, end = NA, nLags = 50, nsubchain = NULL,
+#                     base_size = 14)
+# {
+#
+#   if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
+#   if (is.null(x$theta)) stop("Use hyper mcmc_list")
+#   if ( is.na(end) ) end <- x$nmc
+#   if ( end <= start ) stop("End must be greater than start")
+#   if (!is.null(nsubchain)) idx <- sample(1:x$n.chains, nsubchain) else idx <- 1:x$n.chains
+#
+#   d <- ConvertChains(x, start, end, FALSE)
+#   DT <- d[, .SD[, .(Lag = 1:nLags,
+#                     Autocorrelation = ac_(value, nLags))],
+#           .(Parameter, Chain)]
+#
+#   p0 <- ggplot(DT[Chain %in% idx],
+#                aes(x = Lag, y = Autocorrelation, colour = Chain, fill = Chain)) +
+#     geom_bar(stat = "identity", position = "identity") +
+#     ylim(-1, 1) +
+#     scale_fill_discrete(name = "Chain") +
+#     scale_colour_discrete(name = "Chain") +
+#     facet_grid(Parameter ~ Chain) +
+#     theme_minimal(base_size = base_size) +
+#     theme(legend.position = "none") +
+#     theme(axis.text.x  = element_blank())
+#   print(p0)
+#   return(invisible(p0))
+# }
 
 
 ### Many Subjects  ---------------------------------------------
@@ -310,152 +298,6 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
   if (save) { return(DT) } else { return(f1) }
 }
 
-##' Profile a model object
-##'
-##' Investigates the profile log-likelihood function for a fitted model of class
-##' "model".  That is, a data model instance.
-##'
-##' The argument, \code{pname} indicates which model parameter to profile.
-##' For example, if we want to profile the boundary separation \emph{a} in a
-##' DDM, we extract it from a \code{p.vector} and calculates its marginal
-##' likelihoods based on the data model instance on a grid of \code{n.point}.
-##'
-##' Briefly, the function sets a range for the points on the x axis, which
-##' is the values for the profiled parameter (e.g., \emph{a}). Then it
-##' initiates a log-likelihodd vector with length of \code{n.point} and 0
-##' everywhere.  Next, it keeps the other parameters in the model fixed and
-##' changes only the target parameter values to ps[i]. After that, it
-##' calculates their sum log-likelihoods. Finally, it stores the
-##' log-likelihoods in the \code{i} position of the ll vector.
-##'
-##' @param fitted a data model instance
-##' @param pname indicate which parameter in theta to plot. For example, in a
-##' LBA model with a \code{pVec <- c(A="1",B="1",mean_v="M",sd_v="1",t0="1",
-##' st0="1")}, one can assign \code{pname <- "A"} to ask \code{profile} to
-##' profile \emph{A} parameter
-##' @param minp lower bound for pname parameter
-##' @param maxp upper bound for pname parameter
-##' @param p.vector a parameter vector. Use Lognromal LBA model as an example,
-##' \code{pVec <- c(A = .25, B = .35, meanlog_v.true = 1, meanlog_v.false = .25,
-##' sdlog_v.true = .5, t0 = .2)}
-##' @param npoint grid for p.name parameter
-##' @param digits print out how many digits
-##' @param ylim y range
-##' @param nthread number of thread in a GPU block. This argument works for
-##' GPU-based PDA probability density functions)
-##' @param ... additional optional arguments.
-##' @importFrom graphics plot
-##' @examples
-##' model <- BuildModel(
-##'         p.map     = list(a = "1",v = "1",z = "1", d = "1", sz = "1",
-##'                     sv = "1", t0 = "1", st0 = "1"),
-##'         constants = c(st0 = 0, d = 0),
-##'         match.map = list(M = list(s1 = "r1", s2 = "r2")),
-##'         factors   = list(S = c("s1", "s2")),
-##'         responses = c("r1", "r2"),
-##'         type      = "rd")
-##'
-##' p.prior <- BuildPrior(
-##'   dists = rep("tnorm", 6),
-##'   p1=c(a=2,   v=2.5, z=0.5, sz=0.3, sv=1,  t0=0.3),
-##'   p2=c(a=0.5, v=.5,  z=0.1, sz=0.1, sv=.3, t0=0.05),
-##'   lower=c(0, -5, 0, 0, 0, 0),
-##'   upper=c(5,  7, 2, 2, 2, 2))
-##'
-##' p.vector <- c(a=1,v=1, z=0.5, sz=0.25, sv=0.2,t0=.15)
-##' dat <- simulate(model, 1e2, ps = p.vector)
-##' dmi <- BuildDMI(dat, model)
-##'
-##' ## ------------------------------40
-##' par(mfrow=c(2,3));
-##' profile(dmi, "a",  .1,   2, p.vector)
-##' profile(dmi, "v",  .1,   2, p.vector)
-##' profile(dmi, "z",  .2,  .8, p.vector)
-##' profile(dmi, "sz", .1,  .9, p.vector)
-##' profile(dmi, "sv", .1,   2, p.vector)
-##' profile(dmi, "t0", .01, .5, p.vector)
-##' par(mfrow=c(1,1));
-##' @export
-profile.model <- function(fitted, pname, minp, maxp, p.vector,
-  npoint = 100, digits = 2, ylim = NA, nthread = 32, ...) {
-
-  if (!(pname %in% names(p.vector))) stop("parameter not in p.vector")
-
-  RT        <- fitted$RT
-  model     <- attr(fitted, "model")
-  ise       <- attr(fitted, "cell.empty")
-  allpar    <- attr(model, "all.par")
-  parnames  <- attr(model, "par.names")
-  type      <- attr(model, "type")
-  n1idx     <- attr(model, "n1.order")
-  mc        <- attr(model, "match.cell")
-  isr1      <- check_rd(type, model)
-  cellidx   <- cellIdx2Mat(fitted)
-  pnames    <- names(p.vector)
-  ps        <- seq(minp, maxp, length.out = npoint)
-  nsim      <- attr(fitted, "n.pda")
-  bw        <- attr(fitted, "bw")
-  gpuid     <- attr(fitted, "gpuid")
-  debug     <- attr(fitted, "debug")
-
-  if (type == "norm") {
-    posdrift <- attr(model, "posdrift")
-
-    ll <- profile_norm(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]],
-      n1idx, ise, cellidx, RT, mc, isr1, pname, ps, posdrift)
-
-  } else if (type == "norm_pda") {
-
-    ll <- profile_norm_pda(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-      ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw)
-
-  } else if (type == "norm_pda_gpu") {
-
-    ll <- profile_norm_gpu(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-      ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw)
-
-  } else if (type == "plba0_gpu") {
-    ll <- profile_plba0_gpu(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-      ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw, gpuid, nthread,
-      debug)
-
-  } else if (type == "plba1") {
-
-    ll <- profile_plba1(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-      ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw)
-
-  } else if (type == "plba1_gpu") {
-
-    ll <- profile_plba1_gpu(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-      ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw, gpuid, nthread,
-      debug)
-
-  } else if (type == "rd") {
-
-    ll <- profile_rd(p.vector, pnames, allpar, parnames, model, type,
-      dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]],
-      n1idx, ise, cellidx, RT, mc, isr1, pname, ps)
-
-  # } else if (type == "cnorm") {
-  #
-  #   ll <- profile_cnorm_pda(p.vector, pnames, allpar, parnames, model, type,
-  #     dimnames(model)[[1]], dimnames(model)[[2]], dimnames(model)[[3]], n1idx,
-  #     ise, cellidx, RT, mc, isr1, pname, ps, nsim, bw)
-
-  } else {
-    stop("Type not defined")
-  }
-
-  names(ll) <- round(ps, digits)
-  plot(ps, ll, type = "l", xlab = pname, ylab = "log-likelihood")
-  ll[ll==max(ll)]
-}
 
 ### Prior  ---------------------------------------------
 ##' Plot Prior Distributions

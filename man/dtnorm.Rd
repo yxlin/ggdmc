@@ -51,10 +51,10 @@ plot(x, dat1, type = "l", lwd = 2, xlab = "", ylab= "Density",
      main = "Truncated normal distributions")
 
 ## ptn example
-x <- seq(-50, 10, length.out = 1e3)
+x <- seq(-10, 10, length.out = 1e2)
 mean <- 0
 sd <- 1
 lower <- 0
 upper <- 5
-dat1 <- ptnorm(x, 0, 1, 0, 5, log = TRUE)
+dat1 <- ptnorm(x, 0, 1, 0, 5, lg = TRUE)
 }

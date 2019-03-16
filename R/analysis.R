@@ -1,28 +1,41 @@
 #### Automatic Sampling ---------------------------------------
-##' Four pMCMC checking tools for automatic sampling
+##' Four model checking tools for automatic sampling
 ##'
 ##' The function tests whether MCMC chains encounter a parameter region
 ##' difficult to search (ie get stuck):
 ##'
 ##' @param x posterior samples
+##' @param hyper a Boolean switch, extracting hyper attribute.
 ##' @param cut the criteria for suggesting abnormal chains found
+##' @param start start iteration
+##' @param end end iteration
 ##' @param verbose print more information
 ##'
 ##' @export
-isstuck <- function(x, cut = 10, verbose = FALSE) {
+isstuck <- function(x, hyper = FALSE, cut = 10, start = 1, end = NA,
+                    verbose = FALSE)
+{
   if (verbose) cat("Stuck chains check\n")
-  stucks <- PickStuck(x, cut = cut, verbose = verbose)
+
+  stucks <- PickStuck(x, hyper = hyper, cut = cut, start = start, end = end,
+                      verbose = verbose)
   fail <- length( stucks != 0)
-  if (verbose) {
+  if (verbose)
+  {
     if (!fail) cat(": OK\n") else cat(paste(":", length(stucks),"\n"))
   }
-  return(fail)
+
+  if (fail) out <- TRUE else out <- FALSE
+  out
 }
 
 
-gmcmc <- function(x) {
-  coda::mcmc(matrix(aperm(x$theta, c(1, 3, 2)),
-            ncol = dim(x$theta)[2], dimnames = list(NULL, dimnames(x$theta)[[2]])))
+gmcmc <- function(x, hyper) {
+  # npar x nchain x nmc
+  tmp0 <- aperm(x$theta, c(2, 3, 1))
+  npar <- dim(x$theta)[1]
+  pnames <- dimnames(x$theta)[[1]]
+  out <- coda::mcmc(matrix(tmp0, ncol = npar, dimnames = list(NULL, pnames)))
 }
 
 
@@ -132,6 +145,24 @@ iseffective <- function(x, minN, nfun, verbose = FALSE) {
   fail
 }
 
+##' @rdname isstuck
+CheckConverged <- function(x)
+{
+  stuck <- isstuck(x, verbose = FALSE, cut = 10)
+  flat  <- isflat(x, p1 = 1/3, p2 = 1/3,
+                  cut_location = 0.25, cut_scale = Inf, verbose = FALSE)
+  mix  <- ismixed(x, cut = 1.05, verbose = FALSE)
+  size <- iseffective(x, minN = 500, nfun = "mean", FALSE)
+  isstuck <- TRUE
+  if (stuck == 0) isstuck <- FALSE
+
+  out <- c(isstuck, flat, mix, size)
+  names(out) <- c("Stuck", "Flat", "Mix", "ES")
+  return(out)
+}
+
+
+
 ### MCMC -------------------------------------------------------
 ##' Convert theta to a mcmc List
 ##'
@@ -152,8 +183,8 @@ iseffective <- function(x, minN, nfun, verbose = FALSE) {
 ##' @examples
 ##' \dontrun{
 ##' model <- BuildModel(
-##' p.map     = list(a = "RACE", v = c("S", "RACE"), z = "RACE", d = "1", sz = "1",
-##'   sv = "1", t0 = c("S", "RACE"), st0 = "1"),
+##' p.map     = list(a = "RACE", v = c("S", "RACE"), z = "RACE", d = "1",
+##'             sz = "1", sv = "1", t0 = c("S", "RACE"), st0 = "1"),
 ##' match.map = list(M = list(gun = "shoot", non = "not")),
 ##' factors   = list(S = c("gun", "non"), RACE = c("black", "white")),
 ##' constants = c(st0 = 0, d = 0, sz = 0, sv = 0),
@@ -161,7 +192,7 @@ iseffective <- function(x, minN, nfun, verbose = FALSE) {
 ##' type      = "rd")
 ##'
 ##' pnames <- GetPNames(model)
-##' npar <- length(pnames)
+##' npar   <- length(pnames)
 ##' pop.mean  <- c(1, 1, 2.5, 2.5, 2.5, 2.5, .50, .50, .4, .4, .4, .4)
 ##' pop.scale <- c(.15, .15, 1, 1, 1, 1, .05, .05, .05, .05, .05, .05)
 ##' names(pop.mean)  <- pnames
@@ -190,38 +221,39 @@ iseffective <- function(x, minN, nfun, verbose = FALSE) {
 ##'   p2    = rep(1, npar),
 ##'   upper = rep(2, npar))
 ##' names(sigma.prior) <- GetPNames(model)
-##' pp.prior <- list(mu.prior, sigma.prior)
-##'
-##' dat <- simulate(model, nsim = 30, nsub = 10, p.prior = pop.prior)
+##' priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
+##' dat <- simulate(model, nsim = 30, nsub = 10, prior = pop.prior)
 ##' dmi <- BuildDMI(dat, model)
 ##' ps <- attr(dat, "parameters")
 ##'
-##' hsam <- run(StartNewHypersamples(1e2, dmi, p.prior, pp.prior, 1),
-##'   pm = .1, hpm = .1, report = 20)
+##' fit0 <- StartNewsamples(dmi, priors)
+##' fit  <- run(fit0)
 ##'
-##' tmp1 <- theta2mcmclist(hsam[[1]])
-##' tmp2 <- theta2mcmclist(hsam[[2]], start = 10, end = 90)
-##' tmp3 <- theta2mcmclist(hsam[[3]], split = TRUE)
-##' tmp4 <- theta2mcmclist(hsam[[4]], subchain = TRUE)
-##' tmp5 <- theta2mcmclist(hsam[[5]], subchain = TRUE, nsubchain = 4)
-##' tmp6 <- theta2mcmclist(hsam[[6]], thin = 2)
+##' tmp1 <- theta2mcmclist(fit[[1]])
+##' tmp2 <- theta2mcmclist(fit[[2]], start = 10, end = 90)
+##' tmp3 <- theta2mcmclist(fit[[3]], split = TRUE)
+##' tmp4 <- theta2mcmclist(fit[[4]], subchain = TRUE)
+##' tmp5 <- theta2mcmclist(fit[[5]], subchain = TRUE, nsubchain = 4)
+##' tmp6 <- theta2mcmclist(fit[[6]], thin = 2)
 ##' }
 ##'
 ##' @export
 theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   subchain = FALSE, nsubchain = 3, thin = NA) {
-  # x <- samples
-  # split = FALSE
   if (is.na(thin)) thin <- x$thin
   if (is.na(end)) end <- x$nmc
   nchain <- x$n.chains
 
-  if (subchain) {
-    message("pMCMC diagnosis randomly select a subset of chains: ", appendLF = FALSE)
+  if (subchain)
+  {
+    message("pMCMC diagnosis randomly select a subset of chains: ",
+            appendLF = FALSE)
     cidx <- base::sample(1:nchain, nsubchain)
     cat(cidx, "\n")
     nchain <- nsubchain
-  } else {
+  }
+  else
+  {
     cidx <- 1:nchain
   }
 
@@ -271,14 +303,6 @@ theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
 ##' @export
 phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
   subchain = FALSE, nsubchain = 3) {
-  # x <- xx
-  # d <- phi2mcmclist(xx, start, end)
-
-
-  # x <- attr(fit, "hyper")
-  # names(x)
-  # str(x$pp.prior[[1]])
-  # start = 101
 
   thin   <- x$thin   ## x == hyper
   nchain <- x$n.chains
@@ -317,13 +341,11 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
     }
   }
 
-  # i <- 1
-
   location_names <- pnames[notna[[1]]]
   scale_names <- pnames[notna[[2]]]
 
   for (i in 1:nchain) {
-    ## nmc x npar matrix
+    ## previously nmc x npar matrix
     ## now phi[[1]] becomes npar x nchain x nmc
     tmp1 <- t( x$phi[[1]][notna[[1]], chain.idx[i],  indx[is.in]] )
     ## attach parnames with h1
@@ -499,34 +521,28 @@ hgelman <- function(x, start = 1, end = NA, confidence = 0.95, transform = TRUE,
   invisible(out)
 }
 
-gelman_mpsrf <- function(mcmclist, autoburnin, transform) {
-
-  ## robust version ONLY USED IN sampling.R IN run.converge.dmc
-  ## SHOULD BE ROLLED OUT OVER FOLLOWING FUNCITONS TO AVOID CRASHES OF
-  ## AUTO PROCEDURES.
-
-  gd <- try(gelman.diag(mcmclist,
-    autoburnin = autoburnin, transform = transform), silent = TRUE)
-  if (class(gd)=="try-error") Inf else gd$mpsrf
-}
 
 ##' @rdname effectiveSize
 ##' @importFrom coda effectiveSize
 ##' @export
-effectiveSize_hyper <- function(x, start, end, digits, verbose) {
+effectiveSize_hyper <- function(x, start, end, digits, verbose)
+{
+
   hyper <- attr(x, "hyper")
   if (is.na(end)) end <- hyper$nmc
   phimcmc <- phi2mcmclist(hyper, start = start, end = end)
   out <- coda::effectiveSize(phimcmc)
   if (verbose) print(round(out, digits))
   invisible(return(out))
+
 }
 
 ##' @rdname effectiveSize
 ##' @importFrom coda effectiveSize
 ##' @importFrom stats sd
 ##' @export
-effectiveSize_many <- function(x, start, end, verbose) {
+effectiveSize_many <- function(x, start, end, verbose)
+{
   out <- lapply(x, function(xx) {
     if (is.na(end)) end <- xx$nmc
     coda::effectiveSize(theta2mcmclist(xx, start, end))
@@ -547,7 +563,8 @@ effectiveSize_many <- function(x, start, end, verbose) {
 ##' @rdname effectiveSize
 ##' @importFrom coda effectiveSize
 ##' @export
-effectiveSize_one <- function(x, start, end, digits, verbose) {
+effectiveSize_one <- function(x, start, end, digits, verbose)
+{
   if (is.na(end)) end <- x$nmc
   out <- coda::effectiveSize(theta2mcmclist(x, start = start, end = end))
   if (verbose) print(round(out, digits))
@@ -559,11 +576,11 @@ effectiveSize_one <- function(x, start, end, digits, verbose) {
 ##' \code{effectiveSize} calls \pkg{coda} effectiveSize to calculate
 ##' effective posterior sample size.
 ##'
-##' @param x a samples object
-##' @param hyper a switch to extract hyper attribute and calculate it
+##' @param x posterior samples
+##' @param hyper a Boolean switch to extract hyper attribute
 ##' @param start starting iteration
 ##' @param end ending iteraton
-##' @param digits printing digits
+##' @param digits printing how many digits
 ##' @param verbose printing more information
 ##' @export
 ##' @examples
@@ -575,7 +592,7 @@ effectiveSize_one <- function(x, start, end, digits, verbose) {
 ##' es2 <- effectiveSize_one(hsam[[1]], 1, 100, 2, FALSE)
 ##' es3 <- effectiveSize_many(hsam, 1, 100, TRUE)
 ##' es4 <- effectiveSize_many(hsam, 1, 100, FALSE)
-##' es5 <- effectiveSize_hyper(hsam, 1, 100, 2)
+##' es5 <- effectiveSize_hyper(hsam, 1, 100, 2, TRUE)
 ##' es6 <- effectiveSize(hsam, TRUE, 1, 100, 2, TRUE)
 ##' es7 <- effectiveSize(hsam, TRUE, 1, 100, 2, FALSE)
 ##' es8 <- effectiveSize(hsam, FALSE, 1, 100, 2, TRUE)
@@ -583,7 +600,8 @@ effectiveSize_one <- function(x, start, end, digits, verbose) {
 ##' es10 <- effectiveSize(hsam[[1]], FALSE, 1, 100, 2, TRUE)
 ##' }
 effectiveSize <- function(x, hyper = FALSE, start = 1, end = NA,
-  digits = 0, verbose = FALSE) {
+  digits = 0, verbose = FALSE)
+{
   if (hyper) {
     out <- effectiveSize_hyper(x, start, end, digits, verbose)
   } else if (!is.null(x$theta)){
@@ -612,8 +630,8 @@ safespec0 <- function(x) {
 ##' @param ... other arguments passing in
 ##' @export
 summary_mcmc_list <- function(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
-  ...) {
-  # object <- lst
+  ...)
+{
 
   nchain <- attr(object, "nchain")
   npar   <- attr(object, "npar")
@@ -658,7 +676,8 @@ summary_mcmc_list <- function(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
   return(out)
 }
 
-summary_hyper <- function(x, start, end, hmeans, hci, prob, digits, verbose) {
+summary_hyper <- function(x, start, end, hmeans, hci, prob, digits, verbose)
+{
 
   if (verbose) message("Summarise hierarchical model")
   hyper <- attr(x, "hyper")
@@ -697,10 +716,6 @@ summary_one <- function(x, start, end, prob, verbose) {
     prob = prob))
 }
 
-# x <- fit
-# start <- 151
-# end <- 500
-# prob <- c(0.025, 0.25, 0.5, 0.75, 0.975)
 ##' @importFrom matrixStats colMeans2
 summary_many <- function(x, start, end, prob, verbose) {
   if(verbose) message("Summary each participant separately")
@@ -723,7 +738,8 @@ summary_many <- function(x, start, end, prob, verbose) {
   }
 }
 
-summary_recoverone <- function(object, start, end, ps, digits, prob, verbose) {
+summary_recoverone <- function(object, start, end, ps, digits, prob, verbose)
+{
   # object <- samples
   # start <- 201
   # end <- 500
@@ -756,7 +772,8 @@ summary_recoverone <- function(object, start, end, ps, digits, prob, verbose) {
   invisible(return(out))
 }
 
-summary_recovermany <- function(object, start, end, ps, digits, prob) {
+summary_recovermany <- function(object, start, end, ps, digits, prob)
+{
   ## object <- fit
   # start = 201
   # end <- 500
@@ -844,23 +861,17 @@ summary_recoverhyper <- function(object, start, end, ps, type, digits, prob,
 ##' \dontrun{
 ##' est1 <- summary(hsam[[1]], FALSE)
 ##' est2 <- summary(hsam[[1]], FALSE, 1, 100)
-##' est3 <- summary_one(hsam[[1]], 1, 100, c(.025, .5, .975), verbose = TRUE)
-##' est4 <- summary_one(hsam[[1]], 1, 100, c(.025, .5, .975), verbose = F)
 ##'
-##' est5 <- summary_many(hsam, 1, 100, c(.025, .5, .975), FALSE)
-##' est6 <- summary_many(hsam, 1, 100, c(.025, .5, .975), TRUE)
-##' est7 <- summary(hsam)
-##' est8 <- summary(hsam, verbose = TRUE)
-##' est9 <- summary(hsam, verbose = FALSE)
+##' est3 <- summary(hsam)
+##' est4 <- summary(hsam, verbose = TRUE)
+##' est5 <- summary(hsam, verbose = FALSE)
 ##'
-##'
-##' hest1 <- summary_hyper(hsam, 1, 100, F, F, c(.025, .5, .975), 2, F)
-##' hest2 <- summary_hyper(hsam, 1, 100, F, F, c(.05, .5, .9), 2, F)
-##' hest3 <- summary(hsam, TRUE)
+##' hest1 <- summary(hsam, TRUE)
 ##' }
 summary.model <- function(object, hyper = FALSE, start = 1, end = NA,
   hmeans = FALSE, hci = FALSE, prob = c(0.025, 0.25, 0.5, 0.75, 0.975),
-  recovery = FALSE, ps = NA, type = 1, verbose = FALSE, digits = 2, ...) {
+  recovery = FALSE, ps = NA, type = 1, verbose = FALSE, digits = 2, ...)
+{
 
   if ( recovery && !is.null(object$theta) ) {
     if (any(is.na(ps))) stop("Some true values are NAs.")
@@ -924,7 +935,7 @@ summary.model <- function(object, hyper = FALSE, start = 1, end = NA,
 ##' \dontrun{
 ##' dat <- simulate(model, 30, ps = p.vector)
 ##' dmi <- BuildDMI(dat, model)
-##' sam <- run(StartNewsamples(5e2, dmi, p.prior))
+##' sam <- run(StartNewsamples(dmi, p.prior))
 ##' bad <- PickStuck(sam)
 ##' }
 ##' @export
@@ -952,7 +963,7 @@ PickStuck_hyper <- function(x, cut, start, end, verbose, digits) {
   if (end <= start) stop("End must be greater than start")
   iter <- start:end
 
-  pll <- hyper$h_log_likelihoods[iter, ] + hyper$h_summed_log_prior[iter, ]
+  pll <- hyper$h_log_likelihoods[, iter] + hyper$h_summed_log_prior[, iter]
   mean.ll <- matrixStats::colMeans2(pll)
   names(mean.ll) <- 1:length(mean.ll)
   dev <- -(sort(mean.ll) - median(mean.ll))
@@ -976,13 +987,14 @@ PickStuck_one <- function(x, cut, start, end, verbose, digits) {
   if (end <= start) stop("End must be greater than start")
   iter <- start:end
 
-  pll <- x$log_likelihoods[iter, ] + x$summed_log_prior[iter, ]
+  pll <- x$log_likelihoods[, iter] + x$summed_log_prior[, iter]
   mean.ll <- matrixStats::colMeans2(pll)
   names(mean.ll) <- 1:length(mean.ll)
   dev <- -(sort(mean.ll) - median(mean.ll))
   bad <- as.numeric(names(dev)[dev > cut])
 
-  if (verbose) {
+  if (verbose)
+  {
     # message("PickStuck_one")
     cat("Deviation of mean chain log-likelihood from median of means\n")
     print(round(dev, digits))
@@ -1006,16 +1018,17 @@ PickStuck_many <- function(x, cut, start, end) {
 ##' @param bad a numeric vector, indicating which chains to remove
 ##' @export
 unstick_one <- function(x, bad) {
-  cat("unstick_one")
+  # cat("unstick_one")
 
   nchain <- x$n.chains
-  if (length(bad) > 0) {
-    if (!all(bad %in% 1:nchain)) stop(paste("Index of bad chains must be in 1 to ",
-                                            nchain))
+  if (length(bad) > 0)
+  {
+    if (!all(bad %in% 1:nchain))
+      stop(paste("Index of bad chains must be in 1 to ", nchain))
 
-    x$theta            <- x$theta[-bad,,]
-    x$summed_log_prior <- x$summed_log_prior[,-bad]
-    x$log_likelihoods  <- x$log_likelihoods[,-bad]
+    x$theta            <- x$theta[,-bad,]
+    x$summed_log_prior <- x$summed_log_prior[-bad,]
+    x$log_likelihoods  <- x$log_likelihoods[-bad,]
     x$n.chains         <- x$n.chains - length(bad)
   }
 
@@ -1041,14 +1054,7 @@ deviance.model <- function(object, ...) {
   mtheta <- apply(object$theta, 2, mean)
   model  <- attr(object$data, "model")
   type   <- attr(model, "type")
-
-  # if (type == "norm") {
   Dmean <- -2*sum(log(likelihood(mtheta, object$data)))
-  # } else if (type == "rd") {
-  #   Dmean <- -2*sum(log(likelihood_rd(mtheta, object$data)))
-  # } else {
-  #   stop("Type not defined")
-  # }
 
   # A list with mean (meanD), variance (varD) and min (minD)
   # of Deviance, deviance of mean theta (Dmean)

@@ -4,7 +4,7 @@
 \alias{likelihood}
 \title{Calculate log likelihoods}
 \usage{
-likelihood(pvector, data, minlik = 1e-10)
+likelihood(pvector, data, min_lik = 1e-10)
 }
 \arguments{
 \item{pvector}{a parameter vector}

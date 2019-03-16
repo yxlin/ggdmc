@@ -52,7 +52,7 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 std::vector<double> likelihood (arma::vec pvector, List data,
-                                double minlik=1e-10)
+                                double min_lik=1e-10)
 // used only by R
 {
   Design     * obj0 = new Design(data);
@@ -62,7 +62,7 @@ std::vector<double> likelihood (arma::vec pvector, List data,
   std::vector<double> out(obj0->m_nRT);
   for(size_t i=0; i<obj0->m_nRT; i++)
   {
-    out[i] = std::max(tmp[i], minlik);
+    out[i] = std::max(tmp[i], min_lik);
   }
 
   delete obj1;
@@ -99,13 +99,15 @@ arma::mat p_df(arma::vec pvector, std::string cell, std::string mtype,
 
 // [[Rcpp::export]]
 arma::vec ac_(arma::vec x, unsigned int nlag) {
+
   unsigned int n = x.n_elem;
   unsigned int nm1 = n - 1;
   arma::vec out(nlag);
   arma::mat tmp0 = arma::cor(x, x);
   out(0) = arma::as_scalar(tmp0);
   arma::vec tmp1, tmp2;
-  for (size_t i = 1; i < nlag; i++) {
+  for (size_t i = 1; i < nlag; i++)
+  {
     tmp1 = arma::shift(x, (int)i);
     tmp0 = arma::cor(x.rows(i, nm1), tmp1.rows(i, nm1)); // pairwise.complete.obs
     out(i) = arma::as_scalar(tmp0);

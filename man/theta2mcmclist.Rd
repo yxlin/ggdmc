@@ -37,8 +37,8 @@ the location and scale parameters at the hyper level.
 \examples{
 \dontrun{
 model <- BuildModel(
-p.map     = list(a = "RACE", v = c("S", "RACE"), z = "RACE", d = "1", sz = "1",
-  sv = "1", t0 = c("S", "RACE"), st0 = "1"),
+p.map     = list(a = "RACE", v = c("S", "RACE"), z = "RACE", d = "1",
+            sz = "1", sv = "1", t0 = c("S", "RACE"), st0 = "1"),
 match.map = list(M = list(gun = "shoot", non = "not")),
 factors   = list(S = c("gun", "non"), RACE = c("black", "white")),
 constants = c(st0 = 0, d = 0, sz = 0, sv = 0),
@@ -46,7 +46,7 @@ responses = c("shoot", "not"),
 type      = "rd")
 
 pnames <- GetPNames(model)
-npar <- length(pnames)
+npar   <- length(pnames)
 pop.mean  <- c(1, 1, 2.5, 2.5, 2.5, 2.5, .50, .50, .4, .4, .4, .4)
 pop.scale <- c(.15, .15, 1, 1, 1, 1, .05, .05, .05, .05, .05, .05)
 names(pop.mean)  <- pnames
@@ -75,21 +75,20 @@ sigma.prior <- BuildPrior(
   p2    = rep(1, npar),
   upper = rep(2, npar))
 names(sigma.prior) <- GetPNames(model)
-pp.prior <- list(mu.prior, sigma.prior)
-
-dat <- simulate(model, nsim = 30, nsub = 10, p.prior = pop.prior)
+priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
+dat <- simulate(model, nsim = 30, nsub = 10, prior = pop.prior)
 dmi <- BuildDMI(dat, model)
 ps <- attr(dat, "parameters")
 
-hsam <- run(StartNewHypersamples(1e2, dmi, p.prior, pp.prior, 1),
-  pm = .1, hpm = .1, report = 20)
+fit0 <- StartNewsamples(dmi, priors)
+fit  <- run(fit0)
 
-tmp1 <- theta2mcmclist(hsam[[1]])
-tmp2 <- theta2mcmclist(hsam[[2]], start = 10, end = 90)
-tmp3 <- theta2mcmclist(hsam[[3]], split = TRUE)
-tmp4 <- theta2mcmclist(hsam[[4]], subchain = TRUE)
-tmp5 <- theta2mcmclist(hsam[[5]], subchain = TRUE, nsubchain = 4)
-tmp6 <- theta2mcmclist(hsam[[6]], thin = 2)
+tmp1 <- theta2mcmclist(fit[[1]])
+tmp2 <- theta2mcmclist(fit[[2]], start = 10, end = 90)
+tmp3 <- theta2mcmclist(fit[[3]], split = TRUE)
+tmp4 <- theta2mcmclist(fit[[4]], subchain = TRUE)
+tmp5 <- theta2mcmclist(fit[[5]], subchain = TRUE, nsubchain = 4)
+tmp6 <- theta2mcmclist(fit[[6]], thin = 2)
 }
 
 }

@@ -1,36 +1,28 @@
 # Bayesian Cognitive Modelling
 
-_ggdmc_, evolving from dynamic model of choice (_DMC_, Heathcote et al., 2018),
-is a generic tool for hierarchical Bayesian Computations. 
+_ggdmc_ is a generic tool for conducting hierarchical Bayesian Computations on
+cognitive (RT) models. 
 
-1. Instead of using Gibbs or HMC, _ggdmc_ uses population-based MCMC (pMCMC) 
-samplers. A notable Gibbs example is the Python-based 
-HDDM (Wiecki, Sofer & Frank, 2013), which has yet provided convenient 
-interface to examine the variabilities of parameters. 
+1. _ggdmc_ uses population-based MCMC (pMCMC) samplers, including the crossover
+and migration operators. 
 
-2. _ggdmc_ implements two different variants of _migration_ operator. They
-are by default used during the burning period to search the target parameter
-space. 
-
-3. _ggdmc_ uses two parallel methods. First is via the _parallel_ package in R.
-This facilitates the computations of fitting many participants separately.  
-The second is via OpenMP library. This facilitates the computations for 
-fitting hierarchical models.  
+3. _ggdmc_ uses two methods of parallel computation. First is via the 
+_parallel_ package in R. This facilitates the computations of fitting many 
+participants separately.  The second is via OpenMP library.  This facilitates 
+the computations when fitting hierarchical models with many participants.  
 
 For an advanced parallel computation technique / algorithm, please see my CUDA 
 C, R package, [_ppda_](https://github.com/yxlin/ppda), which implements GPU 
 parallel computations.
 
 ## Getting Started
-The getting-started example uses Wiener diffusion model. The modelling of the
-Wiener diffusion model, hierarchical or not, can be finished by a couple of 
-seconds.  For other more time-demanding examples, see my 
-[tutorials site](https://yxlin.github.io/) for more details. 
+This example uses the Wiener diffusion model and could be done within a couple 
+of seconds.  For other models that need more time, see my [tutorials site](https://yxlin.github.io/).  
 
-The names of _R_ functions attemp to inform the user what the functions are for,
-, such _BuildModel_.  As the user is usually warned in Bayesian tools, please
-use with your own risk. That is, the user must always conduct model checking
-after model fits.
+The naming of _R_ functions in _ggdmc_ attempts to inform the user what the 
+functions are for, such as _BuildModel_.  As the user is usually warned in 
+Bayesian tools, please use with your own risk.  That is, the user must always 
+conduct model checks.
 
 Note the sequence of parameters in a parameter vector (i.e., p.vector) must 
 follow the sequence in the _p.vector_ reported by _BuildModel_. 
@@ -64,17 +56,16 @@ p.prior <- BuildPrior(
   lower = c(0, -5, rep(0, 2)),
   upper = rep(NA, npar))
 
-## Fit model ----
+## Fit model -------------
 fit0 <- StartNewsamples(dmi, p.prior)
 fit  <- run(fit0, 5e2)
 
-## Model checking -----------
+## Check model -----------
 plot(fit)
 plot(fit, den = TRUE)
 plot(fit, pll=FALSE)
 plot(fit, pll=FALSE, den = TRUE)
 
-## 
 gelman(fit)
 est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
 
@@ -123,7 +114,7 @@ fit0 <- StartNewsamples(dmi, p.prior, ncore=2)
 fit  <- run(fit0, 5e2, ncore=2)
 fit  <- run(fit, 1e2, add=TRUE, ncore=2)  ## add additional 100 samples
 
-## Check model check -----
+## Check model -----
 gelman(fit, verbose=TRUE)
 plot(fit)
 est0 <- summary(fit, recovery = TRUE, ps = ps, verbose =TRUE)
@@ -143,7 +134,7 @@ est0 <- summary(fit, recovery = TRUE, ps = ps, verbose =TRUE)
     p2    = rep(1, npar),
     upper = rep(1, npar))
 
-  ## Note the names are important
+  ## !!!The names are important!!!
   priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
   names(priors)
   # [1] "pprior"   "location" "scale"
@@ -156,7 +147,7 @@ p0 <- plot(fit, hyper = TRUE)
 p0 <- plot(fit, hyper = TRUE, den = TRUE, pll=FALSE)
 
 ## Check model -----------
-res <- hgelman(fit, verbose = TRUE)
+res  <- hgelman(fit, verbose = TRUE)
 est0 <- summary(fit, recovery = TRUE, ps = ps, verbose = TRUE)
 est1 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.mean,  type = 1, verbose = TRUE)
 est2 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.scale, type = 2, verbose = TRUE)
@@ -182,8 +173,8 @@ for(i in 1:length(fit))
 8. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
 9. The correlated accumualtor model; type = "cnorm".
 
-< 4 to 9 are separated from ggdmc package. For these PDA-based models see 
-my BRM paper and associated packages at my OSF site >
+4 to 9 are separated from the latest version of the package. For these 
+PDA-based models see my BRM paper and associated packages there 
 
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)

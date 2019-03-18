@@ -22,7 +22,7 @@ pop.prior <- BuildPrior(
   upper = c(5, 7,  1, 1))
 
 ## Simulate some data
-dat <- simulate(model, nsub = 8, nsim = 30, prior = pop.prior)
+dat <- simulate(model, nsub = 4, nsim = 30, prior = pop.prior)
 dmi <- BuildDMI(dat, model)
 ps <- attr(dat, "parameters")
 
@@ -47,7 +47,7 @@ priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
 
 ## Fit hierarchical model ----
 cat("Starting a new hierarchical model fit: \n")
-fit0 <- StartNewsamples(dmi, priors)
+fit0 <- StartNewsamples(dmi, priors, nmc=100)
 fit  <- run(fit0)
 
 cat("Testing six scenarios 'theta2mcmclist': \n")

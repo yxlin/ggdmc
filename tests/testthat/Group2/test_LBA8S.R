@@ -30,8 +30,8 @@ cat("\n-------------------- Testing LBA Multi-core 8 Subjects ----------------")
     lower = c(0,0,0,   .1, NA,NA,NA,NA, 0),
     upper = c(NA,NA,NA, 1, NA,NA,NA,NA, NA))
 
-  pdf(file = "HLBA.pdf")
-  plot(pop.prior, ps = pop.mean)
+  # pdf(file = "HLBA.pdf")
+  # plot(pop.prior, ps = pop.mean)
 
   ## Simulate some data ----------
   dat <- simulate(model, nsub = 8, nsim = 10, prior = pop.prior)

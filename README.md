@@ -207,13 +207,13 @@ From GitHub (you need _devtools_):
 
 > devtools::install_github(“yxlin/ggdmc”)
 
-For Mac Users:
+~~For Mac Users:~~
 
-1. Install [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries#MacOS).
+~~1. Install [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries#MacOS).
 As to 27, Aug, 2018, the gfortran version has to be 6.1, even you are using a 
-macOS High Sierra Version 10.13.4. gfortran 6.3 may not work.
+macOS High Sierra Version 10.13.4. gfortran 6.3 may not work.~~
 
-2. Install clang4-r. 
+~~2. Install clang4-r. 
 [James Balamuta](https://thecoatlessprofessor.com/programming/openmp-in-r-on-os-x/)
 has created a convenient tool, [clang4-r](https://uofi.app.box.com/v/r-macos-clang-pkg).
 Once you install clang4-r, your clang will then understand the OpenMP flag
@@ -221,10 +221,13 @@ in _ggdmc_. The aim is to allow macOS to understand OpenMP flag, so you may use
 other methods for that purpose, if you do not want to install clang4-r. The
 clang4-r is the most straightforward we found so far. 
 However we have not looked into the source code of clang4-r. Use it at your
-own risk.
+own risk.~~
 
-## How to install many supporting packages
-One method to install many supporting R packages is to use a command line 
+OpenMP is disable after version 0.2.5.6. 
+
+
+## How to install several supporting packages
+One method to install several supporting R packages is to use a command line 
 script. This works in Unix-like OS. A simple guide is below.
 
 > sudo apt-get install r-cran-littler

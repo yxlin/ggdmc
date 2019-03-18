@@ -14,7 +14,7 @@ model <- BuildModel(
 
 npar <- length(GetPNames(model))
 p.vector <- c(a=1, v=1.5, z=0.5, t0=.15)
-dat <- simulate(model, nsim = 30, ps = p.vector)
+dat <- simulate(model, nsim = 20, ps = p.vector)
 dmi <- BuildDMI(dat, model)
 
 p.prior <- BuildPrior(
@@ -24,21 +24,20 @@ p.prior <- BuildPrior(
   lower = c(0, -5, rep(0, 2)),
   upper = rep(NA, npar))
 
-## Fit model ----
+## Sampling and check model ----
 cat("Starting a new model fit: \n")
-fit0 <- StartNewsamples(dmi, p.prior)
-fit  <- run(fit0)
+fit <- run(StartNewsamples(dmi, p.prior))
+res <- gelman(fit)
+res <- gelman(fit, verbose=TRUE)
 
 pdf(file = "analysis_one.pdf")
 p0 <- plot(fit)
 p1 <- plot(fit, den = TRUE)
 p2 <- plot(fit, pll=FALSE)
 p3 <- plot(fit, pll=FALSE, den = TRUE)
-
+dev.off()
 
 ## Analysis -----------
-res <- gelman(fit)
-
 cat("Reporting the result of a model fit: \n")
 est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
 tmp1 <- theta2mcmclist(fit)

@@ -120,10 +120,57 @@ static void advance_to (int N, double *vector, double t0, double t1, double dz,
 /*---------------------------------------------------------------------------
  Original found in phi.c
  ---------------------------------------------------------------------------*/
+/* erf.c - Gaussian error function
+ *
+ * by Thomas Meyer <tpmeyer@foxriver.com>, 2002
+ *
+ * A portable implementation of the Gaussian error function erf(),
+ * using the Chebyshev algorithm.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * $Id: erf.c,v 1.3 2002/03/21 18:55:54 gtw Exp $
+ */
+
+double erf (double x)
+{
+    double t, z, retval;
+
+    z = fabs( x );
+    t = 1.0 / ( 1.0 + 0.5 * z );
+
+
+    retval = t * exp( -z * z - 1.26551223 + t *
+      ( 1.00002368 + t *
+      ( 0.37409196 + t *
+      ( 0.09678418 + t *
+      ( -0.18628806 + t *
+      ( 0.27886807 + t *
+      ( -1.13520398 + t *
+      ( 1.48851587 + t *
+      ( -0.82215223 + t *
+      0.1708727 ) ) ) ) ) ) ) ) );
+    if( x < 0.0 )
+      return retval - 1.0;
+
+    return 1.0 - retval;
+}
+
 static double Phi (double x)
 /* The distribution function of the standard normal distribution.  */
 {
-    return  0.5*(1+std::erf (x/M_SQRT2));
+    return  0.5*(1+erf (x/M_SQRT2));
 }
 
 static double Phi_inverse (double y)
@@ -263,7 +310,6 @@ static void F_plain_start (F_calculator *fc, int plus)
 {
   F_plain_data *data = (F_plain_data*)fc->data;
   int  N = fc->N;
-  int  i;
 
   fc->plus = plus;
   data->t_offset = data->t0 - data->d * (plus == 1? 0.5 : -0.5);
@@ -874,10 +920,12 @@ Rcpp::List sampling(int s_size, Parameters * params, bool random_flag)
 }
 
 
-// R-style sampling from the DM - returns a List consisting of RTs and boundaries
 // [[Rcpp::export]]
-Rcpp::List r_fastdm (int num_values, std::vector<double> params,
+Rcpp::List r_fastdm (unsigned int num_values, std::vector<double> params,
                      double precision=3, bool stop_on_error=true)
+// R-style sampling from the DM - returns a List consisting of RTs and
+// boundaries
+
 {
   if ((num_values < 1) || (num_values > MAX_INPUT_VALUES))
   {

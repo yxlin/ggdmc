@@ -6,11 +6,8 @@
 \alias{ggdmc-package}
 \title{Bayeisan Computation for Cognitive Models}
 \description{
-\pkg{ggdmc} evolves from Dynamic Models of Choice (DMC), using graphic
-styles of ggplot2 and Armadillo C++ to connect GPU parallel computation
-to \pkg{ppda} to make fitting complex cognitive models feasible.
 \pkg{ggdmc} implements the population-based Monte Chain
-Monte Carlo.
+Monte Carlo to conduct Bayesian MCMC on cognitive models.
 }
 \references{
 Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M. &

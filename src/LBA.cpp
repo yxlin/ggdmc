@@ -3,20 +3,25 @@
 using namespace Rcpp;
 
 lba::lba (double A, double b, double mean_v, double sd_v, double t0,
-      bool posdrift) :
+          bool posdrift) :
   m_A(A), m_b(b), m_mean_v(mean_v), m_sd_v(sd_v), m_t0(t0), is_posv(posdrift)
 // pdf, cdf
 {
-  }
+  // double m_A, m_b, m_mean_v, m_sd_v, m_t0, m_st0; // LBA distribution.
+  // bool is_posv;
+  //
+  // double *m_meanv_vec, *m_sdv_vec;
+  // unsigned int m_nmean_v;
+}
 
 lba::lba (double A, double b, double * mean_v, double * sd_v, double t0,
-     double st0, unsigned int & nmean_v, bool posdrift) :
-  m_A(A), m_b(b), m_meanv_vec(mean_v), m_sdv_vec(sd_v), m_t0(t0), m_st0(st0),
-  m_nmean_v(nmean_v), is_posv(posdrift)
+          double st0, unsigned int & nmean_v, bool posdrift) :
+  m_A(A), m_b(b), m_t0(t0), m_st0(st0), is_posv(posdrift),
+  m_meanv_vec(mean_v), m_sdv_vec(sd_v), m_nmean_v(nmean_v)
 // rlba_norm. NOTE double * mean_v and double * sd_v
-  {
+{
     if (m_st0 < 0) Rcpp::stop("st0 must be greater than 0.");
-  }
+}
 
 lba::~lba() {}
 

@@ -18,10 +18,9 @@ public:
   Prior      * m_p;
   Likelihood * m_l;
 
-
   Theta(unsigned int nmc, unsigned int nchain, unsigned int npar,
-        unsigned int thin, Prior * p, Likelihood * l) : m_p(p), m_l(l),
-        m_thin(thin), m_nmc(nmc)
+        unsigned int thin, Prior * p, Likelihood * l) :
+    m_thin(thin), m_nmc(nmc), m_p(p), m_l(l)
   // Start
   {
     using namespace arma;
@@ -66,10 +65,11 @@ public:
   }
 
   Theta(List & samples, unsigned int nmc, unsigned int thin, Prior * p,
-        Likelihood * l, bool add) : m_p(p), m_l(l),  m_thin(thin)
+        Likelihood * l, bool add) : m_thin(thin), m_p(p), m_l(l)
   // Restart
   {
     using namespace arma;
+
     mat lp     = samples["summed_log_prior"];
     mat ll     = samples["log_likelihoods"];
     cube theta = samples["theta"];
@@ -150,9 +150,9 @@ private:
   }
 
 public:
-  unsigned int m_start_R, m_store_i, m_nsamp, m_thin, m_nmc;
+  unsigned int m_start_R, m_store_i, m_nsamp;
 
-  unsigned int m_nsub, m_npar, m_nchain;
+  unsigned int m_nsub, m_npar, m_nchain, m_thin, m_nmc;
 
   arma::cube m_phi0,    m_phi1;
   arma::mat  m_usephi0, m_usephi1, m_hlp, m_hll;
@@ -168,8 +168,8 @@ public:
       unsigned int thin,
       Prior * p, Prior * lp, Prior * sp,
       std::vector<Theta *> & ts) :
-    m_nsub(nsub), m_nchain(nchain), m_npar(npar), m_p(p), m_lp(lp), m_sp(sp),
-    m_thin(thin), m_nmc(nmc)
+    m_nsub(nsub), m_npar(npar), m_nchain(nchain), m_thin(thin), m_nmc(nmc),
+    m_p(p), m_lp(lp), m_sp(sp)
   {
     using namespace arma;
     cube phi0 (npar, nchain, nmc);
@@ -227,9 +227,9 @@ public:
       unsigned int thin,
       bool add,
       Prior * p, Prior * lp, Prior * sp) :
-    m_nsub(nsub), m_nchain(nchain), m_npar(npar), m_p(p), m_lp(lp), m_sp(sp),
-    m_thin(thin)
-    // Restart
+    m_nsub(nsub), m_npar(npar), m_nchain(nchain), m_thin(thin), m_p(p),
+    m_lp(lp), m_sp(sp)
+  // Restart
   {
     using namespace arma;
 

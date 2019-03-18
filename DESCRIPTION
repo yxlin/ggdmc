@@ -5,7 +5,7 @@ Version: 0.2.5.6
 Date: 2019-03-16
 Author: Yi-Shin Lin [aut, cre], Andrew Heathcote [aut]
 Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
-Description: Hierarchical Bayesian modelling. The 'ggdmc' package provides tools designed for fitting cognitive models, using population-based Markov Chain Monte Carlo (pMCMC). The paper by Heathcote, Lin, Reynolds, Strickland, Gretton, and  Matzke (2018, <doi:10.3758/s13428-018-1067-y>) describes the prototype of the package (by the version 0.4.2). The paper accompanied with the revamped latest version (> 0.2.4.5) is under preparation Lin, Strickland, and Heathcote (2018). 
+Description: Hierarchical Bayesian models. ggdmc provides tools to fit two popular response time models, using population-based Markov Chain Monte Carlo (pMCMC). The paper by Heathcote, Lin, Reynolds, Strickland, Gretton, and  Matzke (2018, <doi:10.3758/s13428-018-1067-y>) describes the prototype of the package. 
 License: GPL-2
 URL: https://github.com/yxlin/ggdmc
 BugReports: https://github.com/yxlin/ggdmc/issues

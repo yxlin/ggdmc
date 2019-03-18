@@ -6,9 +6,9 @@
 \alias{print.dmi}
 \title{Create a model object}
 \usage{
-BuildModel(p.map, responses, regressors = NULL, factors = list(A =
-  "1"), match.map = NULL, constants = numeric(0), type = "norm",
-  posdrift = TRUE, verbose = TRUE)
+BuildModel(p.map, responses, factors = list(A = "1"), match.map = NULL,
+  constants = numeric(0), type = "norm", posdrift = TRUE,
+  verbose = TRUE)
 
 \method{print}{model}(x, p.vector = NULL, ...)
 
@@ -17,21 +17,19 @@ BuildModel(p.map, responses, regressors = NULL, factors = list(A =
 \arguments{
 \item{p.map}{mapping factorial design to model parameters}
 
-\item{responses}{Response (accumulator) names}
-
-\item{regressors}{a temporary argument for fitting GLM}
+\item{responses}{Response names}
 
 \item{factors}{specifying factors and factor levels}
 
 \item{match.map}{matching stimuli and responses}
 
-\item{constants}{setting parameters as constant value}
+\item{constants}{setting up parameters as constant value}
 
-\item{type}{using character string to specifying model type.}
+\item{type}{specifying model type.}
 
-\item{posdrift}{enforce postive drift rate, using truncated normal or
-just using normal distribution. This is used only by norm type (any
-LBA variants and extensions)}
+\item{posdrift}{enforcing postive drift rate, using truncated normal or
+using normal distribution. This is used only by norm type (LBA
+variants and extensions)}
 
 \item{verbose}{Print parameter vector, constants and model type}
 
@@ -42,8 +40,7 @@ LBA variants and extensions)}
 \item{...}{other arguments}
 }
 \description{
-Create a model array and attach many model attributes. These attributes
-specify a particular model and parameterisation.
+A model object consists of arraies with model attributes.
 }
 \examples{
 model <- BuildModel(

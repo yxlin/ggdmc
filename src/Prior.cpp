@@ -38,7 +38,7 @@ Prior::~Prior()
 
 void Prior::dprior(double * pvector, double * out)
 {
-  double x, l, u, tmp;
+  double x, l, u;
 
   for (size_t i = 0; i < m_npar; i++)
   {

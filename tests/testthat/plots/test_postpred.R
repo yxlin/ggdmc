@@ -81,8 +81,7 @@ test_that("Post-predictive", {
     upper = rep(NA, npar))
 
   ## Fit model ----
-  fit0 <- StartNewsamples(dmi, p.prior)
-  fit  <- run(fit0)
+  fit <- run(StartNewsamples(dmi, p.prior))
   rhat <- gelman(fit, verbose = TRUE)
 
   pdf("Postpredictive.pdf")

@@ -55,12 +55,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // r_fastdm
-Rcpp::List r_fastdm(int num_values, std::vector<double> params, double precision, bool stop_on_error);
+Rcpp::List r_fastdm(unsigned int num_values, std::vector<double> params, double precision, bool stop_on_error);
 RcppExport SEXP _ggdmc_r_fastdm(SEXP num_valuesSEXP, SEXP paramsSEXP, SEXP precisionSEXP, SEXP stop_on_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type num_values(num_valuesSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type num_values(num_valuesSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type params(paramsSEXP);
     Rcpp::traits::input_parameter< double >::type precision(precisionSEXP);
     Rcpp::traits::input_parameter< bool >::type stop_on_error(stop_on_errorSEXP);

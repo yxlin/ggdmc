@@ -25,12 +25,11 @@ cat("-------------------- Testing BuildPrior --------------------")
     upper = rep(NA, npar))
   str(p.prior)
 
-  pdf("BuildPrior.pdf")
-  plot(p.prior)
-  plot(location.prior)
-  plot(scale.prior)
   print(scale.prior)
   print(location.prior)
+
+  ## Extract prior
+
   pnames <- names(location.prior)
   pp.prior <- list(location.prior, scale.prior)
 
@@ -44,7 +43,8 @@ cat("-------------------- Testing BuildPrior --------------------")
   sp1 <- sp2 <- slower <- supper <- numeric(npar)
   islogs <- logical(npar)
 
-  for(i in 1:npar) {
+  for(i in 1:npar)
+  {
     pdists[i] <- attr(p.prior[[i]], "dist")
     pp1[i] <- p.prior[[i]][[1]]
     pp2[i] <- p.prior[[i]][[2]]

@@ -9,7 +9,7 @@ cat("\n-------------------- Testing DDM 1 Subject --------------------")
     constants = c(st0 = 0, d = 0),
     type      = "rd")
 
-  ntrial <- 50
+  ntrial <- 20
   p.vector <- c(a = 1, v = 1.2, z = .38, sz = .25, sv = .2, t0 = .15)
 
   dat <- simulate(model, nsim = ntrial, ps = p.vector)
@@ -24,17 +24,22 @@ cat("\n-------------------- Testing DDM 1 Subject --------------------")
 
   ## Sampling ---------
   fit0 <- StartNewsamples(dmi, p.prior)
-  fit  <- run(fit0)
+  fit <- run(fit0)
 
   pdf(file = "DDM1S.pdf")
 
   p0 <- plot(fit0)
   p1 <- plot(fit0, start = 51)
   p2 <- plot(fit)
+  dev.off()
+
+
 
   ## Analysis -----------
-  est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
-
+  est0 <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
+  est1 <- summary(fit, recovery = TRUE, ps = p.vector)
+  est2 <- summary(fit, verbose = TRUE)
+  est3 <- summary(fit)
   #                   a     v    z    sz    sv   t0
   # True           1.00  1.20 0.38  0.25  0.20 0.15
   # 2.5% Estimate  1.00  1.16 0.38  0.05  0.01 0.15

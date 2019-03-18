@@ -43,8 +43,7 @@
     upper = rep(1, npar))
 
   priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
-  fit0 <- StartNewsamples(dmi, priors)
-  fit  <- run(fit0)
+  fit <- run(StartNewsamples(dmi, priors))
 
   pdf(file = "subchains.pdf")
   p0 <- plot(fit, hyper = TRUE)

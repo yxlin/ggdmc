@@ -61,10 +61,6 @@ cat("\n-------------------- Testing HLBA --------------------")
   fit  <- run(fit0)
   fit  <- run(fit, 1e2, add=TRUE)
 
-
-  ## Analysis -----------
-  res <- hgelman(fit, verbose = TRUE)
-
   pdf(file = "HLBA.pdf")
   plot(pop.prior, ps = pop.mean)
   plot(p.prior, ps = ps)
@@ -72,6 +68,10 @@ cat("\n-------------------- Testing HLBA --------------------")
 
   p0 <- plot(fit, hyper = TRUE)
   p1 <- plot(fit, hyper = TRUE, den = TRUE, pll=FALSE)
+  dev.off()
+
+  ## Analysis -----------
+  res <- hgelman(fit, verbose = TRUE)
 
   est0 <- summary(fit, recovery = TRUE, ps = ps, verbose = TRUE)
   est1 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.mean,  type = 1, verbose = TRUE)

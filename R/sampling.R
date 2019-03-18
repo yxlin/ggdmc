@@ -48,9 +48,10 @@ run_many <- function(data, prior, nchain, nmc, thin, report, rp, gammamult,
   {
     cl  <- parallel::makeCluster(ncore)
     message("Run subjects in parallel")
-    out <- parallel::parLapply(data, init_new, prior, nchain, nmc, thin, report,
+    out <- parallel::parLapply(cl = cl, X = data,
+                               init_new, prior, nchain, nmc, thin, report,
                                rp, gammamult, pm0, pm1, block)
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }
   else if (ncore > 1)
   {
@@ -83,9 +84,10 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
   {
     cl  <- parallel::makeCluster(ncore)
     message("Run subjects in parallel")
-    out <- parallel::parLapply(samples, init_old, nmc, thin, report, rp,
+    out <- parallel::parLapply(cl = cl, X = samples,
+                               init_old, nmc, thin, report, rp,
                                gammamult, pm0, pm1, block, add)
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }
   else if (ncore > 1)
   {

@@ -131,33 +131,6 @@ ismanymodels <- function(model, ns = NA)
 }
 
 
-### Sampling ------------------------------------------------
-##' Check rejection rate
-##'
-##' Check rejection rate for posterior samples
-##'
-##' @param object posterior samples
-##' @param verbose print more information
-##' @export
-CheckRJ <- function(object, verbose = TRUE) {
-  nchain <- object$n.chains
-  # nsamp <- 1 + (object$nmc - object$start) * object$thin;
-  nsamp <- object$nmc
-
-  for(i in 1:nchain) {
-    mr <- sum(object$rejection_rate[i, 2:nsamp] == 2 |
-        object$rejection_rate[i, 2:nsamp] == 1) / nsamp
-    rj <- sum(object$rejection_rate[i, 2:nsamp] == 2 |
-        object$rejection_rate[i, 2:nsamp] == 4) / nsamp
-    if (verbose) {
-      cat("Chain ", i)
-      cat(": migration and rejection rates: ", round(mr, 2), " ",
-        round(rj, 2), "\n")
-      # cat(": rejection rates: ", round(rj, 2), "\n")
-    }
-  }
-}
-
 ### MCMC ------------------------------------------------
 ##' Create a MCMC list
 ##'

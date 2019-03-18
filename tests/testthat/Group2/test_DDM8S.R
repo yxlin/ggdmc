@@ -31,7 +31,7 @@ cat("\n-------------------- Testing DDM Multi-core 8 Subjects ----------------")
     p1    = pop.mean,
     p2    = pop.scale*5,
     lower = c(0,-5, -5, 0, 0, 0, 0),
-    upper = c(5, 7,  7, 1, 2, 1, 1))
+    upper = c(5, 7,  7, 1, 2, 2, 1))
 
   ## Sampling separately ----------
   fit0 <- StartNewsamples(dmi, p.prior, ncore=2)

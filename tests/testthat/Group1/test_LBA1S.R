@@ -11,7 +11,7 @@ model <- BuildModel(
     type      = "norm")
 
 p.vector <- c(A = .75, B = 1.25, t0 = .15, mean_v.true = 2.5, mean_v.false = 1.5)
-ntrial <- 100
+ntrial <- 20
 dat <- simulate(model, nsim = ntrial, ps = p.vector)
 dmi <- BuildDMI(dat, model)
 
@@ -24,15 +24,12 @@ p.prior <- BuildPrior(
 
 ## Sampling ---------
 fit0 <- StartNewsamples(dmi, p.prior)
-fit  <- run(fit0)
-
+fit <- run(fit0)
 pdf(file = "LBA1S.pdf")
 p0 <- plot(fit0)
 p1 <- plot(fit0, start = 51)
 p2 <- plot(fit)
-
-d <- data.table::data.table(fit$data)
-d[, .N, .(S)]
+dev.off()
 
 ## Analysis -----------
 est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)

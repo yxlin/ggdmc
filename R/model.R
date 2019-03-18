@@ -1,11 +1,8 @@
-######### CORE ------------------------------------------------------
+######### CORE ---------------------------------------------------
 ##' Bayeisan Computation for Cognitive Models
 ##'
-##' \pkg{ggdmc} evolves from Dynamic Models of Choice (DMC), using graphic
-##' styles of ggplot2 and Armadillo C++ to connect GPU parallel computation
-##' to \pkg{ppda} to make fitting complex cognitive models feasible.
 ##' \pkg{ggdmc} implements the population-based Monte Chain
-##' Monte Carlo.
+##' Monte Carlo to conduct Bayesian MCMC on cognitive models.
 ##'
 ##' @keywords package
 ##' @name ggdmc
@@ -52,19 +49,17 @@ grepl_dot <- function(pattern, x) {
 
 ##' Create a model object
 ##'
-##' Create a model array and attach many model attributes. These attributes
-##' specify a particular model and parameterisation.
+##' A model object consists of arraies with model attributes.
 ##'
 ##' @param p.map mapping factorial design to model parameters
 ##' @param match.map matching stimuli and responses
 ##' @param factors specifying factors and factor levels
-##' @param constants setting parameters as constant value
-##' @param responses Response (accumulator) names
-##' @param regressors a temporary argument for fitting GLM
-##' @param type using character string to specifying model type.
-##' @param posdrift enforce postive drift rate, using truncated normal or
-##' just using normal distribution. This is used only by norm type (any
-##' LBA variants and extensions)
+##' @param constants setting up parameters as constant value
+##' @param responses Response names
+##' @param type specifying model type.
+##' @param posdrift enforcing postive drift rate, using truncated normal or
+##' using normal distribution. This is used only by norm type (LBA
+##' variants and extensions)
 ##' @param verbose Print parameter vector, constants and model type
 ##' @param x a model object
 ##' @param p.vector parameter vector (for printing model)
@@ -83,14 +78,13 @@ grepl_dot <- function(pattern, x) {
 BuildModel <- function(
   p.map,                          # list factors and constants for parameters
   responses,                      # Response (accumulator) names
-  regressors = NULL,
   factors    = list(A = "1"),     # Factor names and levels
   match.map  = NULL,              # Scores responses
   constants  = numeric(0),        # Parameters set to constant value
   type       = "norm",            # model type
   posdrift   = TRUE,              # only used by norm
-  verbose    = TRUE               # Print p.vector, constants and type
-) {
+  verbose    = TRUE)              # Print p.vector, constants and type
+{
   mapinfo <- check_BuildModel(p.map, responses, factors, match.map,
                                       constants, type)
   map.names  <- mapinfo[[1]]
@@ -228,7 +222,6 @@ BuildModel <- function(
   attr(out, "p.vector")   <- all.par[is.na(all.par)]
   attr(out, "par.names")  <- unique(col.par)
   attr(out, "type")       <- type
-  attr(out, "regressors") <- regressors
   attr(out, "factors")    <- factors
   attr(out, "responses")  <- responses
   attr(out, "constants")  <- constants
@@ -299,20 +292,14 @@ print.dmi <- function(x, ...) {
 
 ##' Bind data and models
 ##'
-##' Binding a data with a model object. This function also checks
-##' if they are compatible and adds a \code{cell.index} and many other
-##' attributes to the data frame.
+##' Binding a data set with a model object. The function checks
+##' whether they are compatible and adds attributes.
 ##'
-##' @param x data in the format of data frame
+##' @param x data as in data frame
 ##' @param model a model object
-##' @param npda number of model simulations
-##' @param bw kernel bandwidth
-##' @param gpuid GPU ID, indicating using which GPU cards on a machine with
-##' multieple GPUs.
-##' @param debug debugging switch
+##' @return a data mondel instance
 ##' @export
-BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
-  debug = FALSE) {
+BuildDMI <- function(x, model) {
 
   res <- check_BuildDMI(x, model)
   subject_models <- res$issm
@@ -350,10 +337,6 @@ BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
 
       # if (is.sim) attr(data[[s]], "parameters") <- attr(dat, "parameters")[s,]
 
-      attr(dat[[k]], "n.pda") <- npda
-      attr(dat[[k]], "bw")    <- bw
-      attr(dat[[k]], "gpuid") <- gpuid
-      attr(dat[[k]], "debug") <- debug
       class(dat) <- c("dmi", "model", "list")
     }
 
@@ -374,10 +357,6 @@ BuildDMI <- function(x, model, npda = 16384, bw = 0.01, gpuid = 0,
     attr(x, "cell.index") <- cell.index
     attr(x, "cell.empty") <- sapply(cell.index, function(xx){sum(xx)}) == 0
     attr(x, "model") <- model
-    attr(x, "n.pda") <- npda
-    attr(x, "bw")    <- bw
-    attr(x, "gpuid") <- gpuid
-    attr(x, "debug") <- debug
     class(x) <- c("dmi", "model", "data.frame")
     return(x)
   }
@@ -505,30 +484,6 @@ TableParameters <- function(pvector, cell, model, n1order) {
 
   return(out)
 }
-
-##' Scoring RT data
-##'
-##' A convenient function to calculate mean, interquantile range, standard
-##' deviation for correct and error RTs
-##'
-##' @param x a parameter vector
-##' @param digits printing digits
-##' @importFrom stats IQR
-##' @importFrom stats sd
-##' @export
-score <- function(x, digits = 2) {
-  correct <- tolower(x$S) == tolower(x$R)
-  cat("Accuracy: \n");
-  print(round(mean(correct), digits))
-  mrt <- tapply(x$RT, list(correct), mean)
-  iqr <- tapply(x$RT, list(correct), IQR)
-  SD  <- tapply(x$RT, list(correct), sd)
-  out <- data.frame(rbind(mrt, iqr, SD))
-  names(out) <- c("error", "correct")
-  print(round(out, digits))
-  invisible(out)
-}
-
 
 
 ######### Model checks  -----------------------------------

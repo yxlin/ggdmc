@@ -48,14 +48,17 @@ public:
     m_n1order   = true;
   }
 
-  Likelihood(std::string model_type, arma::uvec isr1, arma::umat n1idx,
-             bool n1order, Design * d) :
-    m_mtype(model_type), m_is_r1(isr1), m_n1idx(n1idx),
-    m_n1order(n1order), m_d(d)
+  Likelihood(std::string model_type,
+             arma::uvec isr1,
+             arma::umat n1idx,
+             bool n1order,
+             Design * d) :
+    m_d(d), m_mtype(model_type), m_is_r1(isr1), m_n1idx(n1idx)
   // p_df constructor, random functions set n1order as false
   {
     m_precision  = 3.0;
     m_posdrift   = true;
+    m_n1order    = n1order;
   }
 
   ~Likelihood()
@@ -163,12 +166,12 @@ public:
           }
         }
 
+        delete params;
+
       }
     }
 
-    delete params;
     delete para;
-
     return out;
   }
 

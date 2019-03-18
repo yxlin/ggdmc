@@ -8,9 +8,10 @@ using namespace Rcpp;
 class Sampler
 {
 private:
-  double cur_logpos, tmp_logpos, tmp_lp, tmp_ll, mh;
-  double m_gammamult, m_rp, m_ga;
   unsigned int m_npar, m_nchain, m_nsubchain;
+  double m_gammamult, m_rp, m_ga;
+
+  double cur_logpos, tmp_logpos, tmp_lp, tmp_ll, mh;
   arma::vec m_gamma, tmp0, tmp1;
 
   arma::uvec PickChains(unsigned int k, unsigned int nchain, arma::uvec chains)
@@ -48,8 +49,8 @@ public:
   Sampler(unsigned int nchain,
           unsigned int npar,
           double gammamult,
-          double rp) : m_nchain(nchain), m_npar(npar),
-          m_gammamult(gammamult), m_rp(rp)
+          double rp) :
+    m_npar(npar), m_nchain(nchain), m_gammamult(gammamult), m_rp(rp)
   {
     using namespace arma;
 

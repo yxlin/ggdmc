@@ -1,3 +1,7 @@
+Sys.setenv("R_TESTS" = "")
+## Workaround for the error,
+## "cannot open file 'startup.Rs': No such file or directory" in Windows 10
+
 library(testthat)
 library(ggdmc)
 library(ggplot2)
@@ -28,11 +32,13 @@ test_file(path = "testthat/Group1/test_DDM1S.R")
 
 cat("\n========================== Group 2 tests ==========================\n")
 
-test_file(path = "testthat/Group2/test_LBA8S.R")
-test_file(path = "testthat/Group2/test_DDM8S.R")
-test_file(path = "testthat/Group2/test_HLBA.R")
-test_file(path = "testthat/Group2/test_HDDM.R")
+# test_file(path = "testthat/Group2/test_LBA8S.R")
+# test_file(path = "testthat/Group2/test_DDM8S.R")
+# test_file(path = "testthat/Group2/test_HLBA.R")
+# test_file(path = "testthat/Group2/test_HDDM.R")
 
 cat("\n====================== Testing plot functions ======================\n")
+
 test_file(path = "testthat/plots/test_plotsubchain.R")
 test_file(path = "testthat/plots/test_postpred.R")
+test_file(path = "testthat/plots/test_plot_tnorm.R")

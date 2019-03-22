@@ -67,14 +67,16 @@ rdiffusion <- function (n,
 ######### Generic functions -----------------------------------
 ##' Generate random numbers
 ##'
-##' A wrapper function for the model type, \code{rd}, \code{norm}.
+##' A wrapper function for generating random numbers of either
+##' the model type, \code{rd}, or \code{norm}.
 ##'
-##' @param type a character string indicating the model type
+##' @param type a character string of the model type
 ##' @param pmat a matrix of response x parameter
-##' @param n number of simulations
-##' @param seed an integer specifying the random seed
+##' @param n number of observations
+##' @param seed an integer specifying a random seed
 ##' @export
-random <- function(type, pmat, n, seed = NULL) {
+random <- function(type, pmat, n, seed = NULL)
+{
 
   set.seed(seed)
 
@@ -89,9 +91,9 @@ random <- function(type, pmat, n, seed = NULL) {
 
   } else if (type %in% c("norm", "norm_pda", "norm_pda_gpu")) {
     ## pmat: A b t0 mean_v sd_v st0
-    ## posdrift <- TRUE
+
     out <- rlba_norm(n, pmat[, 1], pmat[, 2], pmat[, 4], pmat[, 5],
-      pmat[,3], pmat[1,6], TRUE)
+      pmat[,3], pmat[1,6], TRUE) ## posdrift is RUE
 
   } else {
     stop("Model type yet created")
@@ -101,21 +103,23 @@ random <- function(type, pmat, n, seed = NULL) {
   return(out)
 }
 
-##' Return ns-npar matrix
+##' Constructs a ns x npar matrix,
 ##'
-##' Contructs a ns x npar matrix, indicating the true paramters
-##' used to simualte data. Each row represents a set of parameters for a
-##' participant. One should enter either a valid vector or matrix for
-##' true parameters (i.e., ps) or a list of (parameter) prior distributions
-##' (p.prior). When \code{p.prior} is supplied, true parameters are drawn
-##' from prior distributions.
+##' The matrix is used to simulate data. Each row represents one set of
+##' parameters for a participant.
+##'
+##' One must enter either a vector or a matrix as true parameters
+##' to the argument, \code{ps}, when presuming to simulate data based on a
+##' fixed-effect model. When the assumption is to simulate data based on a
+##' random-effect model, one must enter a prior object to the argument,
+##' \code{prior} to first randomly generate a true parameter matrix.
 ##'
 ##' @param x a model object
 ##' @param nsub number of subjects.
-##' @param prior a list of parameter prior distributions
-##' @param ps a vector or matirx. Each row indicates a set of true parameters
-##' for a participant.
+##' @param prior a prior object
+##' @param ps a vector or a matirx.
 ##' @param seed an integer specifying a random seed.
+##' @return a ns x npar matrix
 ##' @examples
 ##' model <- BuildModel(
 ##' p.map     = list(a ="1", v = "1",z = "1", d = "1", sz = "1", sv = "1",
@@ -195,12 +199,8 @@ GetParameterMatrix <- function(x, nsub, prior = NA, ps = NA, seed = NULL)
 }
 
 
-# ps <- c(a = 242.7, b = 6.185, tau = .01)
-# ps <- c(b0 = -.55, b1 = .08, b2 = -.81, b3 = 1.35, sd = .267)
-# ps <- c(b1 = .08, b2 = -.81, b3 = 1.35, sd = .267)
-# n <- 10
-# seed <- NULL
-simulate_one <- function(model, n, ps, seed) {
+simulate_one <- function(model, n, ps, seed)
+{
   if (check_pvec(ps, model)) stop("p.vector and model incompatible")
   resp <- attr(model, "responses")
   type <- attr(model, "type")
@@ -260,53 +260,40 @@ simulate_many <- function(model, n, ns, prior, ps, seed)
   return(dat)
 }
 
-##' Simulate RT Data
+##' Simulate response time data
 ##'
-##' Simulate stochastic responses either for one subject or multiple subjects.
-##' The simulation is based on the \code{model} object. For one subject, the
-##' user must supply true parameters, \code{p.vector} at \code{ps} argument.
-##' For multiple subjects, the user can supply a matrix (or a row vector),
-##' indicating true parameters for each subject, separately on each row
-##' (via \code{ps} argument). This is the fixed-effect model. If the user
-##' wants to simulate from a random-effect (i.e., hierarchical) model, in which
-##' case p.prior must be supplied and ps will be ignored. Note in some cases,
-##' a random-effect model may fail to draw data from the model, because
-##' true parameters are drawn from \code{p.prior} and a specific model, like
-##' DDM, may has certain ranges from different parameters.
+##' Simulate response time data either for one subject or multiple subjects.
+##' The simulation is based on a model object. For one subject, one must supply
+##' a true parameter vector to the \code{ps} argument.
+##'
+##' For multiple subjects, one can enter a matrix (or a row vector) as true
+##' parameters. Each row is to generate data separately for a subject.  This is
+##' the fixed-effect model. To generate data based on a random-effect
+##' model, one must supply a prior object.  In this case, \code{ps} argument
+##' is unused. Note in some cases, a random-effect model may fail to draw data
+##' from the model, because true parameters are randomly drawn from
+##' a prior object.  This would happen sometimes in diffusion model, because
+##' certain parameter combinations are considered invalid.
 ##'
 ##' \code{ps} can be a row vector, in which case each subject has identical
-##' parameters. It can also be a matrix with one row per subject, in which
+##' parameters.  It can also be a matrix with one row per subject, in which
 ##' case it must have \code{ns} rows. The true values will be saved as
-##' "parameters" attribute.
+##' \code{parameters} attribute in the output object.
 ##'
 ##' @param object a model object.
-##' @param nsim number of trials/responses. \code{n} can be a single number for a
-##' balanced design or matrix for an unbalanced design, where rows are
-##' subjects and columns are design cells. If the matrix has one row then all
-##' subjects have the same \code{n} in each cell, if it has one column then all
-##' cells have the same \code{n}; Otherwise each entry specifies the \code{n}
-##' for a particular design subject x design cell combination.
+##' @param nsim number of trials / responses. \code{n} can be a single number
+##' for a balanced design or a matrix for an unbalanced design, where rows
+##' are subjects and columns are design cells. If the matrix has one row then
+##' all subjects have the same \code{n} in each cell, if it has one column then
+##' all cells have the same \code{n}; Otherwise each entry specifies the
+##' \code{n} for a particular subject x design cell combination.
 ##' @param nsub number of subjects
-##' @param prior parameter priors. A list of distributions based on which
-##' the true parameters fro each subject are drawn.  It is usually created by
-##' \code{BuildPrior} and will be saved as "p.prior" attribute.
-##' @param ps p.vector matrix. Each row represent a subject.
-##' @param seed an integer specifying if and how the random number generator
-##' should be initialized.
+##' @param prior a prior object
+##' @param ps a true parameter vector or matrix.
+##' @param seed a user specified random seed.
 ##' @param ... additional optional arguments.
 ##' @return a data frame
 ##' @importFrom stats simulate
-##' @examples
-##' model <- BuildModel(
-##'   p.map     = list(a = "1", v = "1", z = "1", d = "1", sz = "1",
-##'   sv = "1", t0 = "1", st0 = "1"),
-##'   match.map = list(M = list(s1 = "r1", s2 = "r2")),
-##'   factors   = list(S = c("s1", "s2")),
-##'   constants = c(st0 = 0, d = 0),
-##'   responses = c("r1", "r2"),
-##'   type      = "rd")
-##'
-##'
 ##' @export
 simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
   prior = NA, ps = NA, ...)

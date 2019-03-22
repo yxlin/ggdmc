@@ -2,12 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{get_os}
 \alias{get_os}
-\title{Retrieve OS information}
+\title{Retrieve information of operating system}
 \usage{
 get_os()
 }
 \description{
-A convenient wrapper to extract system information from \code{Sys.info}
+A wrapper function to extract system information from \code{Sys.info}
 and \code{.Platform}
 }
 \examples{

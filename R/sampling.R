@@ -110,32 +110,34 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
 
 ##' Start new model fits
 ##'
-##' Modelling a hierarchical or a fixed-effect model, using Bayeisan
-##' optimisation.  We use a specific type of pMCMC algorithm, the DE-MCMC,
-##' which includes crossover and two different migration operators. The latter
-##' two operators essentially are population-version random-walk Metroplolis.
-##' They will be less efficient to locate a target parameter space, if been
-##' applied alone.
+##' Fit a hierarchical or a fixed-effect model, using Bayeisan
+##' optimisation.  We use a specific type of pMCMC algorithm, the DE-MCMC. This
+##' particular sampling method includes crossover and two different migration
+##' operators. The migration operators are similar to random-walk algorithm.
+##' They wouold be less efficient to find the target parameter space, if been
+##' used alone.
 ##'
 ##' @param data data model instance(s)
-##' @param samples model fit(s).
-##' @param prior prior distributions. For hierarchical model, this must be a
-##' list with three sets of prior distributions. Each is named, "pprior",
-##' "location", and "scale".
-##' @param nmc number of Monte Carlo sampling
+##' @param samples posterior samples.
+##' @param prior prior objects.  For hierarchical model, this must be a
+##' list with three sets of prior distributions. Each is respectively named,
+##' "pprior", "location", and "scale".
+##' @param nmc number of Monte Carlo samples
 ##' @param thin thinning length
 ##' @param nchain number of chains
 ##' @param report progress report interval
 ##' @param rp tuning parameter 1
-##' @param gammamult tuning parameter 2, step size of parameter search
+##' @param gammamult tuning parameter 2. This is the step size.
 ##' @param pm0 probability of migration type 0 (Hu & Tsui, 2010)
 ##' @param pm1 probability of migration type 1 (Turner et al., 2013)
-##' @param block Only for hierarchical modeling. Update one parameter at a time
-##' @param ncore Only for non-hierarchical modeling with many subjects.
+##' @param block Only for hierarchical modeling. A Boolean switch for update one
+##' parameter at a time
+##' @param ncore Only for non-hierarchical, fixed-effect models with many
+##' subjects.
 ##' @param add Boolean whether to add new samples
 ##'
 ##' @export
-StartNewsamples <- function(data, prior=NULL, nmc=5e2, thin=1, nchain=NULL,
+StartNewsamples <- function(data, prior=NULL, nmc=2e2, thin=1, nchain=NULL,
                             report=1e2, rp=.001, gammamult=2.38, pm0=.05,
                             pm1=.05, block=TRUE, ncore=1)
 {
@@ -144,6 +146,9 @@ StartNewsamples <- function(data, prior=NULL, nmc=5e2, thin=1, nchain=NULL,
        length(prior) == 3 )
   {
     nchain <- CheckHyperDMI(data, prior, nchain)
+    checklba(data[[1]])
+
+
     message("Hierarchical model")
     out <- run_hier(prior[[1]], prior[[2]], prior[[3]], data, nchain, nmc, thin,
                     report, rp, gammamult, pm0, pm1, block)
@@ -151,6 +156,8 @@ StartNewsamples <- function(data, prior=NULL, nmc=5e2, thin=1, nchain=NULL,
   else if ( is.data.frame(data) )
   {
     nchain <- CheckDMI(data, prior, nchain)
+    checklba(data)
+
     message("Non-hierarchical model")
     out <- run_one(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
                    pm1, block)
@@ -158,6 +165,8 @@ StartNewsamples <- function(data, prior=NULL, nmc=5e2, thin=1, nchain=NULL,
   else
   {
     for (i in 1:length(data)) nchain <- CheckDMI(data[[i]], prior, nchain)
+    checklba(data[[1]])
+
     message("Non-hierarchical model with many subjects")
     out <- run_many(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
                     pm1, block, ncore)

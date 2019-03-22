@@ -2,19 +2,20 @@
 % Please edit documentation in R/analysis.R
 \name{iseffective}
 \alias{iseffective}
-\title{Four pMCMC checking tools for automatic sampling}
+\title{Model checking functions}
 \usage{
 iseffective(x, minN, nfun, verbose = FALSE)
 }
 \arguments{
 \item{x}{posterior samples}
 
-\item{minN}{minimal effective sample sizes}
+\item{minN}{specify the size of minimal effective samples}
 
-\item{nfun}{mean or median function}
+\item{nfun}{specify to use the \code{mean} or \code{median} function to
+calculate effective samples}
 
 \item{verbose}{print more information}
 }
 \description{
-The function tests whether MCMC chains have drawn enough samples.
+The function tests whether we have drawn enough samples.
 }

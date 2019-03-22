@@ -2,7 +2,7 @@
 % Please edit documentation in R/random.R
 \name{GetParameterMatrix}
 \alias{GetParameterMatrix}
-\title{Return ns-npar matrix}
+\title{Constructs a ns x npar matrix,}
 \usage{
 GetParameterMatrix(x, nsub, prior = NA, ps = NA, seed = NULL)
 }
@@ -11,20 +11,25 @@ GetParameterMatrix(x, nsub, prior = NA, ps = NA, seed = NULL)
 
 \item{nsub}{number of subjects.}
 
-\item{prior}{a list of parameter prior distributions}
+\item{prior}{a prior object}
 
-\item{ps}{a vector or matirx. Each row indicates a set of true parameters
-for a participant.}
+\item{ps}{a vector or a matirx.}
 
 \item{seed}{an integer specifying a random seed.}
 }
+\value{
+a ns x npar matrix
+}
 \description{
-Contructs a ns x npar matrix, indicating the true paramters
-used to simualte data. Each row represents a set of parameters for a
-participant. One should enter either a valid vector or matrix for
-true parameters (i.e., ps) or a list of (parameter) prior distributions
-(p.prior). When \code{p.prior} is supplied, true parameters are drawn
-from prior distributions.
+The matrix is used to simulate data. Each row represents one set of
+parameters for a participant.
+}
+\details{
+One must enter either a vector or a matrix as true parameters
+to the argument, \code{ps}, when presuming to simulate data based on a
+fixed-effect model. When the assumption is to simulate data based on a
+random-effect model, one must enter a prior object to the argument,
+\code{prior} to first randomly generate a true parameter matrix.
 }
 \examples{
 model <- BuildModel(

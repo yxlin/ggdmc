@@ -5,7 +5,7 @@
 \alias{effectiveSize_many}
 \alias{effectiveSize_one}
 \alias{effectiveSize}
-\title{Effective sample size}
+\title{Calculate effective sample sizes}
 \usage{
 effectiveSize_hyper(x, start, end, digits, verbose)
 
@@ -30,8 +30,8 @@ effectiveSize(x, hyper = FALSE, start = 1, end = NA, digits = 0,
 \item{hyper}{a Boolean switch to extract hyper attribute}
 }
 \description{
-\code{effectiveSize} calls \pkg{coda} effectiveSize to calculate
-effective posterior sample size.
+\code{effectiveSize} calls \code{effectiveSize} in \pkg{coda} package to
+calculate sample sizes.
 }
 \examples{
 #################################40

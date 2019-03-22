@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{ConvertChains}
 \alias{ConvertChains}
-\title{Prepare posterior samples for plotting version 1}
+\title{Prepare posterior samples for plotting functions version 1}
 \usage{
 ConvertChains(x, start = 1, end = NA, pll = TRUE)
 }
@@ -16,5 +16,5 @@ ConvertChains(x, start = 1, end = NA, pll = TRUE)
 \item{pll}{a Boolean switch to make posterior log likelihood}
 }
 \description{
-Convert MCMC chains to a data frame for plotting
+Convert MCMC chains to a data frame for plotting functions
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/random.R
 \name{simulate.model}
 \alias{simulate.model}
-\title{Simulate RT Data}
+\title{Simulate response time data}
 \usage{
 \method{simulate}{model}(object, nsim = NA, seed = NULL, nsub = NA,
   prior = NA, ps = NA, ...)
@@ -10,23 +10,20 @@
 \arguments{
 \item{object}{a model object.}
 
-\item{nsim}{number of trials/responses. \code{n} can be a single number for a
-balanced design or matrix for an unbalanced design, where rows are
-subjects and columns are design cells. If the matrix has one row then all
-subjects have the same \code{n} in each cell, if it has one column then all
-cells have the same \code{n}; Otherwise each entry specifies the \code{n}
-for a particular design subject x design cell combination.}
+\item{nsim}{number of trials / responses. \code{n} can be a single number
+for a balanced design or a matrix for an unbalanced design, where rows
+are subjects and columns are design cells. If the matrix has one row then
+all subjects have the same \code{n} in each cell, if it has one column then
+all cells have the same \code{n}; Otherwise each entry specifies the
+\code{n} for a particular subject x design cell combination.}
 
-\item{seed}{an integer specifying if and how the random number generator
-should be initialized.}
+\item{seed}{a user specified random seed.}
 
 \item{nsub}{number of subjects}
 
-\item{prior}{parameter priors. A list of distributions based on which
-the true parameters fro each subject are drawn.  It is usually created by
-\code{BuildPrior} and will be saved as "p.prior" attribute.}
+\item{prior}{a prior object}
 
-\item{ps}{p.vector matrix. Each row represent a subject.}
+\item{ps}{a true parameter vector or matrix.}
 
 \item{...}{additional optional arguments.}
 }
@@ -34,33 +31,22 @@ the true parameters fro each subject are drawn.  It is usually created by
 a data frame
 }
 \description{
-Simulate stochastic responses either for one subject or multiple subjects.
-The simulation is based on the \code{model} object. For one subject, the
-user must supply true parameters, \code{p.vector} at \code{ps} argument.
-For multiple subjects, the user can supply a matrix (or a row vector),
-indicating true parameters for each subject, separately on each row
-(via \code{ps} argument). This is the fixed-effect model. If the user
-wants to simulate from a random-effect (i.e., hierarchical) model, in which
-case p.prior must be supplied and ps will be ignored. Note in some cases,
-a random-effect model may fail to draw data from the model, because
-true parameters are drawn from \code{p.prior} and a specific model, like
-DDM, may has certain ranges from different parameters.
+Simulate response time data either for one subject or multiple subjects.
+The simulation is based on a model object. For one subject, one must supply
+a true parameter vector to the \code{ps} argument.
 }
 \details{
+For multiple subjects, one can enter a matrix (or a row vector) as true
+parameters. Each row is to generate data separately for a subject.  This is
+the fixed-effect model. To generate data based on a random-effect
+model, one must supply a prior object.  In this case, \code{ps} argument
+is unused. Note in some cases, a random-effect model may fail to draw data
+from the model, because true parameters are randomly drawn from
+a prior object.  This would happen sometimes in diffusion model, because
+certain parameter combinations are considered invalid.
+
 \code{ps} can be a row vector, in which case each subject has identical
-parameters. It can also be a matrix with one row per subject, in which
+parameters.  It can also be a matrix with one row per subject, in which
 case it must have \code{ns} rows. The true values will be saved as
-"parameters" attribute.
-}
-\examples{
-model <- BuildModel(
-  p.map     = list(a = "1", v = "1", z = "1", d = "1", sz = "1",
-  sv = "1", t0 = "1", st0 = "1"),
-  match.map = list(M = list(s1 = "r1", s2 = "r2")),
-  factors   = list(S = c("s1", "s2")),
-  constants = c(st0 = 0, d = 0),
-  responses = c("r1", "r2"),
-  type      = "rd")
-
-
+\code{parameters} attribute in the output object.
 }

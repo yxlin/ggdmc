@@ -14,16 +14,16 @@
 
 \item{hyper}{whether to summarise hyper parameters}
 
-\item{start}{summarise from which iteration.}
+\item{start}{start from which iteration.}
 
-\item{end}{summarise to the end which iteration. For example, set
+\item{end}{end at which iteration. For example, set
 \code{start = 101} and \code{end = 1000}, instructs the function to
 calculate from 101 to 1000 iteration.}
 
 \item{hmeans}{a boolean switch indicating to calculate mean of hyper
 parameters}
 
-\item{hci}{boolean switch indicating to calculate credible intervals of
+\item{hci}{boolean switch; whether to calculate credible intervals of
 hyper parameters}
 
 \item{prob}{a numeric vector, indicating the quantiles to calculate}
@@ -42,7 +42,7 @@ study}
 \item{...}{other arguments}
 }
 \description{
-This calls severn different variants of summary function to summarise
+This calls seven different variants of summary function to summarise
 posterior samples
 }
 \examples{

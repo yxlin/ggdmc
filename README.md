@@ -1,32 +1,23 @@
 # Bayesian Cognitive Modelling
 
 _ggdmc_ is a generic tool for conducting hierarchical Bayesian Computations on
-cognitive (RT) models. 
-
-1. _ggdmc_ uses population-based MCMC (pMCMC) samplers, including the crossover
-and migration operators. 
-
-3. _ggdmc_ uses two methods of parallel computation. First is via the 
-_parallel_ package in R. This facilitates the computations of fitting many 
-participants separately.  The second is via OpenMP library.  This facilitates 
-the computations when fitting hierarchical models with many participants.  
-
-For an advanced parallel computation technique / algorithm, please see my CUDA 
-C, R package, [_ppda_](https://github.com/yxlin/ppda), which implements GPU 
-parallel computations.
+cognitive (RT) models, using the population-based Markov chain Monte Carlo 
+(pMCMC).
 
 ## Getting Started
-This example uses the Wiener diffusion model and could be done within a couple 
-of seconds.  For other models that need more time, see my [tutorials site](https://yxlin.github.io/).  
+This example uses the Wiener diffusion model.  For other cognitive models, 
+see my [tutorials site](https://yxlin.github.io/).  
 
 The naming of _R_ functions in _ggdmc_ attempts to inform the user what the 
-functions are for, such as _BuildModel_.  As the user is usually warned in 
-Bayesian tools, please use with your own risk.  That is, the user must always 
-conduct model checks.
+functions are for, such as _BuildModel_.  I hope this eases some of the 
+difficulties of fitting Bayesian models. 
+
+As the user is often warned in using Bayesian tools, it is always a good
+practice to check the outcomes of a model fit.
 
 Note the sequence of parameters in a parameter vector (i.e., p.vector) must 
-follow the sequence in the _p.vector_ reported by _BuildModel_. 
-Otherwise, _run_ function will throw errors to stop model fitting. 
+follow the sequence in the _p.vector_ reported by _BuildModel_.  
+Otherwise, you may receive some error messages. 
 
 ## Fit a fixed-effect model to a participant
 

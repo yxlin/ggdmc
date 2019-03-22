@@ -15,27 +15,28 @@ BuildModel(p.map, responses, factors = list(A = "1"), match.map = NULL,
 \method{print}{dmi}(x, ...)
 }
 \arguments{
-\item{p.map}{mapping factorial design to model parameters}
+\item{p.map}{parameter map. This option maps a particular factorial design
+to model parameters}
 
-\item{responses}{Response names}
+\item{responses}{specifying the response names and levels}
 
-\item{factors}{specifying factors and factor levels}
+\item{factors}{specifying a list of factors and their levels}
 
-\item{match.map}{matching stimuli and responses}
+\item{match.map}{match map. This option matches stimuli and responses}
 
-\item{constants}{setting up parameters as constant value}
+\item{constants}{specifying the parameters with fixed values}
 
-\item{type}{specifying model type.}
+\item{type}{specifying model type, either "rd" or "norm".}
 
-\item{posdrift}{enforcing postive drift rate, using truncated normal or
-using normal distribution. This is used only by norm type (LBA
-variants and extensions)}
+\item{posdrift}{a Boolean, switching between enforcing strict postive drift
+rates by using truncated normal distribution. This option is only useful in
+"norm" model type.}
 
-\item{verbose}{Print parameter vector, constants and model type}
+\item{verbose}{Print p.vector, constants and model type}
 
 \item{x}{a model object}
 
-\item{p.vector}{parameter vector (for printing model)}
+\item{p.vector}{parameter vector}
 
 \item{...}{other arguments}
 }

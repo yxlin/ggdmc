@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{GetNsim}
 \alias{GetNsim}
-\title{Get n-cell matrix}
+\title{Get a n-cell matrix}
 \usage{
 GetNsim(model, n, ns)
 }
@@ -15,7 +15,7 @@ GetNsim(model, n, ns)
 }
 \description{
 Constructs a matrix, showing how many responses to in each
-cell. It also checks if the format of \code{n} and \code{ns}
+cell. The function checks whether the format of \code{n} and \code{ns}
 conform.
 }
 \details{

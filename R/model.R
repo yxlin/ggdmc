@@ -1,8 +1,8 @@
 ######### CORE ---------------------------------------------------
-##' Bayeisan Computation for Cognitive Models
+##' Bayeisan computation of response time models
 ##'
-##' \pkg{ggdmc} implements the population-based Monte Chain
-##' Monte Carlo to conduct Bayesian MCMC on cognitive models.
+##' \pkg{ggdmc} uses the population-based Markov chain Monte Carlo to
+##' conduct Bayesian computation on cognitive models.
 ##'
 ##' @keywords package
 ##' @name ggdmc
@@ -15,9 +15,9 @@
 ##' \emph{Behavior Research Methods}.
 ##' https://doi.org/10.3758/s13428-018-1067-y. \cr
 ##'
-##' Turner, B. M., & Sederberg P. B. (2012). Approximate
-##' Bayesian computation with differential evolution,
-##' \emph{Journal of Mathematical Psychology}, 56, 375--385. \cr
+##' Turner, B. M., & Sederberg P. B. (2012). Approximate Bayesian computation
+##' with differential evolution, \emph{Journal of Mathematical Psychology}, 56,
+##' 375--385. \cr
 ##'
 ##' Ter Braak (2006). A Markov Chain Monte Carlo version of the genetic
 ##' algorithm Differential Evolution: easy Bayesian computing for real
@@ -51,18 +51,19 @@ grepl_dot <- function(pattern, x) {
 ##'
 ##' A model object consists of arraies with model attributes.
 ##'
-##' @param p.map mapping factorial design to model parameters
-##' @param match.map matching stimuli and responses
-##' @param factors specifying factors and factor levels
-##' @param constants setting up parameters as constant value
-##' @param responses Response names
-##' @param type specifying model type.
-##' @param posdrift enforcing postive drift rate, using truncated normal or
-##' using normal distribution. This is used only by norm type (LBA
-##' variants and extensions)
-##' @param verbose Print parameter vector, constants and model type
+##' @param p.map parameter map. This option maps a particular factorial design
+##' to model parameters
+##' @param match.map match map. This option matches stimuli and responses
+##' @param factors specifying a list of factors and their levels
+##' @param constants specifying the parameters with fixed values
+##' @param responses specifying the response names and levels
+##' @param type specifying model type, either "rd" or "norm".
+##' @param posdrift a Boolean, switching between enforcing strict postive drift
+##' rates by using truncated normal distribution. This option is only useful in
+##' "norm" model type.
+##' @param verbose Print p.vector, constants and model type
 ##' @param x a model object
-##' @param p.vector parameter vector (for printing model)
+##' @param p.vector parameter vector
 ##' @param ... other arguments
 ##' @importFrom utils glob2rx
 ##' @export
@@ -292,12 +293,12 @@ print.dmi <- function(x, ...) {
 
 ##' Bind data and models
 ##'
-##' Binding a data set with a model object. The function checks
-##' whether they are compatible and adds attributes.
+##' Binding a data set with a model object. The function also checks whether
+##' they are compatible and adds attributes on a data model instance.
 ##'
 ##' @param x data as in data frame
 ##' @param model a model object
-##' @return a data mondel instance
+##' @return a data model instance
 ##' @export
 BuildDMI <- function(x, model) {
 
@@ -379,21 +380,21 @@ make_level_array <- function(x = NA) {
 ##' Table response and parameter
 ##'
 ##' \code{TableParameters} arranges the values in a parameter
-##' vector to a factorial response x parameter matrix. The matrix is used
-##' by likelihood functions, assigning a trial to a cell for calculating
+##' vector and creates a response x parameter matrix. The matrix is used
+##' by the likelihood function, assigning a trial to a cell for calculating
 ##' probability densities.
 ##'
-##' @param pvector a parameter vector
+##' @param p.vector a parameter vector
 ##' @param cell a string or an integer indicating a design cell, e.g.,
 ##' \code{s1.f1.r1} or 1. Note the integer cannot exceed the number of cell.
-##' use \code{length(dimnames(model))} to check the upper bound.
-##' @param model a model ibhect
+##' One can check this by entering \code{length(dimnames(model))}.
+##' @param model a model object
 ##' @param n1order a Boolean switch, indicating using node 1 ordering. This is
 ##' only for LBA-like models and its n1PDF likelihood function.
 ##' @return each row corresponding to the model parameter for a response.
-##' When \code{n1.order} is FALSE, TableParameters returns a martix in natural
-##' order, which is used by \code{simulate}. By default \code{n1.order} is TRUE,
-##' the returned matrix, used by n1PDF-like functions.
+##' When \code{n1.order} is FALSE, TableParameters returns a martix without
+##' rearranging into node 1 order.  For example, this is used in
+##' the \code{simulate} function. By default \code{n1.order} is TRUE.
 ##' @export
 ##' @examples
 ##' m1 <- BuildModel(
@@ -432,7 +433,8 @@ make_level_array <- function(x = NA) {
 ##' ##    A b  t0 mean_v sd_v st0
 ##' ## 0.75 1 0.2    2.5    1   0
 ##' ## 0.75 1 0.2    1.5    1   0
-TableParameters <- function(pvector, cell, model, n1order) {
+TableParameters <- function(p.vector, cell, model, n1order)
+{
   pnames   <- names(attr(model, "p.vector"))
   allpar   <- attr(model, "all.par")
   parnames <- attr(model, "par.names")
@@ -446,40 +448,25 @@ TableParameters <- function(pvector, cell, model, n1order) {
   dim1 <- dimnames(model)[[2]]
   dim2 <- dimnames(model)[[3]]
 
-  parmeter_matrix <- p_df(pvector, cell, type, pnames, parnames, dim0, dim1,
+  parmeter_matrix <- p_df(p.vector, cell, type, pnames, parnames, dim0, dim1,
                           dim2, allpar, model,  isr1, n1idx, n1order)
 
   out <- as.data.frame(parmeter_matrix)
 
-  if(type == "rd") {
+  if(type == "rd")
+  {
     names(out) <- c("a","v","z","d","sz","sv","t0","st0")
     rownames(out) <- attr(model, "response")
   }
 
-  if(type %in% c("norm", "norm_pda", "norm_pda_gpu")) {
-    if (dim(out)[[2]] != 6) {
-      ## Prospective memory?
+  if(type %in% c("norm", "norm_pda", "norm_pda_gpu"))
+  {
+    if (dim(out)[[2]] != 6)   ## Prospective memory?
+    {
       names(out) <- c("A", "b", "t0", "mean_v", "sd_v", "st0", "nacc")
     } else {
       names(out) <- c("A", "b", "t0", "mean_v", "sd_v", "st0")
     }
-  }
-
-  if(type %in% c("plba0_gpu")) {
-    names(out) <- c("A", "b", "mean_v", "sd_v", "mean_w", "rD", "t0","swt")
-  }
-
-  if(type %in% c("plba1", "plba1_gpu")) {
-    names(out) <- c("A", "b", "mean_v", "sd_v", "mean_w", "rD", "t0","swt")
-  }
-
-  if(type %in% c("plba2")) {
-    names(out) <- c("A","b", "mean_v","mean_w","sd_v", "sd_w", "rD","t0","swt")
-  }
-
-  if(type %in% c("plba3")) {
-    names(out) <- c("A", "B", "C","mean_v","mean_w","sd_v","sd_w", "rD", "tD",
-      "t0","swt")
   }
 
   return(out)
@@ -801,24 +788,24 @@ checkdesign  <- function(match.map, levelarray) {
 }
 
 
-##' Check if parameter vector compatible with model object?
+##' Does a model object specify a correct p.vector
 ##'
-##' Check if the user supplies a parameter vector, compatiable with
-##' the model object.
+##' Check a parameter vector
 ##'
-##' @param x parameter vector
+##' @param p.vector parameter vector
 ##' @param model a model object
 ##' @export
-check_pvec <- function(x, model) {
+check_pvec <- function(p.vector, model)
+{
   modpvec <- names(attr(model, "p.vector"))
-  ism1 <- modpvec %in% names(x)
-  ism2 <- names(x) %in% modpvec
+  ism1 <- modpvec %in% names(p.vector)
+  ism2 <- names(p.vector) %in% modpvec
   bad  <- any(!ism1)
   if (bad) warning(paste("Parameter", modpvec[!ism1],
     "in model not present in p.vector\n"))
   bad <- bad | any(!ism2)
   if (any(!ism2)) warning(paste("Parameter",
-    names(x)[!ism2], "in p.vector not present in model\n"))
+    names(p.vector)[!ism2], "in p.vector not present in model\n"))
   invisible(bad)
 }
 

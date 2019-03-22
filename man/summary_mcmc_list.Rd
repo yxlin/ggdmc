@@ -14,5 +14,5 @@ summary_mcmc_list(object, prob = c(0.025, 0.25, 0.5, 0.75, 0.975), ...)
 \item{...}{other arguments passing in}
 }
 \description{
-Calculate summary statistics for pMCMC posterior samples
+Calculate summary statistics for posterior samples
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{isflat}
 \alias{isflat}
-\title{Four pMCMC checking tools for automatic sampling}
+\title{Model checking functions}
 \usage{
 isflat(x, p1 = 1/3, p2 = 1/3, cut_location = 0.25, cut_scale = Inf,
   verbose = FALSE)
@@ -21,5 +21,5 @@ isflat(x, p1 = 1/3, p2 = 1/3, cut_location = 0.25, cut_scale = Inf,
 \item{verbose}{print more information}
 }
 \description{
-The function tests whether MCMC chains converge prematurelly:
+The function tests whether Markov chains converge prematurelly:
 }

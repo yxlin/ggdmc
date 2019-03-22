@@ -5,7 +5,7 @@
 \alias{run}
 \title{Start new model fits}
 \usage{
-StartNewsamples(data, prior = NULL, nmc = 500, thin = 1,
+StartNewsamples(data, prior = NULL, nmc = 200, thin = 1,
   nchain = NULL, report = 100, rp = 0.001, gammamult = 2.38,
   pm0 = 0.05, pm1 = 0.05, block = TRUE, ncore = 1)
 
@@ -16,11 +16,11 @@ run(samples, nmc = 500, thin = 1, report = 100, rp = 0.001,
 \arguments{
 \item{data}{data model instance(s)}
 
-\item{prior}{prior distributions. For hierarchical model, this must be a
-list with three sets of prior distributions. Each is named, "pprior",
-"location", and "scale".}
+\item{prior}{prior objects.  For hierarchical model, this must be a
+list with three sets of prior distributions. Each is respectively named,
+"pprior", "location", and "scale".}
 
-\item{nmc}{number of Monte Carlo sampling}
+\item{nmc}{number of Monte Carlo samples}
 
 \item{thin}{thinning length}
 
@@ -30,25 +30,27 @@ list with three sets of prior distributions. Each is named, "pprior",
 
 \item{rp}{tuning parameter 1}
 
-\item{gammamult}{tuning parameter 2, step size of parameter search}
+\item{gammamult}{tuning parameter 2. This is the step size.}
 
 \item{pm0}{probability of migration type 0 (Hu & Tsui, 2010)}
 
 \item{pm1}{probability of migration type 1 (Turner et al., 2013)}
 
-\item{block}{Only for hierarchical modeling. Update one parameter at a time}
+\item{block}{Only for hierarchical modeling. A Boolean switch for update one
+parameter at a time}
 
-\item{ncore}{Only for non-hierarchical modeling with many subjects.}
+\item{ncore}{Only for non-hierarchical, fixed-effect models with many
+subjects.}
 
-\item{samples}{model fit(s).}
+\item{samples}{posterior samples.}
 
 \item{add}{Boolean whether to add new samples}
 }
 \description{
-Modelling a hierarchical or a fixed-effect model, using Bayeisan
-optimisation.  We use a specific type of pMCMC algorithm, the DE-MCMC,
-which includes crossover and two different migration operators. The latter
-two operators essentially are population-version random-walk Metroplolis.
-They will be less efficient to locate a target parameter space, if been
-applied alone.
+Fit a hierarchical or a fixed-effect model, using Bayeisan
+optimisation.  We use a specific type of pMCMC algorithm, the DE-MCMC. This
+particular sampling method includes crossover and two different migration
+operators. The migration operators are similar to random-walk algorithm.
+They wouold be less efficient to find the target parameter space, if been
+used alone.
 }

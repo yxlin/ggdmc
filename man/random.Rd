@@ -7,14 +7,15 @@
 random(type, pmat, n, seed = NULL)
 }
 \arguments{
-\item{type}{a character string indicating the model type}
+\item{type}{a character string of the model type}
 
 \item{pmat}{a matrix of response x parameter}
 
-\item{n}{number of simulations}
+\item{n}{number of observations}
 
-\item{seed}{an integer specifying the random seed}
+\item{seed}{an integer specifying a random seed}
 }
 \description{
-A wrapper function for the model type, \code{rd}, \code{norm}.
+A wrapper function for generating random numbers of either
+the model type, \code{rd}, or \code{norm}.
 }

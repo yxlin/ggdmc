@@ -1,8 +1,8 @@
 ### Hierarchical tools ------------------------------------------------
-##' Get n-cell matrix
+##' Get a n-cell matrix
 ##'
 ##' Constructs a matrix, showing how many responses to in each
-##' cell. It also checks if the format of \code{n} and \code{ns}
+##' cell. The function checks whether the format of \code{n} and \code{ns}
 ##' conform.
 ##'
 ##' \code{n} can be:
@@ -159,9 +159,9 @@ mcmc_list.model <- function(x, start = 1, end = NA, pll = TRUE) {
   return(out)
 }
 
-##' Prepare posterior samples for plotting version 1
+##' Prepare posterior samples for plotting functions version 1
 ##'
-##' Convert MCMC chains to a data frame for plotting
+##' Convert MCMC chains to a data frame for plotting functions
 ##'
 ##' @param x posterior samples
 ##' @param start which iteration to start
@@ -249,9 +249,9 @@ ConvertChains2 <- function(x, pll)
 
 
 ### Generic  ---------------------------------------------
-##' Retrieve OS information
+##' Retrieve information of operating system
 ##'
-##' A convenient wrapper to extract system information from \code{Sys.info}
+##' A wrapper function to extract system information from \code{Sys.info}
 ##' and \code{.Platform}
 ##'
 ##' @examples
@@ -259,7 +259,8 @@ ConvertChains2 <- function(x, pll)
 ##' ## sysname
 ##' ## "linux"
 ##' @export
-get_os <- function() {
+get_os <- function()
+{
   sysinf <- Sys.info()
   ostype <- .Platform$OS.type
 
@@ -288,25 +289,30 @@ get_os <- function() {
 
 ##' Extract parameter names from a model object
 ##'
-##' @param model a model object
+##' @param x a model object
 ##'
 ##' @export
-GetPNames <- function(model) { return(names(attr(model, "p.vector"))) }
+GetPNames <- function(x) { return(names(attr(x, "p.vector"))) }
 
-checklba <- function(x) {
-  m <- attr(x$data, "model")
-
-  parnames <- attr(m, "par.names")
-  if ( (which(parnames == "A") != 1) |
-       (which(parnames == "B") != 2) |
-       (which(parnames == "t0") != 3) |
-       (which(parnames == "mean_v") != 4) |
-       (which(parnames == "sd_v") != 5) |
-       (which(parnames == "st0") != 6) ) {
-    cat(parnames, "\n")
-    message("parnames / p.vector must be ordered as: A, B, t0, mean_v, sd_v, & st0.")
-    stop("Check p.map")
+checklba <- function(x)
+{
+  model <- attr(x, "model")
+  if (attr(model, "type") == "norm" )
+  {
+    parnames <- attr(model, "par.names")
+    if ( (which(parnames == "A")      != 1) |
+         (which(parnames == "B")      != 2) |
+         (which(parnames == "t0")     != 3) |
+         (which(parnames == "mean_v") != 4) |
+         (which(parnames == "sd_v")   != 5) |
+         (which(parnames == "st0")    != 6) )
+    {
+      cat("Your p.vector is order as: ", parnames, "\n")
+      message("It must be in the order of: A, B, t0, mean_v, sd_v, & st0.")
+      stop("Check p.map")
+    }
   }
+
 }
 
 

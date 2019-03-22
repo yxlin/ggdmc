@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{deviance.model}
 \alias{deviance.model}
-\title{Bayesian measures of model complexity and fit}
+\title{Calculate the statistics of model complexity}
 \usage{
 \method{deviance}{model}(object, ...)
 }
@@ -12,7 +12,7 @@
 \item{...}{other plotting arguments passing through dot dot dot.}
 }
 \description{
-Calculate deviance for one fitted model objects for which a
+Calculate deviance for a model object for which a
 log-likelihood value can be obtained, according to the formula
--2*log-likelihood ... unfinished ...
+-2*log-likelihood.
 }

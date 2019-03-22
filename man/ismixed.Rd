@@ -2,7 +2,7 @@
 % Please edit documentation in R/analysis.R
 \name{ismixed}
 \alias{ismixed}
-\title{Four pMCMC checking tools for automatic sampling}
+\title{Model checking functions}
 \usage{
 ismixed(x, cut = 1.01, split = TRUE, verbose = FALSE)
 }
@@ -12,12 +12,12 @@ ismixed(x, cut = 1.01, split = TRUE, verbose = FALSE)
 \item{cut}{psrf criterion for well mixed}
 
 \item{split}{whether to split MCMC chains. This is an argument passing to
-gelman function}
+\code{gelman} function}
 
 \item{verbose}{print more information}
 }
 \description{
-The function tests whether MCMC chains mixed well.
+The function tests whether Markov chains are mixed well.
 }
 \seealso{
 \code{\link{gelman}})

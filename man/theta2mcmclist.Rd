@@ -31,7 +31,7 @@ Extracts the parameter array (ie theta) from posterior samples of a
 partiipant and convert it to a \pkg{coda} mcmc.list.
 }
 \details{
-\code{phi2mcmclist} extracts the phi parameter array, which store
+\code{phi2mcmclist} extracts the phi parameter array, which stores
 the location and scale parameters at the hyper level.
 }
 \examples{
@@ -76,9 +76,9 @@ sigma.prior <- BuildPrior(
   upper = rep(2, npar))
 names(sigma.prior) <- GetPNames(model)
 priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
-dat <- simulate(model, nsim = 30, nsub = 10, prior = pop.prior)
-dmi <- BuildDMI(dat, model)
-ps <- attr(dat, "parameters")
+dat    <- simulate(model, nsim = 10, nsub = 10, prior = pop.prior)
+dmi    <- BuildDMI(dat, model)
+ps     <- attr(dat, "parameters")
 
 fit0 <- StartNewsamples(dmi, priors)
 fit  <- run(fit0)

@@ -1,8 +1,18 @@
 #### Automatic Sampling ---------------------------------------
-##' Four model checking tools for automatic sampling
+gmcmc <- function(x, hyper) {
+  # npar x nchain x nmc
+  tmp0 <- aperm(x$theta, c(2, 3, 1))
+  npar <- dim(x$theta)[1]
+  pnames <- dimnames(x$theta)[[1]]
+  out <- coda::mcmc(matrix(tmp0, ncol = npar, dimnames = list(NULL, pnames)))
+}
+
+##' Model checking functions
 ##'
-##' The function tests whether MCMC chains encounter a parameter region
-##' difficult to search (ie get stuck):
+##' The function tests whether Markov chains encounter a parameter
+##' region that is difficult to search. \code{CheckConverged} is
+##' a wrapper function running the four checking functions,
+##' \code{isstuck}, \code{isflat}, \code{ismixed} and \code{iseffective}.
 ##'
 ##' @param x posterior samples
 ##' @param hyper a Boolean switch, extracting hyper attribute.
@@ -30,19 +40,9 @@ isstuck <- function(x, hyper = FALSE, cut = 10, start = 1, end = NA,
 }
 
 
-gmcmc <- function(x, hyper) {
-  # npar x nchain x nmc
-  tmp0 <- aperm(x$theta, c(2, 3, 1))
-  npar <- dim(x$theta)[1]
-  pnames <- dimnames(x$theta)[[1]]
-  out <- coda::mcmc(matrix(tmp0, ncol = npar, dimnames = list(NULL, pnames)))
-}
-
-
-
-##' Four pMCMC checking tools for automatic sampling
+##' Model checking functions
 ##'
-##' The function tests whether MCMC chains converge prematurelly:
+##' The function tests whether Markov chains converge prematurelly:
 ##'
 ##' @param x posterior samples
 ##' @param p1 the range of the head of MCMC chains
@@ -97,14 +97,14 @@ isflat <- function(x, p1 = 1/3, p2 = 1/3, cut_location = 0.25,
   fail
 }
 
-##' Four pMCMC checking tools for automatic sampling
+##' Model checking functions
 ##'
-##' The function tests whether MCMC chains mixed well.
+##' The function tests whether Markov chains are mixed well.
 ##'
 ##' @param x posterior samples
 ##' @param cut psrf criterion for well mixed
 ##' @param split whether to split MCMC chains. This is an argument passing to
-##' gelman function
+##' \code{gelman} function
 ##' @param verbose print more information
 ##' @seealso \code{\link{gelman}})
 ##' @export
@@ -126,13 +126,14 @@ ismixed <- function(x, cut = 1.01, split = TRUE, verbose = FALSE) {
   fail
 }
 
-##' Four pMCMC checking tools for automatic sampling
+##' Model checking functions
 ##'
-##' The function tests whether MCMC chains have drawn enough samples.
+##' The function tests whether we have drawn enough samples.
 ##'
 ##' @param x posterior samples
-##' @param minN minimal effective sample sizes
-##' @param nfun mean or median function
+##' @param minN specify the size of minimal effective samples
+##' @param nfun specify to use the \code{mean} or \code{median} function to
+##' calculate effective samples
 ##' @param verbose print more information
 ##' @export
 iseffective <- function(x, minN, nfun, verbose = FALSE) {
@@ -169,7 +170,7 @@ CheckConverged <- function(x)
 ##' Extracts the parameter array (ie theta) from posterior samples of a
 ##' partiipant and convert it to a \pkg{coda} mcmc.list.
 ##'
-##' \code{phi2mcmclist} extracts the phi parameter array, which store
+##' \code{phi2mcmclist} extracts the phi parameter array, which stores
 ##' the location and scale parameters at the hyper level.
 ##'
 ##' @param x posterior samples
@@ -222,9 +223,9 @@ CheckConverged <- function(x)
 ##'   upper = rep(2, npar))
 ##' names(sigma.prior) <- GetPNames(model)
 ##' priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
-##' dat <- simulate(model, nsim = 30, nsub = 10, prior = pop.prior)
-##' dmi <- BuildDMI(dat, model)
-##' ps <- attr(dat, "parameters")
+##' dat    <- simulate(model, nsim = 10, nsub = 10, prior = pop.prior)
+##' dmi    <- BuildDMI(dat, model)
+##' ps     <- attr(dat, "parameters")
 ##'
 ##' fit0 <- StartNewsamples(dmi, priors)
 ##' fit  <- run(fit0)
@@ -239,7 +240,8 @@ CheckConverged <- function(x)
 ##'
 ##' @export
 theta2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
-  subchain = FALSE, nsubchain = 3, thin = NA) {
+  subchain = FALSE, nsubchain = 3, thin = NA)
+{
   if (is.na(thin)) thin <- x$thin
   if (is.na(end)) end <- x$nmc
   nchain <- x$n.chains
@@ -397,8 +399,8 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
 
 ##' Potential scale reduction factor
 ##'
-##' \code{gelman} calls \pkg{coda} gelman.diag to get R hats for one
-##' or a list of subjects. It calculates at the either data or hyper level.
+##' \code{gelman} function calls the function, \code{gelman.diag} in the
+##' \pkg{coda} package to calculates PSRF.
 ##'
 ##' @param x posterior samples
 ##' @param hyper a Boolean switch, indicating posterior samples are from
@@ -441,7 +443,8 @@ phi2mcmclist <- function(x, start = 1, end = NA, split = FALSE,
 ##' }
 gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
   transform=TRUE, autoburnin = FALSE, multivariate = TRUE, split = TRUE,
-  subchain = FALSE, nsubchain = 3, digits = 2, verbose = FALSE, ...) {
+  subchain = FALSE, nsubchain = 3, digits = 2, verbose = FALSE, ...)
+{
 
   if ( hyper )
   {
@@ -497,7 +500,8 @@ gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
 ##' @export
 hgelman <- function(x, start = 1, end = NA, confidence = 0.95, transform = TRUE,
   autoburnin = FALSE, split = TRUE, subchain = FALSE, nsubchain = 3, digits = 2,
-  verbose = FALSE, ...) {
+  verbose = FALSE, ...)
+{
 
   step1 <- lapply(gelman(x, start = start, end = end, confidence = confidence,
     transform = transform, autoburnin = autoburnin, multivariate = TRUE,
@@ -571,10 +575,10 @@ effectiveSize_one <- function(x, start, end, digits, verbose)
   invisible(return(out))
 }
 
-##' Effective sample size
+##' Calculate effective sample sizes
 ##'
-##' \code{effectiveSize} calls \pkg{coda} effectiveSize to calculate
-##' effective posterior sample size.
+##' \code{effectiveSize} calls \code{effectiveSize} in \pkg{coda} package to
+##' calculate sample sizes.
 ##'
 ##' @param x posterior samples
 ##' @param hyper a Boolean switch to extract hyper attribute
@@ -623,7 +627,7 @@ safespec0 <- function(x) {
 
 ##' Summary statistic for posterior samples
 ##'
-##' Calculate summary statistics for pMCMC posterior samples
+##' Calculate summary statistics for posterior samples
 ##'
 ##' @param object posterior samples
 ##' @param prob summary quantile summary
@@ -835,18 +839,18 @@ summary_recoverhyper <- function(object, start, end, ps, type, digits, prob,
 
 ##' Summarise posterior samples
 ##'
-##' This calls severn different variants of summary function to summarise
+##' This calls seven different variants of summary function to summarise
 ##' posterior samples
 ##'
 ##' @param object posterior samples
 ##' @param hyper whether to summarise hyper parameters
-##' @param start summarise from which iteration.
-##' @param end summarise to the end which iteration. For example, set
+##' @param start start from which iteration.
+##' @param end end at which iteration. For example, set
 ##' \code{start = 101} and \code{end = 1000}, instructs the function to
 ##' calculate from 101 to 1000 iteration.
 ##' @param hmeans a boolean switch indicating to calculate mean of hyper
 ##' parameters
-##' @param hci boolean switch indicating to calculate credible intervals of
+##' @param hci boolean switch; whether to calculate credible intervals of
 ##' hyper parameters
 ##' @param prob a numeric vector, indicating the quantiles to calculate
 ##' @param recovery a boolean switch indicating if samples are from a recovery
@@ -1036,11 +1040,11 @@ unstick_one <- function(x, bad) {
 }
 
 ### Model Selection-------------------------------------------------
-##' Bayesian measures of model complexity and fit
+##' Calculate the statistics of model complexity
 ##'
-##' Calculate deviance for one fitted model objects for which a
+##' Calculate deviance for a model object for which a
 ##' log-likelihood value can be obtained, according to the formula
-##' -2*log-likelihood ... unfinished ...
+##' -2*log-likelihood.
 ##'
 ##' @param object posterior samples
 ##' @param ... other plotting arguments passing through dot dot dot.
@@ -1070,7 +1074,8 @@ deviance.model <- function(object, ...) {
 ##' @param object posterior samples
 ##' @param ... other plotting arguments passing through dot dot dot.
 ##' @export
-DIC <- function(object, ...) {
+DIC <- function(object, ...)
+{
   ds <- deviance.model(object)
   pds <- list(Pmean=ds$meanD-ds$Dmean,Pmin=ds$meanD-ds$minD,Pvar=ds$varD/2)
   if (ds$minD < ds$Dmean) pd <- pds$Pmin else pd <- pds$Pmean
@@ -1080,7 +1085,8 @@ DIC <- function(object, ...) {
 
 ##' @rdname DIC
 ##' @export
-BPIC <- function(object, ...) {
+BPIC <- function(object, ...)
+{
   ds <- deviance.model(object)
   pds <- list(Pmean=ds$meanD-ds$Dmean,Pmin=ds$meanD-ds$minD,Pvar=ds$varD/2)
   if (ds$minD < ds$Dmean) pd <- pds$Pmin else pd <- pds$Pmean

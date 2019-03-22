@@ -47,8 +47,8 @@ doubles the number of chains by spliting into 1st and 2nd halves.}
 \item{...}{arguments passing to \code{coda} gelman.diag.}
 }
 \description{
-\code{gelman} calls \pkg{coda} gelman.diag to get R hats for one
-or a list of subjects. It calculates at the either data or hyper level.
+\code{gelman} function calls the function, \code{gelman.diag} in the
+\pkg{coda} package to calculates PSRF.
 }
 \examples{
 \dontrun{

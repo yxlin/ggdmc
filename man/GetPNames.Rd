@@ -4,10 +4,10 @@
 \alias{GetPNames}
 \title{Extract parameter names from a model object}
 \usage{
-GetPNames(model)
+GetPNames(x)
 }
 \arguments{
-\item{model}{a model object}
+\item{x}{a model object}
 }
 \description{
 Extract parameter names from a model object

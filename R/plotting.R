@@ -300,55 +300,45 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
 
 
 ### Prior  ---------------------------------------------
-##' Plot Prior Distributions
+##' Plot prior distributions
 ##'
-##' \code{plot_prior} plots the ith member of the list created by
-##' \code{BuildPrior}.  If \code{trans = TRUE}, the function will plot on natural
-##' (logarithmic) scale using transform specified in
-##' \code{attr(p.prior[[i]], "trans")}. \code{plot.prior} plots all parameters
-##' at once.
+##' \code{plot_prior} plots one member in a prior object. \code{plot.prior}
+##' plots all members in a prior object.
 ##'
-##' NOTE: the tran function is not thoroughtly checked. Use it with your own risk.
-##' \code{plot_prior} checks if any of the elements in \code{trans} is \code{NA}.
-##' It then checks if \code{natural} is set \code{TRUE}
-##' (by default it's \code{TRUE}). If \code{natural} is set also
-##' \code{TRUE} (i.e., the user wants to do transformation), it then checks what
-##' has been set in the "untrans" attribute for the i'th parameter.  Otherwise,
-##' its default is set all parameters as \code{identity}.
-##'
-##' @param x prior distributions
-##' @param i an integer or a character string indicating to plot which parameter
-##' @param prior a list of list storing prior setting.
+##' @param i an integer or a character string indicating which parameter to plot
+##' @param x a prior object
+##' @param prior a prior object
 ##' @param xlim set the range of on x axis. This is usually the range for each
 ##' parameter.
-##' @param natural default TRUE
+##' @param natural default TRUE.
 ##' @param npoint default to plot 100
 ##' @param trans default NA. trans can be a scalar or vector.
 ##' @param save whether to save the data out
-##' @param ps true parameter vectors or matrix in the case of many observation units
+##' @param ps true parameter vectors or matrix in the case of many observation
+##' units
 ##' @param ... other plotting arguments passing through dot dot dot.
 ##' @import ggplot2
 ##' @export
 ##' @examples
 ##' p.prior <- BuildPrior(
 ##'            dists = rep("tnorm", 7),
-##'            p1    = c(a = 2,   v.f1 = 4,  v.f2 = 3,  z = 0.5, sv = 1,  sz = 0.3, t0 = 0.3),
-##'            p2    = c(a = 0.5, v.f1 = .5, v.f2 = .5, z = 0.1, sv = .3, sz = 0.1, t0 = 0.05),
+##'            p1    = c(a = 2,   v.f1 = 4,  v.f2 = 3,  z = 0.5, sv = 1,
+##'                      sz = 0.3, t0 = 0.3),
+##'            p2    = c(a = 0.5, v.f1 = .5, v.f2 = .5, z = 0.1, sv = .3,
+##'                      sz = 0.1, t0 = 0.05),
 ##'            lower = c(0,-5, -5, 0, 0, 0, 0),
 ##'            upper = c(5, 7,  7, 1, 2, 1, 1))
 ##'
 ##' plot_prior("a", p.prior)
 ##' plot_prior(2, p.prior)
-##'
-##' print(p.prior)
 ##' plot(p.prior)
-##'
-##' ## require(ggplot2)
-##' ## p2 <- ggplot(d, aes(x = xpos, y = ypos)) + geom_line() +
-##' ##       facet_wrap(~gpvar, scales="free") + theme_bw(base_size =14)
 plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
                        trans = NA, save = FALSE, ... ) {
 
+  # plot_prior("a", p.prior)
+  # plot_prior(2, p.prior)
+  # i <- 2
+  # natural <- F
   if (any(is.na(trans))) {   ### Check 1 ###
     trans <- ifelse(natural, attr(prior[[i]], "untrans"), "identity")
   }

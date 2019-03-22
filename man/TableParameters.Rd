@@ -4,30 +4,30 @@
 \alias{TableParameters}
 \title{Table response and parameter}
 \usage{
-TableParameters(pvector, cell, model, n1order)
+TableParameters(p.vector, cell, model, n1order)
 }
 \arguments{
-\item{pvector}{a parameter vector}
+\item{p.vector}{a parameter vector}
 
 \item{cell}{a string or an integer indicating a design cell, e.g.,
 \code{s1.f1.r1} or 1. Note the integer cannot exceed the number of cell.
-use \code{length(dimnames(model))} to check the upper bound.}
+One can check this by entering \code{length(dimnames(model))}.}
 
-\item{model}{a model ibhect}
+\item{model}{a model object}
 
 \item{n1order}{a Boolean switch, indicating using node 1 ordering. This is
 only for LBA-like models and its n1PDF likelihood function.}
 }
 \value{
 each row corresponding to the model parameter for a response.
-When \code{n1.order} is FALSE, TableParameters returns a martix in natural
-order, which is used by \code{simulate}. By default \code{n1.order} is TRUE,
-the returned matrix, used by n1PDF-like functions.
+When \code{n1.order} is FALSE, TableParameters returns a martix without
+rearranging into node 1 order.  For example, this is used in
+the \code{simulate} function. By default \code{n1.order} is TRUE.
 }
 \description{
 \code{TableParameters} arranges the values in a parameter
-vector to a factorial response x parameter matrix. The matrix is used
-by likelihood functions, assigning a trial to a cell for calculating
+vector and creates a response x parameter matrix. The matrix is used
+by the likelihood function, assigning a trial to a cell for calculating
 probability densities.
 }
 \examples{

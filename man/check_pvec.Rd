@@ -2,16 +2,15 @@
 % Please edit documentation in R/model.R
 \name{check_pvec}
 \alias{check_pvec}
-\title{Check if parameter vector compatible with model object?}
+\title{Does a model object specify a correct p.vector}
 \usage{
-check_pvec(x, model)
+check_pvec(p.vector, model)
 }
 \arguments{
-\item{x}{parameter vector}
+\item{p.vector}{parameter vector}
 
 \item{model}{a model object}
 }
 \description{
-Check if the user supplies a parameter vector, compatiable with
-the model object.
+Check a parameter vector
 }

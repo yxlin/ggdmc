@@ -12,9 +12,9 @@ BuildDMI(x, model)
 \item{model}{a model object}
 }
 \value{
-a data mondel instance
+a data model instance
 }
 \description{
-Binding a data set with a model object. The function checks
-whether they are compatible and adds attributes.
+Binding a data set with a model object. The function also checks whether
+they are compatible and adds attributes on a data model instance.
 }

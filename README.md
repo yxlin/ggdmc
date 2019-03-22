@@ -45,7 +45,7 @@ p.prior <- BuildPrior(
 
 ## Fit model -------------
 fit0 <- StartNewsamples(dmi, p.prior)
-fit  <- run(fit0, 5e2)
+fit  <- run(fit0)
 
 ## Check model -----------
 plot(fit)
@@ -161,7 +161,7 @@ for(i in 1:length(fit))
 9. The correlated accumualtor model; type = "cnorm".
 
 4 to 9 are separated from the latest version of the package. For these 
-PDA-based models see my BRM paper and associated packages there 
+PDA-based models see my BRM paper and associated packages there. 
 
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
@@ -175,7 +175,7 @@ more examples.
  - R packages: Rcpp (>= 0.12.10), RcppArmadillo (>= 0.7.700.3.0), 
    ggplot2 (>= 2.1.0), coda (>= 0.16-1), matrixStats, data.table
  - Windows users need Rtools (>= 3.3.0.1959) 
- - Mac OS users need to make clang understand OpenMP flag
+ - ~~Mac OS users need to make clang understand OpenMP flag~~
  - Linux/Unix users may need to install Open MPI library, if it has not 
    been installed. 
  - [Armadillo](https://CRAN.R-project.org/package=RcppArmadillo)
@@ -183,7 +183,7 @@ more examples.
 
 ## Installation
 
-From CRAN (0.2.5.5): 
+From CRAN (0.2.5.6): 
 > install.packages("ggdmc")
 
 From source: 
@@ -210,7 +210,7 @@ clang4-r is the most straightforward we found so far.
 However we have not looked into the source code of clang4-r. Use it at your
 own risk.~~
 
-OpenMP is disable after version 0.2.5.6. 
+OpenMP has been disabled since version 0.2.5.6. 
 
 
 ## How to install several supporting packages

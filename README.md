@@ -6,25 +6,21 @@ cognitive (RT) models, using the population-based Markov chain Monte Carlo
 
 ## Getting Started
 This example uses the Wiener diffusion model.  For other cognitive models, 
-see my [tutorials site](https://yxlin.github.io/).  
-
-The naming of _R_ functions in _ggdmc_ attempts to inform the user what the 
-functions are for, such as _BuildModel_.  I hope this eases some of the 
-difficulties of fitting Bayesian models. 
+see my [tutorials site](https://yxlin.github.io/).  The naming of _R_ functions 
+in _ggdmc_ attempts to inform the user what the functions are for, such 
+as _BuildModel_.  I hope this eases some of the difficulties of fitting 
+Bayesian models. 
 
 As the user is often warned in using Bayesian tools, it is always a good
-practice to check the outcomes of a model fit.
-
-Note the sequence of parameters in a parameter vector (i.e., p.vector) must 
-follow the sequence in the _p.vector_ reported by _BuildModel_.  
-Otherwise, you may receive some error messages. 
+practice to check the outcomes of a model fit.  Note the sequence of parameters
+in a parameter vector (i.e., p.vector) must follow the sequence in the 
+_p.vector_ reported by _BuildModel_.  
 
 ## Fit a fixed-effect model to a participant
 
 ```
 ## Set up model ----
-## fixing sv & sz to 0, makes "rd" (Ratcliff's diffusion model) to 
-## Wiener diffusion model
+## fixing sv & sz to 0, makes to set up a Wiener diffusion model
 require(ggdmc)
 model <- BuildModel(
   p.map     = list(a = "1", v="1", z="1", d="1", sz="1", sv="1", t0="1", 

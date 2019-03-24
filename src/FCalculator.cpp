@@ -612,7 +612,7 @@ static F_calculator * F_st0_new (Parameters * params)
   return  fc;
 }
 
-static const double * F_st0_get_F (struct F_calculator *fc, double t)
+static const double * F_st0_get_F (F_calculator *fc, double t)
 {
   F_st0_data *data = (F_st0_data*)fc->data;
   double  a, b;

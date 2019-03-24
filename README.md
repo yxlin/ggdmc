@@ -1,20 +1,20 @@
 # Bayesian Cognitive Modelling
 
 _ggdmc_ is a generic tool for conducting hierarchical Bayesian Computations on
-cognitive (RT) models, using the population-based Markov chain Monte Carlo 
-(pMCMC).
+cognitive (RT) models. The package uses the population-based Markov chain 
+Monte Carlo (pMCMC).
 
 ## Getting Started
 This example uses the Wiener diffusion model.  For other cognitive models, 
 see my [tutorials site](https://yxlin.github.io/).  The naming of _R_ functions 
-in _ggdmc_ attempts to inform the user what the functions are for, such 
-as _BuildModel_.  I hope this eases some of the difficulties of fitting 
-Bayesian models. 
+in _ggdmc_ attempts to inform the user what the functions are for. For example,  
+_BuildModel_ is to build a model object.  
 
 As the user is often warned in using Bayesian tools, it is always a good
-practice to check the outcomes of a model fit.  Note the sequence of parameters
-in a parameter vector (i.e., p.vector) must follow the sequence in the 
-_p.vector_ reported by _BuildModel_.  
+practice to check the outcomes of a model fit.  Note the sequence of 
+parameters in a parameter vector (i.e., p.vector) must follow the sequence in 
+the _p.vector_ reported by _BuildModel_.  Some build-in checks will try to 
+safeguard this, but some situations may still escape the checks. 
 
 ## Fit a fixed-effect model to a participant
 
@@ -175,11 +175,11 @@ more examples.
  - R packages: Rcpp (>= 0.12.10), RcppArmadillo (>= 0.7.700.3.0), 
    ggplot2 (>= 2.1.0), coda (>= 0.16-1), matrixStats, data.table
  - Windows users need Rtools (>= 3.3.0.1959) 
- - ~~Mac OS users need to make clang understand OpenMP flag~~
- - Linux/Unix users may need to install Open MPI library, if it has not 
-   been installed. 
- - [Armadillo](https://CRAN.R-project.org/package=RcppArmadillo)
-   may need a recent g++ compiler > 4.6
+ - ~~Mac OS users need to make clang understand OpenMP flag.~~
+ - ~~Linux/Unix users may need to install Open MPI library, if it has not 
+   been installed.~~ 
+ - ~~[Armadillo](https://CRAN.R-project.org/package=RcppArmadillo)
+   may need a recent g++ compiler > 4.6~~
 
 ## Installation
 
@@ -194,7 +194,7 @@ From GitHub (you need _devtools_):
 
 > devtools::install_github(“yxlin/ggdmc”)
 
-~~For Mac Users:~~
+For Mac Users:
 
 ~~1. Install [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries#MacOS).
 As to 27, Aug, 2018, the gfortran version has to be 6.1, even you are using a 
@@ -210,47 +210,14 @@ clang4-r is the most straightforward we found so far.
 However we have not looked into the source code of clang4-r. Use it at your
 own risk.~~
 
-OpenMP has been disabled since version 0.2.5.6. 
-
-
-## How to install several supporting packages
-One method to install several supporting R packages is to use a command line 
-script. This works in Unix-like OS. A simple guide is below.
-
-> sudo apt-get install r-cran-littler
-
-Second copy-and-paste the following script into a file, called it _install.r_.
-```
-#!/usr/bin/env r
-
-if (is.null(argv) | length(argv)<1) {
-  cat("Usage: installr.r pkg1 [pkg2 pkg3 ...]\n")
-  q()
-}
-
-repos <- "http://cran.rstudio.com"
-
-lib.loc <- "/usr/local/lib/R/site-library"
-
-install.packages(argv, lib.loc, repos)
-
-```
-
-(Third, add x mode to install.r)
-> chmod +x install.r
-
-Finally, at the command line, enter the following:
-> install.r Rcpp RcppArmadillo ggplot2 coda matrixStats data.table
-
-This shall install all supporting packages at once. 
-This method is from Dirk Eddelbuettel's [littler]<http://dirk.eddelbuettel.com/code/littler.html>.
+A configure script now disables OpenMP, so macOS users can install without
+encountering the OpenMP problem. 
 
 ## Citation
 
 If you use this package, please cite the software, for example:
 
 Lin, Y.-S. (in preparation). Tutorial on Bayesian cognitive modeling. 
-
 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computation in OpenMP, new
@@ -263,6 +230,7 @@ similarities with the DMC.  They have few differences.  For example, the theta
 and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
 The matices of log_likelihoods and summed_log_prior are nchain x nmc. DMC uses
 nmc x nchain.  Remember to tranpose or flip the matices or arraies. 
+
 Please report bugs to [me](mailto:yishinlin001@gmail.com).
 
 ## License
@@ -278,8 +246,6 @@ Voss & Voss's fast-dm 30.2 and rtdists 0.9-0.
 https://github.com/olmjo/RcppTN,
 [Christopher Jackson's](chris.jackson@mrc-bsu.cam.ac.uk) R codes in msm package,
 and Robert (1995, Statistics & Computing). 
-* Armadillo is a collection of C++ library, conducting linear
-algebra <http://arma.sourceforge.net/>. 
 * Thanks to Matthew Gretton's consultation regarding the rtdists. 
 * Thanks to Andrew Heathcote for lending me his MacBook Air. 
 _ggdmc_ works on OS X (macOS High Sierra Version 10.13.4) 

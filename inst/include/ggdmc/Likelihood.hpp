@@ -171,7 +171,7 @@ public:
       }
     }
 
-    delete para;
+    delete [] para;
     return out;
   }
 

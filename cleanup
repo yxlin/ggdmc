@@ -1,7 +1,8 @@
 #!/bin/sh
 
 rm -f  config.log config.status confdefs.h \
-       src/*.o src/*.so \
+       src/*.o src/*.so src/symbols.rds \
+       */*~ *~ \
        inst/include/RcppArmadilloLapack.h \
        inst/include/RcppArmadilloConfigGenerated.h \
        src/Makevars

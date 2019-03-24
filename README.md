@@ -190,12 +190,12 @@ more examples.
 
 ## Installation
 
-From CRAN (0.2.5.6): 
+From CRAN (0.2.5.7): 
 > install.packages("ggdmc")
 
 From source: 
 
-> install.packages("ggdmc_0.2.5.6.tar.gz", repos = NULL, type="source")
+> install.packages("ggdmc_0.2.5.7.tar.gz", repos = NULL, type="source")
 
 From GitHub (you need _devtools_):
 

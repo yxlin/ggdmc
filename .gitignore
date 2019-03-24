@@ -5,5 +5,9 @@
 src/*.o
 src/*.so
 src/*.dll
+src/Makevars
+config.*
+inst/include/RcppArmadilloConfigGenerated.h
 .Rproj.user/*
 
+rm -rf autom4te.cache/

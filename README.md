@@ -166,7 +166,14 @@ PDA-based models see my BRM paper and associated packages there.
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
 
-## Further information  
+## Further information
+One aim in designing _ggdmc_ is to read objects from DMC, so they share some 
+similarities.  They have however some differences.  For example, the dimension
+in theta and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
+The dimension of the log_likelihoods and summed_log_prior matrices are 
+nchain x nmc. DMC uses nmc x nchain.  Remember to alter them, if you want to 
+operate objects back-and-forth between them. 
+
 Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
 more examples.
 
@@ -220,16 +227,11 @@ If you use this package, please cite the software, for example:
 Lin, Y.-S. (in preparation). Tutorial on Bayesian cognitive modeling. 
 
 ## Contributors
-The R documentation, tutorials, C++ codes, parallel computation in OpenMP, new
-genetic algorithm, and R helper functions and R packaging are 
-developed by Yi-Shin Lin. DMC is developed 
-by Andrew Heathcote (Heathcote et al., 2018).
-
-One aim in designing _ggdmc_ is to read objects from DMC, so it shares many 
-similarities with the DMC.  They have few differences.  For example, the theta 
-and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
-The matices of log_likelihoods and summed_log_prior are nchain x nmc. DMC uses
-nmc x nchain.  Remember to tranpose or flip the matices or arraies. 
+The R documentation, tutorials, C++ codes, parallel computations, new
+genetic algorithm, R helper functions and R packaging are 
+developed by Yi-Shin Lin. DMC is developed by Andrew 
+Heathcote (Heathcote et al., 2018), where you may find more different and 
+intersting models.
 
 Please report bugs to [me](mailto:yishinlin001@gmail.com).
 

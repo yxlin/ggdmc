@@ -1,3 +1,35 @@
+/* - Rcpp::sampling and Rcpp::r_fastdm are adapted from src folder in
+ * rtdists 0.9-0 by Singmann, Brown, Gretton, Heathcote, Voss, Voss & Terry.
+ *
+ * - cdf.c - compute the CDF for the diffusion model (F* functions)
+ * - pde.c - numerically solve the Fokker-Planck equation (solve_tridiag,
+ * make_step & advance_to)
+ * - xmalloc.c - memory allocation with error checking (*xrealloc)
+ * - construct-samples.c - construct sample data for the article
+ * (compare_doubles, find_slot)
+ *
+ *
+ * ------------------------------------------------------------------------
+ * A verbatim copy of Jochen Voss & Andreas Voss's copyright declaration.
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2006  Jochen Voss, Andreas Voss.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA.
+ */
+
 #include <ggdmc.hpp>
 
 /*---------------------------------------------------------------------------
@@ -27,17 +59,20 @@ static void solve_tridiag(int n, const double *rhs, double *res, double left,
  * 'right' on the superdiagonal.
  */
 {
-    // These two static fix identical memory locations for the variables,
-    // pointer-to-double *tmp and int tmp_len, when this function is
+    // These two statics fix identical memory locations for the variables,
+    // (1) pointer-to-double *tmp and (2) int tmp_len, when this function is
     // terminated and the program is still running. That is, when calculating
     // a CDF, the procedure of solving its PDE will be called several times.
-    static double *tmp = NULL;  // require n-1 double's, so fix the location of a
-    static int tmp_len = 0;     // pointer, instead of n-1 double.
+
+    // The function requests n-1 double's, so fix the location
+    // of a pointer, instead of n-1 double.
+    static double *tmp = NULL;
+    static int tmp_len = 0;
     double p, old_res, old_tmp;
     int  i;
 
-    // Show to yourself that they are indeed at the same locations while been
-    // called repeated.
+    // Show to yourself that they are indeed at the same location while been
+    // called repeatedly.
     // std::cout << tmp << " = &tmp, " << &tmp_len << " = &tmp_len\n";
 
     if (n-1 > tmp_len) {
@@ -115,88 +150,6 @@ static void advance_to (int N, double *vector, double t0, double t1, double dz,
       make_step (N, vector, dt, dz, v);
       t0 += dt;
     } while (! done);
-}
-
-/*---------------------------------------------------------------------------
- Original found in phi.c
- ---------------------------------------------------------------------------*/
-/* erf.c - Gaussian error function
- *
- * by Thomas Meyer <tpmeyer@foxriver.com>, 2002
- *
- * A portable implementation of the Gaussian error function erf(),
- * using the Chebyshev algorithm.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- * $Id: erf.c,v 1.3 2002/03/21 18:55:54 gtw Exp $
- */
-
-double erf (double x)
-{
-    double t, z, retval;
-
-    z = fabs( x );
-    t = 1.0 / ( 1.0 + 0.5 * z );
-
-
-    retval = t * exp( -z * z - 1.26551223 + t *
-      ( 1.00002368 + t *
-      ( 0.37409196 + t *
-      ( 0.09678418 + t *
-      ( -0.18628806 + t *
-      ( 0.27886807 + t *
-      ( -1.13520398 + t *
-      ( 1.48851587 + t *
-      ( -0.82215223 + t *
-      0.1708727 ) ) ) ) ) ) ) ) );
-    if( x < 0.0 )
-      return retval - 1.0;
-
-    return 1.0 - retval;
-}
-
-static double Phi (double x)
-/* The distribution function of the standard normal distribution.  */
-{
-    return  0.5*(1+erf (x/M_SQRT2));
-}
-
-static double Phi_inverse (double y)
-/* The inverse of Phi, calculated using the bisection method */
-{
-    double  l, r;
-
-    if (y<=0.5) {
-      l = -1;
-      while (Phi(l)>=y)  l -= 1;
-      r = l+1;
-    } else {
-      r = 0;
-      while (Phi(r)<y)  r += 1;
-      l = r-1;
-    }
-
-    do {
-      double m = 0.5*(l+r);
-      if (Phi(m) < y) {
-        l = m;
-      } else {
-        r = m;
-      }
-    } while (r-l > 1e-8);
-    return  0.5*(l+r);
 }
 
 /*---------------------------------------------------------------------------
@@ -452,7 +405,8 @@ static F_calculator * F_sv_new (Parameters *params)
   temp_params.sv = 0;   // Integrate across svs
 
   for (j=0; j<nv; ++j) {
-    x = Phi_inverse ((0.5+j)/nv);
+
+    x = R::qnorm ((0.5+j)/nv, 0., 1., 1, 0);
     temp_params.v = params->sv*x + params->v;
     base_fc[j] = F_sz_new(&temp_params);
   }
@@ -827,6 +781,10 @@ static int find_slot(double target, const double *value, int l, int r)
   else if ( value[m] > target) { return find_slot(target, value, l, m); }
   else    { return find_slot(target, value, m, r); }
 }
+
+/*---------------------------------------------------------------------------
+ Original found in rtdists 0.9-0
+ ---------------------------------------------------------------------------*/
 
 Rcpp::List sampling(int s_size, Parameters * params, bool random_flag)
 {

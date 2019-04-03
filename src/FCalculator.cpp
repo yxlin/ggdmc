@@ -64,8 +64,8 @@ static void solve_tridiag(int n, const double *rhs, double *res, double left,
     // terminated and the program is still running. That is, when calculating
     // a CDF, the procedure of solving its PDE will be called several times.
 
-    // The function requests n-1 double's, so fix the location
-    // of a pointer, instead of n-1 double.
+    // The function requests n-1 double's, so fix the location of a pointer,
+    // instead of n-1 double.
     static double *tmp = NULL;
     static int tmp_len = 0;
     double p, old_res, old_tmp;
@@ -80,9 +80,10 @@ static void solve_tridiag(int n, const double *rhs, double *res, double left,
       * 'solve_tridiag' caused about 10% of the total CPU load during
       * some fast-dm runs.  To avoid this problem, re-use the
       * same buffer between runs if possible. */
-      tmp = xrenew(double, tmp, n-1); // still we want to scratch the content of
-      tmp_len = n-1;                  // the two variables as explained by V&V's
-      // note above.
+      tmp = xrenew(double, tmp, n-1);
+      // still we want to scratch the content of
+      tmp_len = n-1;
+      // the two variables as explained by V&V's note above.
     }
 
     /* step 1: solving forward */
@@ -189,8 +190,7 @@ static F_calculator *F_plain_new (Parameters * params)
   F_calculator * fc = new F_calculator;
   F_plain_data * data = new F_plain_data;
 
-
-  // V&V said "N must be even, otherwise the case szr == 1 fails"
+  // V&V's note "N must be even, otherwise the case szr == 1 fails"
   int N = 2*(int)(params->a*0.5/params->TUNE_DZ+0.5);
   if (N<4) N = 4;
 
@@ -222,17 +222,10 @@ static F_calculator *F_plain_new (Parameters * params)
 static const double *F_plain_get_F (F_calculator *fc, double t)
 {
   F_plain_data *data = (F_plain_data*)fc->data;
-  // double tmp_t = t;
-  // t = tmp_t - data->t_offset;
-  // if (tmp_t == data->t_offset) Rcpp::Rcout << "Equal\n";
   t -= data->t_offset;
 
   if (t > data->t)
   {
-
-    // Rcpp::Rcout <<"offset, t, and data->t " << data->t_offset << ", " <<
-    //   t << " " << data->t << std::endl;
-
     advance_to (fc->N, data->F, data->t, t, data->dz, data->v,
                 data->TUNE_PDE_DT_MIN, data->TUNE_PDE_DT_MAX,
                 data->TUNE_PDE_DT_SCALE);
@@ -333,12 +326,7 @@ static const double *F_sz_get_F (F_calculator *fc, double t)
   double  tmp, q, f;
   int  i, j, m;
 
-  // Rcpp::Rcout << "t in sz " << t << std::endl;
   F = F_get_F(data->base_fc, t);
-  // for(int l = 0; l<fc->N; l++) {
-  //   Rcpp::Rcout <<"in F_sz_get_F data->base_fc " << F[l] << std::endl;
-  // }
-
 
   m = 2*data->k;
   q = data->q;
@@ -434,12 +422,8 @@ static const double * F_sv_get_F (F_calculator *fc, double t)
   double *avg = data->avg;
   int  i, j;
 
-  // Rcpp::Rcout << "t in sv get row " << t << std::endl;
   // Calculate avg in the F_sz_data
   F = F_get_F(data->base_fc[0], t);
-  // for(int l = 0; l<fc->N; l++) {
-  //   Rcpp::Rcout <<"in F_sv_get_F  data->base_fc[0]" << F[l] << std::endl;
-  // }
 
   // retrieve avg in the F_sz_data
   for (i=0; i<=fc->N; ++i) avg[i] = F[i];
@@ -476,7 +460,7 @@ static void F_sv_start (F_calculator *fc, int plus)
   F_sv_data *data = (F_sv_data *)fc->data;
   int  j;
   fc->plus = plus;
-  // Serve to set plus in each of the F_sz base_fc
+  // To set plus in each of the F_sz base_fc
   for (j=0; j<data->nv; ++j) F_start (data->base_fc[j], plus);
 }
 
@@ -499,12 +483,7 @@ static const double * F_st0_get_row(const F_calculator * fc, int j)
     double t;
     const double * F;
     t = data->start + j*data->dt;
-    // Rcpp::Rcout << "t in st0 get row " << t << std::endl;
-
     F = F_get_F(data->base_fc, t);
-    // for(int l = 0; l<N; l++) {
-    //   Rcpp::Rcout <<"in F_st0_get_row " << F[l] << std::endl;
-    // }
 
     memcpy(row, F, (N+1)*sizeof(double));
     data->valid[idx] = 1;

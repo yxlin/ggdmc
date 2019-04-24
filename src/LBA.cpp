@@ -2,132 +2,73 @@
 
 using namespace Rcpp;
 
-lba::lba (double A, double b, double mean_v, double sd_v, double t0,
-          bool posdrift) :
-  m_A(A), m_b(b), m_mean_v(mean_v), m_sd_v(sd_v), m_t0(t0), is_posv(posdrift)
-// pdf, cdf
+arma::vec fptpdf(arma::vec rt, double A, double b, double mean_v, double sd_v,
+                 double t0, bool posdrift)
 {
-  // double m_A, m_b, m_mean_v, m_sd_v, m_t0, m_st0; // LBA distribution.
-  // bool is_posv;
-  //
-  // double *m_meanv_vec, *m_sdv_vec;
-  // unsigned int m_nmean_v;
+  lba * obj = new lba(A, b, mean_v, sd_v, t0, posdrift, rt);
+  arma::vec out(obj->m_nrt);
+
+  if(!obj->ValidateParams(false))
+  {
+    out.fill(1e-10);
+  }
+  else
+  {
+    out = obj->d();
+  }
+
+  delete obj;
+  return out;
 }
 
-lba::lba (double A, double b, double * mean_v, double * sd_v, double t0,
-          double st0, unsigned int & nmean_v, bool posdrift) :
-  m_A(A), m_b(b), m_t0(t0), m_st0(st0), is_posv(posdrift),
-  m_meanv_vec(mean_v), m_sdv_vec(sd_v), m_nmean_v(nmean_v)
-// rlba_norm. NOTE double * mean_v and double * sd_v
+arma::vec fptcdf(arma::vec rt, double A, double b, double mean_v, double sd_v,
+                 double t0, bool posdrift)
 {
-    if (m_st0 < 0) Rcpp::stop("st0 must be greater than 0.");
+  lba * obj = new lba(A, b, mean_v, sd_v, t0, posdrift, rt);
+  arma::vec out(obj->m_nrt);
+
+  if(!obj->ValidateParams(false))
+  {
+    out.fill(1e-10);
+  }
+  else
+  {
+    out = obj->p();
+  }
+
+  delete obj;
+  return out;
 }
 
-lba::~lba() {}
+arma::vec n1PDFfixedt0(arma::vec rt, arma::vec A, arma::vec b, arma::vec mean_v,
+                       arma::vec sd_v, arma::vec t0, bool posdrift) {
 
+  unsigned int nmean_v = mean_v.n_elem;  // Number of accumulators/responses.
+  unsigned int n       = rt.n_elem;      // Number of trials
+  unsigned int nsd_v   = sd_v.n_elem;    // Check for matrix operations
+  unsigned int nA      = A.n_elem;
+  unsigned int nb      = b.n_elem;
+  unsigned int nt0     = t0.n_elem;
 
-void lba::d (std::vector<double> & x, double * output)
-{
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] = d(x[i]);
-    }
-  }
-void lba::d (std::vector<double> & x, std::vector<double> & output)
-{
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] = d(x[i]);
-    }
-  }
-void lba::d (arma::vec & x, arma::vec & output)
-{
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] = d(x[i]);
-    }
-  }
+  if (nsd_v == 1) sd_v = arma::repmat(sd_v, nmean_v, 1);
+  if (nA    == 1) A    = arma::repmat(A,    nmean_v, 1);
+  if (nb    == 1) b    = arma::repmat(b,    nmean_v, 1);
+  if (nt0   == 1) t0   = arma::repmat(t0,   nmean_v, 1);
 
-void lba::p (std::vector<double> & x, double * output)
-{
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] = p(x[i]);
-    }
-  }
-void lba::p (std::vector<double> & x, std::vector<double> & output)
-{
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] = p(x[i]);
-    }
-  }
-void lba::p (arma::vec & x, arma::vec & output)
-{
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] = p(x[i]);
-    }
-  }
-
-void lba::node1_pdf (arma::vec & x, arma::vec & output)
-{
-    if (x.size() != output.size()) Rcpp::stop("unequal sizes");
-
-    for(size_t i=0; i<x.size(); i++)
-    {
-      output[i] *= 1. - p(x[i]);
-    }
-  }
-
-void lba::r (unsigned int & n, arma::mat & output)
-{
-    // output n x 2
-    arma::vec tmp(m_nmean_v);
-
-    for (size_t i=0; i<n; i++)
-    {
-      rt(tmp);
-      output(i, 0) = tmp.min();
-      output(i, 1) = 1 + tmp.index_min(); // plus 1 to fit R indexing
-    }
-
-  }
-
-void lba::print(const std::string & x) const
-{
-    Rcpp::Rcout << x << "[A, b, mean_v, sd_v, t0]: " << m_A << ", " << m_b <<
-      ", " << m_mean_v << ", " << m_sd_v << ", " << m_t0 << std::endl;
-  }
-
-arma::vec n1PDFfixedt0(arma::vec rt, arma::vec A, arma::vec b,
-                       arma::vec mean_v, arma::vec sd_v, arma::vec t0,
-                       bool posdrift) {
-  // No check for a rectangle matrix of parameters
-  unsigned int nmean_v = mean_v.n_elem; // Number of accumulators/responses.
-  unsigned int n       = rt.n_elem;     // Number of RTs
-
-  arma::vec out(n);
-
-  lba * obj = new lba(A[0], b[0], mean_v[0], sd_v[0], t0[0], posdrift);
-  obj->d(rt, out);
+  arma::vec onevec = arma::ones<arma::vec>(n);
+  arma::vec node1den = fptpdf(rt, A[0], b[0], mean_v[0], sd_v[0], t0[0],
+                              posdrift);
 
   if (nmean_v > 1)
   {
     for (size_t i = 1; i < nmean_v; i++)
     {
-      obj->m_A      = A[i];
-      obj->m_b      = b[i];
-      obj->m_mean_v = mean_v[i];
-      obj->m_sd_v   = sd_v[i];
-      obj->m_t0     = t0[i];
-
-      obj->node1_pdf(rt, out);
+      node1den = node1den % (onevec - fptcdf(rt, A[i], b[i], mean_v[i],
+                                             sd_v[i], t0[i], posdrift));
     }
   }
 
-  delete obj;
-  return out;
+  return node1den;
 }
 
 //' Generate Random Deviates of the LBA Distribution
@@ -183,3 +124,12 @@ arma::mat rlba_norm(unsigned int n, arma::vec A, arma::vec b,
 }
 
 
+// double test_sumloglike(arma::vec pvec, List data)
+// {
+//   Design     * d0 = new Design (data);
+//   Likelihood * l0 = new Likelihood (data, d0);
+//
+//   double out = l0->sumloglike(pvec);
+//   delete l0;
+//   return out;
+// }

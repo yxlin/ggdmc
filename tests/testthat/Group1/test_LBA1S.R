@@ -11,7 +11,7 @@ model <- BuildModel(
     type      = "norm")
 
 p.vector <- c(A = .75, B = 1.25, t0 = .15, mean_v.true = 2.5, mean_v.false = 1.5)
-ntrial <- 20
+ntrial <- 50
 dat <- simulate(model, nsim = ntrial, ps = p.vector)
 dmi <- BuildDMI(dat, model)
 
@@ -23,12 +23,16 @@ p.prior <- BuildPrior(
     upper = c(rep(NA, 2), 1, rep(NA, 2)))
 
 ## Sampling ---------
-fit0 <- StartNewsamples(dmi, p.prior)
-fit <- run(fit0)
+fit0 <- StartNewsamples(dmi, p.prior, pm0=0, pm1=0, block = FALSE)
+fit <- run(fit0, thin = 4, block = FALSE)
+hat <- gelman(fit);
+
 pdf(file = "LBA1S.pdf")
-p0 <- plot(fit0)
-p1 <- plot(fit0, start = 51)
-p2 <- plot(fit)
+p0 <- ggdmc:::plot.model(fit)
+p1 <- ggdmc:::plot.model(fit0, start = 51)
+
+p2 <- ggdmc:::plot.model(fit)
+p2 <- ggdmc:::plot.model(fit, pll = F, den = T)
 dev.off()
 
 ## Analysis -----------
@@ -67,7 +71,7 @@ est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
   # 97.5% Estimate  0.77 1.65         1.63        2.58  0.15
   # Median-True    -0.14 0.15         0.04        0.01 -0.03
 
-  # A    B mean_v.false mean_v.true    t0
+  #                    A    B mean_v.false mean_v.true    t0
   # True            0.75 1.25         1.50        2.50  0.15
   # 2.5% Estimate   0.41 1.23         1.51        2.50  0.09
   # 50% Estimate    0.62 1.43         1.60        2.57  0.12

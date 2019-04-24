@@ -38,13 +38,14 @@ public:
 
     m_n1idx = tmp_n1idx;
 
+    // TODO: make it compatible to old version
     arma::uvec tmp_isr1 = modelAttr.attr("is.r1");
     m_mtype = type;
 
     if (m_mtype == "rd") m_is_r1 = tmp_isr1;
 
     m_precision = 3.0;
-    m_posdrift  = true;
+    m_posdrift  = modelAttr.attr("posdrift");
     m_n1order   = true;
   }
 
@@ -88,7 +89,6 @@ public:
       }
     }
 
-
   }
 
   arma::mat transform (arma::mat & parmat, std::string & cell,
@@ -118,6 +118,7 @@ public:
     return out;
   }
 
+
   arma::vec ddm (arma::vec & pvector)
   {
     double * para = new double[m_d->m_nParameter];
@@ -125,8 +126,8 @@ public:
     arma::mat pmat(m_d->m_nParameter, m_d->m_nr); // 8 x 2
     arma::vec out(m_d->m_nRT);
 
-    Parameters * params;
-    arma::uvec RTIdx;
+    // Parameters * params;
+    arma::uvec RTIdx, tmp;
     arma::vec selectedRT;
 
     // [a   v   zr   d  szr  sv  t0 st0]
@@ -139,34 +140,36 @@ public:
 
         for (size_t j = 0; j < m_d->m_nParameter; j++) para[j] = pmat(j, 0);
 
-        params = new Parameters(para, m_precision);
+        Parameters * params = new Parameters(para, m_precision);
 
-        arma::uvec tmp = m_d->m_is_this_cell.col(i);
+        tmp = m_d->m_is_this_cell.col(i);
         RTIdx = arma::find(m_d->m_is_this_cell.col(i));
         selectedRT = m_d->m_RT(RTIdx);
 
         if (!params->ValidateParams(false)) // do not print invalid parameters
         {
           out(RTIdx).fill(1e-10);
-          continue;
-        }
-
-        if (m_d->m_is_matched_cell[i])  // choose g_plus
-        {
-          for (size_t k = 0; k < selectedRT.n_elem; k++)
-          {
-            out(RTIdx(k)) = std::max(std::abs(g_plus(selectedRT(k), params)), 1e-10);
-          }
         }
         else
         {
-          for (size_t k = 0; k < selectedRT.n_elem; k++)
+          if (m_d->m_is_matched_cell[i])  // choose g_plus
           {
-            out(RTIdx(k)) = std::max(std::abs(g_minus(selectedRT(k), params)), 1e-10);
+            for (size_t k = 0; k < selectedRT.n_elem; k++)
+            {
+              out(RTIdx(k)) = R::fmax2(std::abs(g_plus(selectedRT(k), params)), 1e-10);
+            }
+          }
+          else
+          {
+            for (size_t k = 0; k < selectedRT.n_elem; k++)
+            {
+              out(RTIdx(k)) = R::fmax2(std::abs(g_minus(selectedRT(k), params)), 1e-10);
+            }
           }
         }
 
         delete params;
+
 
       }
     }
@@ -175,34 +178,30 @@ public:
     return out;
   }
 
-  arma::vec lba (arma::vec & pvector)
+  arma::vec lba_ (arma::vec & pvector)
   {
     arma::mat pmat0(m_d->m_nParameter, m_d->m_nr);
     arma::vec out(m_d->m_nRT);
-
     arma::uvec RTIdx;
-    arma::vec selectedRT;
 
+    // pmat: A   b  t0 mean_v sd_v st0
     for (size_t i=0; i<m_d->m_nc; i++)
     {
       if (!m_d->m_is_empty_cell[i])
       {
         parameter_matrix(pvector, m_d->m_dim0[i], pmat0);
+
         arma::mat pmat = transform(pmat0, m_d->m_dim0[i], m_n1order);
         pmat = arma::trans(pmat);
 
-        arma::vec A      = pmat.col(0);
-        arma::vec b      = pmat.col(1);
-        arma::vec mean_v = pmat.col(3);
-        arma::vec sd_v   = pmat.col(4);
-        arma::vec t0     = pmat.col(2);
-
         RTIdx = arma::find(m_d->m_is_this_cell.col(i) == 1);
-        selectedRT = m_d->m_RT(RTIdx);
-        out(RTIdx) = n1PDFfixedt0(selectedRT, A, b, mean_v, sd_v, t0, m_posdrift);
+          out(RTIdx) = n1PDFfixedt0(m_d->m_RT(RTIdx), pmat.col(0), pmat.col(1),
+              pmat.col(3), pmat.col(4), pmat.col(2), m_posdrift);
       }
+
     }
 
+    // for (size_t i = 0; i < m_d->m_nRT; i++) out[i] = R::fmax2(out[i], 1e-10);
     return out;
   }
 
@@ -241,7 +240,7 @@ public:
               for(size_t l = 0; l < m_d->m_npar; l++)
               {
                 // replace NA with values in p.vector.
-                if (m_d->m_pnames[l] == m_d->m_dim1[k] && std::isnan(tmp[idx]))
+                if (m_d->m_pnames[l] == m_d->m_dim1[k] && ISNAN(tmp[idx]))
                 {
                   tmp[idx] = pvector[l];
                 }
@@ -260,7 +259,6 @@ public:
 
   double sumloglike(arma::vec pvector) // mustn't pass memory location
   {
-
     arma::vec den;
 
     switch(resolve_option(m_mtype))
@@ -269,7 +267,7 @@ public:
       den = ddm(pvector);
       break;
     case LBA:
-      den = lba(pvector);
+      den = lba_(pvector);
       break;
     case DEFAULT:
       Rcout << "Undefined model type\n"; den.fill(1e-10);
@@ -280,7 +278,7 @@ public:
     }
 
     double out = arma::accu(arma::log(den));
-    if (std::isnan(out)) out = R_NegInf;
+    if (ISNAN(out)) out = R_NegInf;
 
     return out;
   }
@@ -296,7 +294,7 @@ public:
       den = ddm(pvector);
       break;
     case LBA:
-      den = lba(pvector);
+      den = lba_(pvector);
       break;
     case DEFAULT:
       Rcout << "Undefined model type\n"; den.fill(1e-10);

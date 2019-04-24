@@ -62,7 +62,7 @@ std::vector<double> likelihood (arma::vec pvector, List data,
   std::vector<double> out(obj0->m_nRT);
   for(size_t i=0; i<obj0->m_nRT; i++)
   {
-    out[i] = std::max(tmp[i], min_lik);
+    out[i] = R::fmax2(tmp[i], min_lik);
   }
 
   delete obj1;
@@ -90,7 +90,7 @@ arma::mat p_df(arma::vec pvector, std::string cell, std::string mtype,
                                  allpar, model);
   Likelihood * obj1 = new Likelihood(mtype, isr1, n1idx, n1order, obj0);
 
-  arma::mat pmat = obj1->get_pmat(pvector, cell);
+  arma::mat pmat = obj1->get_pmat(pvector, cell); //
 
   delete obj1; // obj0 is freed in obj1;
   return pmat;

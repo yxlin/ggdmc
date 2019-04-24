@@ -8,97 +8,146 @@ public:
   double m_A, m_b, m_mean_v, m_sd_v, m_t0, m_st0; // LBA distribution.
   bool is_posv;
 
-  double *m_meanv_vec, *m_sdv_vec;
-  unsigned int m_nmean_v;
+  double *m_meanv_vec, *m_sdv_vec, *m_dt;
+  unsigned int m_nmean_v, m_nrt;
 
   lba (double A, double b, double mean_v, double sd_v, double t0,
-       bool posdrift);
+       bool posdrift, arma::vec & rt) :
+    m_A(A), m_b(b), m_mean_v(mean_v), m_sd_v(sd_v), m_t0(t0), is_posv(posdrift)
+  {
+    m_nrt = rt.size();
+    m_dt  = new double[m_nrt];
+
+    for (size_t i = 0; i < m_nrt; i++)
+    {
+      m_dt[i] = rt[i] - m_t0;
+    }
+
+    denom = !is_posv ? 1.0 :
+      R::fmax2(R::pnorm(m_mean_v/m_sd_v, 0, 1, 1, 0), 1e-10);
+
+  };
   // pdf, cdf
 
   lba (double A, double b, double * mean_v, double * sd_v, double t0,
-       double st0, unsigned int & nmean_v, bool posdrift);
-    // rlba_norm. NOTE double * mean_v and double * sd_v
+       double st0, unsigned int & nmean_v, bool posdrift) :
+    m_A(A), m_b(b), m_t0(t0), m_st0(st0), is_posv(posdrift),
+    m_meanv_vec(mean_v), m_sdv_vec(sd_v), m_nmean_v(nmean_v)
+  {
+    if (m_st0 < 0) Rcpp::stop("st0 must be greater than 0.");
+  }
+  // rlba_norm. NOTE double * mean_v and double * sd_v
 
-  ~lba();
+  ~lba() {};
+
+  arma::vec d()
+  {
+    arma::vec out(m_nrt);
+
+    for (size_t i = 0; i < m_nrt; i++)
+    {
+      if (m_dt[i] < 0)
+      {
+         out[i] = 0.0;
+      }
+      else if (m_A < 1e-10)
+      {
+        out[i] = R::fmax2(0.0, (m_b / (m_dt[i]*m_dt[i])) * R::dnorm(
+          m_b / m_dt[i], m_mean_v, m_sd_v, 0) / denom );
+      }
+      else
+      {
+        ts = m_dt[i] * m_sd_v;   // zs
+        tv = m_dt[i] * m_mean_v; // zu
+        term1 = m_mean_v *(R::pnorm((m_b-tv)/ts, 0, 1, 1, 0) -
+          R::pnorm((m_b-m_A-tv)/ts,0,1,1, 0));
+        term2 = m_sd_v   *(R::dnorm((m_b-m_A-tv)/ts, 0, 1, 0) -
+          R::dnorm((m_b-tv)/ts, 0,1,0));
+        out[i] = R::fmax2(0.0, (term1 + term2) / (m_A*denom));
+      }
+
+      if (ISNAN(out[i])) out[i] = 0.0;
+    }
+
+    delete [] m_dt;
+    return out;
+  }
+
+  arma::vec p()
+  {
+    arma::vec out(m_nrt);
+
+    for (size_t i = 0; i < m_nrt; i++)
+    {
+      if (m_A < 1e-10)
+      {
+        out[i] = R::fmin2(1.0,
+                 R::fmax2(0.0,
+                 R::pnorm(m_b / m_dt[i], m_mean_v, m_sd_v, false, false) / denom));
+      }
+      else
+      {
+        tv = m_dt[i] * m_mean_v;
+        ts = m_dt[i] * m_sd_v;
+
+        term1 = (m_b-m_A-tv) * R::pnorm((m_b - m_A - tv) / ts, 0, 1, true, false) -
+                (m_b    -tv) * R::pnorm((m_b       - tv) / ts, 0, 1, true, false);
+        term2 = ts * (R::dnorm((m_b - m_A - tv) / ts, 0, 1, false) -
+                      R::dnorm((m_b       - tv) / ts, 0, 1, false));
+
+        out[i] = R::fmin2(1.0,
+                 R::fmax2(0.0, (1.0 + (term1 + term2)/m_A) / denom));
+      }
+
+      if (ISNAN(out[i])) out[i] = 0.0;
+
+    }
+    delete [] m_dt;
+    return out;
+  }
 
 
-  void d (std::vector<double> & x, double * output);
-  void d (std::vector<double> & x, std::vector<double> & output);
-  void d (arma::vec & x, arma::vec & output);
+  void r (unsigned int & n, arma::mat & output)
+  {
+    // output n x 2
+    arma::vec tmp(m_nmean_v);
 
-  void p (std::vector<double> & x, double * output);
-  void p (std::vector<double> & x, std::vector<double> & output);
-  void p (arma::vec & x, arma::vec & output);
+    for (size_t i=0; i<n; i++)
+    {
+      rt(tmp);
+      output(i, 0) = tmp.min();
+      output(i, 1) = 1 + tmp.index_min(); // plus 1 to fit R indexing
+    }
+  }
 
-  void node1_pdf (arma::vec & x, arma::vec & output);
-  void r (unsigned int & n, arma::mat & output);
-  void print(const std::string & x) const;
+  void print(const std::string & x) const
+  {
+    Rcpp::Rcout << x << "[A, b, mean_v, sd_v, t0]: " << m_A << ", " << m_b <<
+      ", " << m_mean_v << ", " << m_sd_v << ", " << m_t0 << std::endl;
+  }
+
+  bool ValidateParams (bool print)
+  {
+    using namespace Rcpp;
+    bool valid = true;
+
+    if (m_A <= 0)   { valid = false; if (print) Rcout << "invalid parameter A = " << m_A << std::endl; }
+    if (m_b < 0)    { valid = false; if (print) Rcout << "invalid parameter b = " << m_b << std::endl; }
+    if (m_b < m_A)  { valid = false; if (print) Rcout << "b must greater than A. b = " << m_b << ", A = " << m_A << std::endl; }
+    if (m_sd_v < 0) { valid = false; if (print) Rcout << "invalid parameter sd_v = " << m_sd_v << std::endl; }
+    if (m_t0 < 0)   { valid = false; if (print) Rcout << "invalid parameter t0 = " << m_t0 << std::endl; }
+    if (m_st0 < 0)  { valid = false; if (print) Rcout << "invalid parameter st0 = " << m_st0 << std::endl; }
+
+    return valid;
+  }
+
 
 private:
-  double dt;
-
-  double remove_t0 (double & x)
-  {
-    return x - m_t0; // allow negative DT for MCMC converge.
-    // if (x < 0) return 0;
-    // else       return (x - m_t0);
-  }
-
-  double d (double & x)
-    // Return probability density function. fpt-pdf
-    // NOTE: For unclear reasons, we need to permit unreasonable parameters, like
-    // t0 < 0 to proceed to produce very small likelihoods, such as 3.798281e-80.
-    // This allows MCMC to converge.
-  {
-    // if (m_b < m_A) return 1e-10;
-    dt = remove_t0(x);
-
-    double xx=m_b/dt, tv=dt*m_mean_v, ts=dt*m_sd_v, denom, term1, term2;
-
-    denom = !is_posv ? 1.0 :
-      std::max(R::pnorm(m_mean_v/m_sd_v, 0, 1, true, false), 1e-10);
-
-    term1 = m_mean_v * (R::pnorm((m_b-tv)    / ts, 0, 1, 1, 0) -
-                        R::pnorm((m_b-m_A-tv)/ ts, 0, 1, 1, 0));
-    term2 = m_sd_v   * (R::dnorm((m_b-m_A-tv)/ ts, 0, 1, 0)  -
-                        R::dnorm((m_b-tv)    / ts, 0, 1, 0));
-
-    if (m_A < 1e-10) {
-      return std::max(0.0,
-                      (m_b/(dt*dt)) * R::dnorm(xx, m_mean_v, m_sd_v, 0) / denom);
-    } else {
-      return std::max(0.0,
-                      (term1 + term2)/ (m_A*denom));
-    }
-  }
-
-  double p (double & x)
-    // Return cumulative distribution function. fpt-cdf
-  {
-    dt = remove_t0(x);
-
-    double tv=dt*m_mean_v, ts=dt*m_sd_v, denom, term1, term2;
-
-    denom = !is_posv ? 1.0 :
-      std::max(R::pnorm(m_mean_v/m_sd_v, 0, 1, true, false), 1e-10);
-
-    term1 = (m_b-m_A-tv) * R::pnorm((m_b - m_A - tv) / ts, 0, 1, true, false) -
-            (m_b-tv)     * R::pnorm((m_b       - tv) / ts, 0, 1, true, false);
-    term2 = ts * (R::dnorm((m_b - m_A - tv) / ts, 0, 1, false) -
-                  R::dnorm((m_b       - tv) / ts, 0, 1, false));
-    if (m_A < 1e-10) {
-      return std::min(1.0,
-             std::max(0.0,
-                      R::pnorm(dt, m_mean_v, m_sd_v, false, false) / denom));
-    } else {
-      return std::min(1.0,
-             std::max(0.0, (1.0 + (term1 + term2)/m_A) / denom));
-    }
-  }
+  double tv, ts, term1, term2, denom;
 
   void rt(arma::vec & output)
-    // Return one random set of response times. The size of a set equals to the
-    // number of accumulators
+  // Return one random set of response times. The size of a set equals to the
+  // number of accumulators
   {
     double lower;
     for (size_t i=0; i<m_nmean_v; i++)
@@ -111,15 +160,12 @@ private:
 
     if ( output.has_inf() ) Rcpp::stop("Found infinite in lba class");
 
-
   }
-
 
 };
 
-arma::vec n1PDFfixedt0(arma::vec rt, arma::vec A, arma::vec b,
-                       arma::vec mean_v, arma::vec sd_v, arma::vec t0,
-                       bool posdrift);
-// no st0, so fixed t0
+arma::vec n1PDFfixedt0(arma::vec rt, arma::vec A, arma::vec b, arma::vec mean_v,
+                       arma::vec sd_v, arma::vec t0, bool posdrift);
+
 
 #endif

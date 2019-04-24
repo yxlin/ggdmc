@@ -23,8 +23,8 @@ cat("\n-------------------- Testing DDM 1 Subject --------------------")
 
 
   ## Sampling ---------
-  fit0 <- StartNewsamples(dmi, p.prior)
-  fit <- run(fit0)
+  fit0 <- StartNewsamples(dmi, p.prior, block = FALSE)
+  fit <- run(fit0, block = FALSE)
 
   pdf(file = "DDM1S.pdf")
 

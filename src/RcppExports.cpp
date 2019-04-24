@@ -182,6 +182,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_sumlogprior
+double test_sumlogprior(arma::vec pvec, List prior);
+RcppExport SEXP _ggdmc_test_sumlogprior(SEXP pvecSEXP, SEXP priorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
+    Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_sumlogprior(pvec, prior));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_dprior
+arma::vec test_dprior(arma::vec pvec, List prior);
+RcppExport SEXP _ggdmc_test_dprior(SEXP pvecSEXP, SEXP priorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
+    Rcpp::traits::input_parameter< List >::type prior(priorSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_dprior(pvec, prior));
+    return rcpp_result_gen;
+END_RCPP
+}
 // dtnorm
 std::vector<double> dtnorm(std::vector<double> x, double p1, double p2, double lower, double upper, bool lg);
 RcppExport SEXP _ggdmc_dtnorm(SEXP xSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lgSEXP) {
@@ -242,6 +266,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_init_oldhier", (DL_FUNC) &_ggdmc_init_oldhier, 10},
     {"_ggdmc_rlba_norm", (DL_FUNC) &_ggdmc_rlba_norm, 8},
     {"_ggdmc_rprior_mat", (DL_FUNC) &_ggdmc_rprior_mat, 2},
+    {"_ggdmc_test_sumlogprior", (DL_FUNC) &_ggdmc_test_sumlogprior, 2},
+    {"_ggdmc_test_dprior", (DL_FUNC) &_ggdmc_test_dprior, 2},
     {"_ggdmc_dtnorm", (DL_FUNC) &_ggdmc_dtnorm, 6},
     {"_ggdmc_rtnorm", (DL_FUNC) &_ggdmc_rtnorm, 5},
     {"_ggdmc_ptnorm", (DL_FUNC) &_ggdmc_ptnorm, 7},

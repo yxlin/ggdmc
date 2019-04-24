@@ -89,23 +89,23 @@ private:
   void  SetPrecision (double p)
   {
     // Try to achieve an accuracy of approximately 10^{-p} for the CDF.
-    TUNE_PDE_DT_MIN   = pow(10, -0.400825*p-1.422813);
-    TUNE_PDE_DT_MAX   = pow(10, -0.627224*p+0.492689);
-    TUNE_PDE_DT_SCALE = pow(10, -1.012677*p+2.261668);
+    TUNE_PDE_DT_MIN   = std::pow(10, -0.400825*p-1.422813);
+    TUNE_PDE_DT_MAX   = std::pow(10, -0.627224*p+0.492689);
+    TUNE_PDE_DT_SCALE = std::pow(10, -1.012677*p+2.261668);
 
-    TUNE_DZ  = pow(10, -0.5*p-0.033403); // CDF
-    TUNE_DV  = pow(10, -1.0*p+1.4);
-    TUNE_DT0 = pow(10, -0.5*p-0.323859);
+    TUNE_DZ  = std::pow(10, -0.5*p-0.033403); // CDF
+    TUNE_DV  = std::pow(10, -1.0*p+1.4);
+    TUNE_DT0 = std::pow(10, -0.5*p-0.323859);
 
-    TUNE_INT_T0 = 0.089045 * exp(-1.037580*p); // PDF
-    TUNE_INT_Z  = 0.508061 * exp(-1.022373*p);
+    TUNE_INT_T0 = 0.089045 * std::exp(-1.037580*p); // PDF
+    TUNE_INT_Z  = 0.508061 * std::exp(-1.022373*p);
 
     // CONVERSION NOTE:
     //     These have been added to optimise code paths by treating very small variances as 0
     //     e.g. with precision = 3, sv or sz values < 10^-5 are considered 0
-    TUNE_SV_EPSILON = pow (10, -(p+2.0));     // Used by pdiffusion
-    TUNE_SZ_EPSILON = pow (10, -(p+2.0));     // Used by ddiffusion and pdiffusion
-    TUNE_ST0_EPSILON = pow (10, -(p+2.0));   // Used by ddiffusion
+    TUNE_SV_EPSILON  = std::pow (10, -(p+2.0));     // Used by pdiffusion
+    TUNE_SZ_EPSILON  = std::pow (10, -(p+2.0));     // Used by ddiffusion and pdiffusion
+    TUNE_ST0_EPSILON = std::pow (10, -(p+2.0));   // Used by ddiffusion
   }
 
 };

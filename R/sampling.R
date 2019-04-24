@@ -180,7 +180,8 @@ StartNewsamples <- function(data, prior=NULL, nmc=2e2, thin=1, nchain=NULL,
 ##' @rdname StartNewsamples
 ##' @export
 run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
-                   gammamult=2.38, pm0=0, pm1=0, block=TRUE, ncore=1, add=FALSE)
+                 gammamult=2.38, pm0=0, pm1=0, block=TRUE, ncore=1,
+                 add=FALSE)
 {
   hyper <- attr(samples, "hyper")
 

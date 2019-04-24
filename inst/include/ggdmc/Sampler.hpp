@@ -100,7 +100,7 @@ public:
 
       mh = std::exp(tmp_logpos - cur_logpos);
 
-      if (!std::isnan(mh) && (R::runif(0, 1) < mh) )
+      if (!ISNAN(mh) && (R::runif(0, 1) < mh) )
       {
         phi->m_usephi0(i, m_chains[j]) = tmp0[i];
         phi->m_usephi1(i, m_chains[j]) = tmp1[i];
@@ -133,7 +133,7 @@ public:
 
       mh = std::exp(tmp_logpos - cur_logpos);
 
-      if ( !std::isnan(mh) && (R::runif(0, 1) < mh) )
+      if ( !ISNAN(mh) && (R::runif(0, 1) < mh) )
       {
         t->m_usetheta(i, m_chains[j]) = tmp0[i];
         t->m_uselp[m_chains[j]]       = tmp_lp;
@@ -154,17 +154,19 @@ public:
       m_subchains = PickChains(m_chains[i], 2, m_chains);
       for(size_t j = 0; j < m_npar; j++) noise[j] = R::runif(-m_rp, m_rp);
 
-
       tmp0 = noise + t->m_usetheta.col( m_chains[i] ) +
-        (m_gamma % (t->m_usetheta.col( m_subchains[0] ) - t->m_usetheta.col(m_subchains[1]) ));
+        (m_gamma % ( t->m_usetheta.col( m_subchains[0] ) -
+                     t->m_usetheta.col( m_subchains[1] ) ));
       tmp_lp = t->m_p->sumlogprior(tmp0);
       tmp_ll = t->m_l->sumloglike (tmp0);
+
       tmp_logpos = tmp_lp + tmp_ll;
 
-      if (std::isnan(tmp_logpos)) tmp_logpos = R_NegInf;
-      mh = std::exp(tmp_logpos - cur_logpos);
+      // Rcout << "tmp_lp & tmp_ll " << "[" << tmp_lp << " " << tmp_ll << "]" << "\n";
+      // if (ISNAN(tmp_logpos)) tmp_logpos = R_NegInf;
 
-      if ( !std::isnan(mh) && (R::runif(0, 1) < mh) )
+      mh = std::exp(tmp_logpos - cur_logpos);
+      if ( !ISNAN(mh) && (R::runif(0, 1) < mh) )
       {
         t->m_usetheta.col(m_chains[i]) = tmp0;
         t->m_uselp[ m_chains[i] ]      = tmp_lp;
@@ -206,7 +208,7 @@ public:
 
       mh = std::exp(tmp_logpos - cur_logpos);
 
-      if ( !std::isnan(mh) && (R::runif(0, 1) < mh ) )
+      if ( !ISNAN(mh) && (R::runif(0, 1) < mh ) )
       {
         phi->m_usephi0.col(next_chain) = tmp_loc;
         phi->m_usephi0.col(next_chain) = tmp_sca;
@@ -238,13 +240,13 @@ public:
       tmp_ll     = t->m_l->sumloglike (tmp);
       tmp_logpos = tmp_lp + tmp_ll;
 
-      if (std::isnan(tmp_logpos)) tmp_logpos = R_NegInf;
+      if (ISNAN(tmp_logpos)) tmp_logpos = R_NegInf;
 
       cur_logpos = t->m_uselp[next_chain] + t->m_usell[next_chain];
 
       mh = std::exp(tmp_logpos - cur_logpos);
 
-      if ( !std::isnan(mh) && (R::runif(0, 1) < mh) )
+      if ( !ISNAN(mh) && (R::runif(0, 1) < mh) )
       {
         t->m_usetheta.col(next_chain) = tmp;
         t->m_uselp[next_chain]        = tmp_lp;
@@ -292,7 +294,7 @@ public:
     cur_logpos = cur_ll[0] + cur_lp[0];
     mh = std::exp(tmp_logpos - cur_logpos);
 
-    if ( !std::isnan(mh) && (R::runif(0, 1) < mh ) )
+    if ( !ISNAN(mh) && (R::runif(0, 1) < mh ) )
     {
       phi->m_usephi0.col(m_subchains[0]) = tmp_loc.col(m_nsubchain - 1);
       phi->m_usephi1.col(m_subchains(0)) = tmp_sca.col(m_nsubchain - 1);
@@ -308,7 +310,7 @@ public:
         cur_logpos = cur_ll[k + 1] + cur_lp[k + 1];
         mh = std::exp(tmp_logpos - cur_logpos);
 
-        if ( !std::isnan(mh) && (R::runif(0, 1) < mh ) )
+        if ( !ISNAN(mh) && (R::runif(0, 1) < mh ) )
         {
           phi->m_usephi0.col(m_subchains(k + 1)) = tmp_loc.col(k);
           phi->m_usephi1.col(m_subchains(k + 1)) = tmp_sca.col(k);
@@ -350,9 +352,9 @@ public:
 
     mh = std::exp(tmp_logpos - cur_logpos);
 
-    if (std::isnan(tmp_logpos)) tmp_logpos = R_NegInf;
+    if (ISNAN(tmp_logpos)) tmp_logpos = R_NegInf;
 
-    if (!std::isnan(tmp_logpos) && R::runif(0, 1) < mh)
+    if (!ISNAN(tmp_logpos) && R::runif(0, 1) < mh)
     {
       t->m_usetheta.col(m_subchains[0]) = tmp.col(m_nsubchain - 1);
       t->m_uselp[m_subchains[0]]        = tmp_lp[m_nsubchain - 1];
@@ -367,9 +369,9 @@ public:
         cur_logpos = cur_ll(k + 1) + cur_lp(k + 1);
 
         mh = std::exp(tmp_logpos - cur_logpos);
-        if (std::isnan(tmp_logpos)) tmp_logpos = R_NegInf;
+        if (ISNAN(tmp_logpos)) tmp_logpos = R_NegInf;
 
-        if (!std::isnan(tmp_logpos) && R::runif(0, 1) < mh)
+        if (!ISNAN(tmp_logpos) && R::runif(0, 1) < mh)
         {
           t->m_usetheta.col(m_subchains[k+1]) = tmp.col(k);
           t->m_uselp[m_subchains[k+1]]        = tmp_lp[k];
@@ -381,5 +383,6 @@ public:
 
 
 };
+
 
 #endif

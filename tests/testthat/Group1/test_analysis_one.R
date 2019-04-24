@@ -14,7 +14,7 @@ model <- BuildModel(
 
 npar <- length(GetPNames(model))
 p.vector <- c(a=1, v=1.5, z=0.5, t0=.15)
-dat <- simulate(model, nsim = 20, ps = p.vector)
+dat <- simulate(model, nsim = 100, ps = p.vector)
 dmi <- BuildDMI(dat, model)
 
 p.prior <- BuildPrior(
@@ -26,8 +26,7 @@ p.prior <- BuildPrior(
 
 ## Sampling and check model ----
 cat("Starting a new model fit: \n")
-fit <- run(StartNewsamples(dmi, p.prior))
-res <- gelman(fit)
+fit <- run(StartNewsamples(dmi, p.prior, block = FALSE), block = FALSE)
 res <- gelman(fit, verbose=TRUE)
 
 pdf(file = "analysis_one.pdf")
@@ -44,7 +43,7 @@ tmp1 <- theta2mcmclist(fit)
 tmp2 <- theta2mcmclist(fit, start = 10, end = 90)
 tmp3 <- theta2mcmclist(fit, split = TRUE)
 
-cat("\nhich chains were selected: \n")
+cat("\nWhich chains were selected: \n")
 tmp4 <- theta2mcmclist(fit, subchain = TRUE)
 tmp5 <- theta2mcmclist(fit, subchain = TRUE, nsubchain = 4)
 tmp6 <- theta2mcmclist(fit, thin = 2)

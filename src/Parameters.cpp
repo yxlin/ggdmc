@@ -66,7 +66,7 @@ bool Parameters::ValidateParams (bool print)
   if (szr < 0 || szr > 1)             { valid = false; if (print) Rcout << "error: invalid parameter szr = " << szr << std::endl; }
   if (st0 < 0)                        { valid = false; if (print) Rcout << "error: invalid parameter st0 = " << st0 << std::endl; }
   if (sv < 0)                         { valid = false; if (print) Rcout << "error: invalid parameter sv = " << sv << std::endl; }
-  if (t0 - fabs(0.5*d) - 0.5*st0 < 0) { valid = false; if (print) Rcout << "error: invalid parameter combination t0 = " << t0 << ", d = " << d << ", st0 =" << st0 << std::endl; }
+  if (t0 - std::fabs(0.5*d) - 0.5*st0 < 0) { valid = false; if (print) Rcout << "error: invalid parameter combination t0 = " << t0 << ", d = " << d << ", st0 =" << st0 << std::endl; }
   if (zr - 0.5*szr <= 0)              { valid = false; if (print) Rcout << "error: invalid parameter combination zr = " << zr << ", szr = " << szr << std::endl;}
   if (zr + 0.5*szr >= 1)              { valid = false; if (print) Rcout << "error: invalid parameter combination zr = " << zr << ", szr = " << szr << std::endl;}
 
@@ -97,10 +97,10 @@ static double g_minus_small_time (double t, double zr, int N)
   for (i = -N/2; i <= N/2; i++) // i must be int; it cannot be unsigned
   {
     d = 2*i + zr;
-    s += exp(-d*d / (2*t)) * d;
+    s += std::exp(-d*d / (2*t)) * d;
   }
 
-  return s / sqrt(6.283185307179586231996*t*t*t);
+  return s / std::sqrt(M_2PI*t*t*t);
 }
 
 static double g_minus_large_time (double t, double zr, int N)
@@ -111,7 +111,7 @@ static double g_minus_large_time (double t, double zr, int N)
   for (i = 1; i <= N; i++)
   {
     d = i * M_PI;
-    s += exp(-0.5*d*d*t) * sin(d*zr) * i;
+    s += std::exp(-0.5*d*d*t) * std::sin(d*zr) * i;
   }
   return s * M_PI;
 }
@@ -123,20 +123,20 @@ static double g_minus_no_var (double t, double a, double zr, double v)
   int N_small, N_large;
   double simple, factor, eps, ta = t/(a*a);
 
-  factor = exp(-a*zr*v - 0.5*(v*v)*t) / (a*a); // Front term in A3
-  if (std::isinf(factor)) { return 0; }
+  factor = std::exp(-a*zr*v - 0.5*(v*v)*t) / (a*a); // Front term in A3
+  if ( !R_FINITE(factor) ) { return 0; }
   eps = EPSILON / factor;
 
-  N_large = (int)ceil(1./(M_PI*sqrt(t)));
+  N_large = (int)std::ceil(1. / (M_PI*std::sqrt(t)));
 
   if (M_PI*ta*eps < 1.) { // std::max as imax
-    N_large = std::max(N_large,
-                       (int)ceil(sqrt(-2.0*log(M_PI*ta*eps) / ((M_PI*M_PI)*ta))));
+    N_large = R::imax2(N_large,
+              (int)std::ceil(std::sqrt(-2.0*std::log(M_PI*ta*eps) / ((M_PI*M_PI)*ta))));
   }
 
-  if (2.*sqrt(2.*M_PI*ta)*eps < 1.) { // std::max as fmax
-    N_small = (int)ceil(std::max(sqrt(ta) + 1,
-                        2. + sqrt(-2.0*ta*log(2.0*eps*sqrt(2.0*M_PI*ta)))));
+  if (2.*std::sqrt(M_2PI*ta)*eps < 1.) { // std::max as fmax
+    N_small = (int)std::ceil(R::fmax2(std::sqrt(ta) + 1,
+                        2. + std::sqrt(-2.0*ta*log(2.0*eps*std::sqrt(M_2PI*ta)))));
   } else {
     N_small = 2;
   }
@@ -159,26 +159,26 @@ static double integral_v_g_minus (double t, double zr, Parameters *params)
   // The factor is where difference is
   // Here uses a*zr to get z (zr = z/a). Must not change the multiplication
   // sequence of a*zr*a*zr*sv*sv; otherwise it will produce rounding errors
-  factor = 1 / (a*a * sqrt(t * sv*sv + 1)) *
-    exp(-0.5 * (v*v*t + 2*v*a*zr - a*zr*a*zr*sv*sv) / (t*sv*sv+1));
+  factor = 1 / (a*a * std::sqrt(t * sv*sv + 1)) *
+    std::exp(-0.5 * (v*v*t + 2*v*a*zr - a*zr*a*zr*sv*sv) / (t*sv*sv+1));
 
   // Early exit 1
-  if (std::isinf(factor)) {return 0;}
+  if (!R_FINITE(factor)) { return 0; }
   eps = EPSILON / factor;
 
   // Early exit 2
-  if (sv == 0) {return g_minus_no_var(t, a, zr, v);}
+  if (sv == 0) { return g_minus_no_var(t, a, zr, v); }
 
   // Below is identical as in g_minus_no_var
-  N_large = (int)ceil(1./(M_PI*sqrt(t)));
+  N_large = (int)std::ceil(1./(M_PI*std::sqrt(t)));
   if (M_PI*ta*eps < 1.) {
-    N_large = std::max(N_large,
-                       (int)ceil(sqrt(-2.*log(M_PI*ta*eps) / (M_PI*M_PI*ta))));
+    N_large = R::imax2(N_large,
+                       (int)std::ceil(sqrt(-2.*std::log(M_PI*ta*eps) / (M_PI*M_PI*ta))));
   }
 
-  if (2.*sqrt(2.*M_PI*ta)*eps < 1.) {
-    N_small = (int)ceil(std::max(sqrt(ta) + 1.,
-                        2. + sqrt(-2.*ta*log(2.*eps*sqrt(2.*M_PI*ta)))));
+  if (2.*std::sqrt(M_2PI*ta)*eps < 1.) {
+    N_small = (int)std::ceil(R::imax2(sqrt(ta) + 1.,
+                        2. + sqrt(-2.*ta*log(2.*eps*std::sqrt(M_2PI*ta)))));
   } else {
     N_small = 2;
   }
@@ -196,7 +196,7 @@ static double integrate_v_over_zr (Parameters *params, double a, double b,
   // used by integral_z_g_minus
 {
   double x, s=0, width=b-a;
-  int N = std::max(4, (int) (width / step_width)); // usually less than 10
+  int N = R::imax2(4, (int) (width / step_width)); // usually less than 10
   double step=width/N;
   for(x = a+0.5*step; x < b; x += step)
   {
@@ -228,7 +228,7 @@ static double integrate_z_over_t (Parameters *params, double a, double b,
                                   double step_width)
 {
   double x, s=0, width=b-a;
-  int N = std::max(4, (int) (width / step_width));
+  int N = R::imax2(4, (int) (width / step_width));
   double step=width/N;
   for(x = a+0.5*step; x < b; x += step)
   {

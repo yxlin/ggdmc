@@ -105,6 +105,14 @@ rprior_mat <- function(prior, n) {
     .Call('_ggdmc_rprior_mat', PACKAGE = 'ggdmc', prior, n)
 }
 
+test_sumlogprior <- function(pvec, prior) {
+    .Call('_ggdmc_test_sumlogprior', PACKAGE = 'ggdmc', pvec, prior)
+}
+
+test_dprior <- function(pvec, prior) {
+    .Call('_ggdmc_test_dprior', PACKAGE = 'ggdmc', pvec, prior)
+}
+
 #' Truncated Normal Distribution
 #'
 #' Random number generation, probability density and cumulative density

@@ -39,11 +39,11 @@ double tnorm::d (double x)
 {
   double out, numer, denom;
 
-  if (s < 0)
-  {
-    out = lp ? R_NegInf : 0;
-  }
-  else if  ((x >= l) && (x <= u))
+  // if (s < 0)
+  // {
+  //   out = lp ? R_NegInf : 0;
+  // }
+  if  ((x >= l) && (x <= u))
   {
     // 4th arg: lower.tail (lt)=1; 5th arg: log.p (lg)=0
     denom = R::pnorm(u, m, s, true, false) - R::pnorm(l, m, s, true, false);

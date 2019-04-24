@@ -181,8 +181,8 @@ static void F_st0_start  (F_calculator *fc, int plus);
 /*** plain: no variability **************************************************/
 double F_plain_data::F_limit(double z)
 {
-  if (fabs(v) < 1e-8) { return 1 - z/a; }
-  else { return ( exp(-2*v*z)-exp(-2*v*a) ) / (1-exp(-2*v*a) ); }
+  if (std::fabs(v) < 1e-8) { return 1 - z/a; }
+  else { return ( std::exp(-2*v*z)-std::exp(-2*v*a) ) / (1-std::exp(-2*v*a) ); }
 }
 
 static F_calculator *F_plain_new (Parameters * params)
@@ -288,7 +288,7 @@ static F_calculator *F_sz_new (Parameters *params)
   N = base_fc->N;
   dz = F_plain_get_z(base_fc, 1) - F_plain_get_z(base_fc, 0);
   tmp = sz/(2*dz);
-  k = (int)(ceil(tmp) + 0.5); // step in z space
+  k = (int)(std::ceil(tmp) + 0.5); // step in z space
   if (2*k > N) Rcpp::stop ("2*k > N"); // assert is slient in R
 
   fc->N = N-2*k;
@@ -528,9 +528,6 @@ static F_calculator * F_st0_new (Parameters * params)
   data->values = new double[M*(N+1)];
   data->valid = new char[M];
 
-  // data->start   = -DBL_MAX;
-  // for (int j = 0; j < M; ++j) data->valid[j] = 0;
-
   data->avg = new double[N+1];
 
   fc->N    = N;
@@ -584,7 +581,7 @@ static const double * F_st0_get_F (F_calculator *fc, double t)
   // A independent block to confine scope
   { // tmp allocated and scope begins
     double tmp = (b - data->start)/data->dt;
-    m = (int)(ceil (tmp) + 0.5);      // V&V's note:
+    m = (int)(std::ceil(tmp) + 0.5);      // V&V's note:
     if (m >= data->M)  m = data->M-1; // "protect against rounding errors"
     q = (a - data->start)/data->dt;
     r = m - tmp;
@@ -830,7 +827,7 @@ Rcpp::List sampling(int s_size, Parameters * params, bool random_flag)
     if (F[i] > 1)	F[i] = 1;
   }
 
-  qsort(F, N+1, sizeof(double), compare_doubles); // use quick sort in cstdlib
+  std::qsort(F, N+1, sizeof(double), compare_doubles); // use quick sort in cstdlib
   if (F[0] > Fs_min)		F[0] = Fs_min;
   if (F[N] < Fs_max)		F[N] = Fs_max;
 
@@ -846,7 +843,7 @@ Rcpp::List sampling(int s_size, Parameters * params, bool random_flag)
     if (F[k] > y || y > F[k+1]) Rcpp::stop("y not in the range");
 
     out_bounds[i] = t >= 0;
-    out_RTs[i] = fabs(t);
+    out_RTs[i] = std::fabs(t);
   }
 
   delete [] F;

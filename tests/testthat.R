@@ -34,8 +34,16 @@ cat("\n========================== Group 2 tests ==========================\n")
 
 # test_file(path = "testthat/Group2/test_LBA8S.R")
 # test_file(path = "testthat/Group2/test_DDM8S.R")
+# test_file(path = "testthat/Group2/test_hWiener.R")
 # test_file(path = "testthat/Group2/test_HLBA.R")
 # test_file(path = "testthat/Group2/test_HDDM.R")
+
+cat("\n========================== Group 3 tests ==========================\n")
+
+# DO NOT test these
+# test_file(path = "testthat/Group2/test_fptpdf.R")
+# test_file(path = "testthat/Group2/test_LBA1S_252.R")
+# test_file(path = "testthat/Group2/test_n1PDFfixedt0.R")
 
 cat("\n====================== Testing plot functions ======================\n")
 

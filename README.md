@@ -167,13 +167,14 @@ similarities.  They have however some differences.  For example, the dimension
 in theta and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
 The dimension of the log_likelihoods and summed_log_prior matrices are 
 nchain x nmc. DMC uses nmc x nchain.  Remember to alter them, if you want to 
-operate objects back-and-forth between them. 
+operate objects back-and-forth between them. Convenient codes for do this will 
+be added in the future.
 
 Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
 more examples.
 
 ## Prerequisites
- - R (>= 3.4.0)
+ - R (>= 3.3.0)
  - R packages: Rcpp (>= 0.12.10), RcppArmadillo (>= 0.7.700.3.0), 
    ggplot2 (>= 2.1.0), coda (>= 0.16-1), matrixStats, data.table
  - Windows users need Rtools (>= 3.3.0.1959) 
@@ -219,7 +220,8 @@ encountering the OpenMP problem.
 
 If you use this package, please cite the software, for example:
 
-Lin, Y.-S. (in preparation). Tutorial on Bayesian cognitive modeling. 
+Lin, Y.-S and Strickland, L.. (in preparation). Evidence accumulation models with
+R: A practical guide to hierarchical Bayesian methods. 
 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computations, new

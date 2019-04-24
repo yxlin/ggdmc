@@ -167,8 +167,8 @@ similarities.  They have however some differences.  For example, the dimension
 in theta and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
 The dimension of the log_likelihoods and summed_log_prior matrices are 
 nchain x nmc. DMC uses nmc x nchain.  Remember to alter them, if you want to 
-operate objects back-and-forth between them. Convenient codes for do this will 
-be added in the future.
+operate objects back-and-forth between them. Convenient codes, using aperm, for 
+doing this will be added in the future version.
 
 Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
 more examples.
@@ -191,11 +191,12 @@ From CRAN (0.2.5.7):
 
 From source: 
 
-> install.packages("ggdmc_0.2.5.9.tar.gz", repos = NULL, type="source")
+> install.packages("ggdmc_0.2.5.7.tar.gz", repos = NULL, type="source")
 
 From GitHub (you need _devtools_) (0.2.5.9):
 
 > devtools::install_github(“yxlin/ggdmc”)
+
 
 For Mac Users:
 

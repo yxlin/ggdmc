@@ -29,7 +29,7 @@
 #include <RcppArmadillo.h> // for std, cmath and many other supports via Rcpp
 
 
-#define xrenew(T,OLD,N) ((T *)xrealloc(OLD,(N)*sizeof(T)))
+#define xrenew(T,OLD,N) ( (T *)xrealloc(OLD, (N)*sizeof(T)) )
 
 class F_calculator
 // A parent class for F_plain, F_sz, F_sv & F_st0. All four derived classes
@@ -37,9 +37,9 @@ class F_calculator
 {
 public:
   int N, plus;
-  void *data; // Cast to derived classes in their member functions
+  void *data; // Cast to a derived class in their member functions
 
-  void (*start)   (F_calculator *, int plus);   // CONVERSION NOTE:
+  void (*start)   (F_calculator *, int plus);
   void (*free)    (F_calculator *);
   const double *(*get_F)  (F_calculator *, double t);
   double (*get_z) (const F_calculator *, int i);
@@ -76,12 +76,8 @@ class F_sv_data // sv
 {
 public:
   int  nv;                // number of points in integration
-  F_calculator **base_fc; // F_calculators for different v
+  std::vector<F_calculator*> base_fc; // F_calculators for different v
   double *avg;
-  // We can use also std::vector.
-  // Same effect with safer heap memory management, but let's stick with
-  // original code as close as possible.
-  // std::vector<F_calculator*> base_fc; // F_calculators for different v
 };
 
 class F_st0_data // st0

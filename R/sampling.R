@@ -67,7 +67,11 @@ run_many <- function(data, prior, nchain, nmc, thin, report, rp, gammamult,
   }
 
   for(i in 1:length(out))
+  {
     dimnames(out[[i]]$theta) <- list(out[[i]]$p.names, NULL, NULL)
+    class(out[[i]]) <- c("model", "list")
+  }
+
 
   return(out)
 }
@@ -103,7 +107,10 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
   }
 
   for(i in 1:length(out))
+  {
     dimnames(out[[i]]$theta) <- list(out[[i]]$p.names, NULL, NULL)
+    class(out[[i]]) <- c("model", "list")
+  }
 
   return(out)
 }

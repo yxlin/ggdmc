@@ -466,8 +466,8 @@ plot.prior <- function(x, save = FALSE, ps = NULL, ...) {
   } else if ((!is.null(ps) & is.matrix(ps))) {
     wide <- data.table::data.table(ps)
     wide$s <- factor(1:nrow(ps))
-    pveclines <- data.table::melt.data.table(wide, id.vars = "s", variable.name = "Parameter",
-                 value.name = "true")
+    pveclines <- data.table::melt.data.table(
+      wide, id.vars = "s", variable.name = "Parameter", value.name = "true")
     p0 <- ggplot(pD, aes_string(x = "xpos", y = "ypos")) +
       geom_line() +
       geom_vline(data = pveclines, aes_string(xintercept = "true"),

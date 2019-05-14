@@ -80,7 +80,7 @@ static void solve_tridiag(int n, const double *rhs, double *res, double left,
       * 'solve_tridiag' caused about 10% of the total CPU load during
       * some fast-dm runs.  To avoid this problem, re-use the
       * same buffer between runs if possible. */
-      tmp = xrenew(double, tmp, n-1);
+      tmp = xrenew(double, tmp, n-1); //
       // still we want to scratch the content of
       tmp_len = n-1;
       // the two variables as explained by V&V's note above.
@@ -99,6 +99,10 @@ static void solve_tridiag(int n, const double *rhs, double *res, double left,
 
     /* step 2: solving backward */
     for (i=n-1; i>0; --i)  res[i-1] -= tmp[i-1]*res[i];
+
+    // Does this work? No it does not
+    // delete [] tmp;
+
 }
 
 static void make_step (int N, double *vector, double dt, double dz, double v)
@@ -182,12 +186,12 @@ static void F_st0_start  (F_calculator *fc, int plus);
 double F_plain_data::F_limit(double z)
 {
   if (std::fabs(v) < 1e-8) { return 1 - z/a; }
-  else { return ( std::exp(-2*v*z)-std::exp(-2*v*a) ) / (1-std::exp(-2*v*a) ); }
+  else {return ( std::exp(-2*v*z)-std::exp(-2*v*a) ) / (1-std::exp(-2*v*a) );}
 }
 
 static F_calculator *F_plain_new (Parameters * params)
 {
-  F_calculator * fc = new F_calculator;
+  F_calculator * fc   = new F_calculator;
   F_plain_data * data = new F_plain_data;
 
   // V&V's note "N must be even, otherwise the case szr == 1 fails"
@@ -232,7 +236,6 @@ static const double *F_plain_get_F (F_calculator *fc, double t)
     data->t = t;
   }
 
-
   return data->F;
 }
 
@@ -247,7 +250,7 @@ static double F_plain_get_z (const F_calculator *fc, int i)
 static void F_plain_delete (F_calculator *fc)
 {
   F_plain_data *data = (F_plain_data*)fc->data;
-  delete data->F;
+  delete [] data->F;
   delete data;
   delete fc;
 }
@@ -274,7 +277,7 @@ static void F_plain_start (F_calculator *fc, int plus)
 
 /*  sz ********************************************** */
 static F_calculator *F_sz_new (Parameters *params)
-{
+{ // 3 news; 1 array;
   F_calculator * base_fc = F_plain_new (params);
   F_calculator * fc = new F_calculator;
   F_sz_data * data = new F_sz_data;
@@ -308,12 +311,12 @@ static F_calculator *F_sz_new (Parameters *params)
 
   return  fc;
 }
-//
+
 static void F_sz_delete (F_calculator *fc)
 {
   F_sz_data *data = (F_sz_data *)fc->data;
-  delete data->base_fc;
-  delete data->avg;
+  F_delete(data->base_fc);
+  delete [] data->avg;
   delete data;
   delete fc;
 }
@@ -373,11 +376,11 @@ static void F_sz_start (F_calculator *fc, int plus)
 
 /*** sv **************************************************/
 static F_calculator * F_sv_new (Parameters *params)
-{
+{ // 4 new's; two array
   if (params->sv < params->TUNE_SV_EPSILON) return F_sz_new (params);
 
   F_calculator * fc = new F_calculator;
-  F_sv_data * data = new F_sv_data;
+  F_sv_data * data  = new F_sv_data;
 
   int nv,j;
   double x;
@@ -385,15 +388,15 @@ static F_calculator * F_sv_new (Parameters *params)
   nv = (int)(params->sv/params->TUNE_DV + 0.5);
   if (nv < 3) nv = 3;
 
-  // std::vector<F_calculator*> base_fc(nv);
   // Create a temp copy of the parameters
-  F_calculator * (*base_fc) = new F_calculator*[nv];
+  std::vector<F_calculator*> base_fc(nv);
+  // F_calculator * (*base_fc) = new F_calculator*[nv];
 
   Parameters temp_params = *params;
   temp_params.sv = 0;   // Integrate across svs
 
-  for (j=0; j<nv; ++j) {
-
+  for (j=0; j<nv; ++j)
+  {
     x = R::qnorm ((0.5+j)/nv, 0., 1., 1, 0);
     temp_params.v = params->sv*x + params->v;
     base_fc[j] = F_sz_new(&temp_params);
@@ -442,9 +445,8 @@ static const double * F_sv_get_F (F_calculator *fc, double t)
 static void F_sv_delete (F_calculator *fc)
 {
   F_sv_data *data = (F_sv_data *)fc->data;
-
-  for (int j=0; j<data->nv; ++j) delete data->base_fc[j];
-  delete data->avg;
+  for (int j=0; j<data->nv; ++j) F_delete(data->base_fc[j]);
+  delete [] data->avg;
   delete data;
   delete fc;
 }
@@ -509,7 +511,8 @@ static void add_vec(long n, double a, const double * x, double * y)
 }
 
 static F_calculator * F_st0_new (Parameters * params)
-{
+{ // 5 new's here; two are individual pointers and 3 are arrays
+  // 1 base_fc is from a previous layer
   F_calculator * base_fc = F_sv_new (params);
   if (params->st0 <= params->TUNE_DT0*1e-6) return base_fc;
 
@@ -526,9 +529,8 @@ static F_calculator * F_st0_new (Parameters * params)
   data->M       = M;
   data->base   = 0;
   data->values = new double[M*(N+1)];
-  data->valid = new char[M];
-
-  data->avg = new double[N+1];
+  data->valid  = new char[M];
+  data->avg    = new double[N+1];
 
   fc->N    = N;
   fc->plus = -1;
@@ -635,7 +637,7 @@ static const double * F_st0_get_F (F_calculator *fc, double t)
 static void F_st0_delete (F_calculator *fc)
 {
   F_st0_data *data = (F_st0_data *)fc->data;
-  F_delete (data->base_fc);
+  F_delete (data->base_fc); // base_fc is a fc created by F_sv_new
   delete [] data->valid;
   delete [] data->values;
   delete [] data->avg;
@@ -663,8 +665,8 @@ static void F_st0_start (F_calculator *fc, int plus)
 }
 
 // The entry point  ----------------------------------------------------
-// Change F_st0_new to eg F_sv_new, or F_plain_new to test code in a different
-// orion layer.
+// Change F_st0_new to eg F_sv_new, F_sz_new, or F_plain_new to test code from
+// a different orion layer.
 F_calculator * F_new (Parameters *params)
 {
   return F_st0_new (params);

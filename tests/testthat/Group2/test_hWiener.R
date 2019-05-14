@@ -33,10 +33,9 @@ p.prior <- BuildPrior(
 
 plot(p.prior, ps = ps)  ## Check if all true pvectors in the range of prior
 
-## Sampling separately
-fit0 <- StartNewsamples(dmi, p.prior, ncore=2)
-fit  <- run(fit0, 5e2, ncore=2)
-fit  <- run(fit, 1e2, add=TRUE, ncore=2)  ## add additional 100 samples
+cat("=============== Sampling separately===============")
+fit0 <- StartNewsamples(dmi, p.prior, ncore=4)
+fit  <- run(fit0, 5e2, ncore=4)
 
 ## Model checks -----
 gelman(fit, verbose=TRUE)

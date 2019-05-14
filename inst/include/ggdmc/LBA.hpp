@@ -11,9 +11,10 @@ public:
   double *m_meanv_vec, *m_sdv_vec, *m_dt;
   unsigned int m_nmean_v, m_nrt;
 
-  lba (double A, double b, double mean_v, double sd_v, double t0,
+  lba (double A, double b, double mean_v, double sd_v, double t0, double st0,
        bool posdrift, arma::vec & rt) :
-    m_A(A), m_b(b), m_mean_v(mean_v), m_sd_v(sd_v), m_t0(t0), is_posv(posdrift)
+    m_A(A), m_b(b), m_mean_v(mean_v), m_sd_v(sd_v), m_t0(t0), m_st0(st0),
+    is_posv(posdrift)
   {
     m_nrt = rt.size();
     m_dt  = new double[m_nrt];
@@ -165,7 +166,8 @@ private:
 };
 
 arma::vec n1PDFfixedt0(arma::vec rt, arma::vec A, arma::vec b, arma::vec mean_v,
-                       arma::vec sd_v, arma::vec t0, bool posdrift);
+                       arma::vec sd_v, arma::vec t0, arma::vec st0,
+                       bool posdrift);
 
 
 #endif

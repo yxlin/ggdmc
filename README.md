@@ -1,15 +1,20 @@
 # Bayesian Cognitive Modelling
 
-_ggdmc_ is a generic tool for conducting hierarchical Bayesian Computations on
+_ggdmc_ is a generic tool for conducting hierarchical Bayesian computation on
 cognitive (RT) models. The package uses the population-based Markov chain 
 Monte Carlo (pMCMC).
 
 ## Getting Started
-This example uses the Wiener diffusion model.  For other cognitive models, 
+This example demonstrates the Wiener diffusion model.  For other models, 
 see my [tutorials site](https://yxlin.github.io/).  The naming of _R_ functions 
-in _ggdmc_ attempts to inform the user what the functions are for. For example,  _BuildModel_ is to build a model object.  
+in _ggdmc_ attempts to inform the user what the functions are for. For 
+example,  _BuildModel_ is to build a model object.  
 
-As the user is often warned in using Bayesian tools, it is always a good practice to check the outcomes of a model fit.  Note the sequence of parameters in a parameter vector (i.e., p.vector) must follow the sequence in the _p.vector_ reported by _BuildModel_.  Some build-in checks will try to safeguard this, but some situations may still escape the checks. 
+As the user is often reminded in using Bayesian tools, it is always a good 
+practice to check the result of a model fit.  Note also the sequence of 
+parameters in a parameter vector (i.e., p.vector) must follow the sequence in 
+the _p.vector_ reported by _BuildModel_.  Some build-in checks will try to 
+safeguard this, but they are far from bulletproof. 
 
 ## Fit a fixed-effect model to a participant
 
@@ -45,22 +50,21 @@ fit  <- run(fit0)
 ## Check model -----------
 plot(fit)
 plot(fit, den = TRUE)
-plot(fit, pll=FALSE)
-plot(fit, pll=FALSE, den = TRUE)
+plot(fit, pll = FALSE)
+plot(fit, pll = FALSE, den = TRUE)
 
-gelman(fit)
-est <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
+(isconv <- gelman(fit))
+est    <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
 
 ```
 
 ## How to fit fixed-effect and hierarchical model with multiple participants
 
 ```
-library(ggdmc);
-
+require(ggdmc);
 model <- BuildModel(
-  p.map     = list(a = "1", v="1", z="1", d="1", sz="1", sv="1", t0="1", 
-                   st0="1"),
+  p.map     = list(a = "1", v ="1", z ="1", d ="1", sz ="1", sv ="1", t0 ="1", 
+                   st0 ="1"),
   match.map = list(M = list(s1 = "r1", s2 = "r2")),
   factors   = list(S = c("s1", "s2")),
   responses = c("r1","r2"),
@@ -68,8 +72,8 @@ model <- BuildModel(
   type      = "rd")
 
 npar <- length(GetPNames(model))
-pop.mean  <- c(a=2,   v=4, z=0.5, t0=0.3)
-pop.scale <- c(a=0.5, v=.5, z=0.1, t0=0.05)
+pop.mean  <- c(a = 2,   v = 4,  z = 0.5, t0 = 0.3)
+pop.scale <- c(a = 0.5, v = .5, z = 0.1, t0 = 0.05)
 pop.prior <- BuildPrior(
     dists = rep("tnorm", npar),
     p1    = pop.mean,
@@ -92,34 +96,33 @@ p.prior <- BuildPrior(
 plot(p.prior, ps = ps)  ## Check if all true pvectors in the range of prior
 
 ## Sampling separately
-fit0 <- StartNewsamples(dmi, p.prior, ncore=2)
-fit  <- run(fit0, 5e2, ncore=2)
-fit  <- run(fit, 1e2, add=TRUE, ncore=2)  ## add additional 100 samples
+fit0 <- StartNewsamples(dmi, p.prior, ncore = 4)
+fit  <- run(fit0, 5e2, ncore = 4)
+fit  <- run(fit, 1e2, add = TRUE, ncore = 4)  ## add additional 100 samples
 
 ## Check model -----
-gelman(fit, verbose=TRUE)
+isconv <- gelman(fit, verbose = TRUE)
 plot(fit)
-est0 <- summary(fit, recovery = TRUE, ps = ps, verbose =TRUE)
+est0 <- summary(fit, recovery = TRUE, ps = ps, verbose = TRUE)
 
 ## Sampling hierarchically
-  mu.prior <- BuildPrior(
+mu.prior <- BuildPrior(
     dists = rep("tnorm", npar),
     p1    = pop.mean,
     p2    = pop.scale*5,
     lower = c(0,-5,  0, 0),
-    upper = c(5, 7,  1, 1)
-    )
+    upper = c(5, 7,  1, 1))
 
-  sigma.prior <- BuildPrior(
+sigma.prior <- BuildPrior(
     dists = rep("beta", npar),
     p1    = c(a=1, v=1, z=1, t0=1),
     p2    = rep(1, npar),
     upper = rep(1, npar))
 
-  ## !!!The names are important!!!
-  priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
-  names(priors)
-  # [1] "pprior"   "location" "scale"
+## !!!The names are important!!!
+priors <- list(pprior = p.prior, location = mu.prior, scale = sigma.prior)
+names(priors)
+## [1] "pprior"   "location" "scale"
 
 ## Fit hierarchical model ----
 fit0 <- StartNewsamples(dmi, priors)
@@ -133,7 +136,6 @@ res  <- hgelman(fit, verbose = TRUE)
 est0 <- summary(fit, recovery = TRUE, ps = ps, verbose = TRUE)
 est1 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.mean,  type = 1, verbose = TRUE)
 est2 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.scale, type = 2, verbose = TRUE)
-
 
 for(i in 1:length(fit))
 {
@@ -163,12 +165,13 @@ For the details regarding PLBA types, please see
 
 ## Further information
 One aim in designing _ggdmc_ is to read objects from DMC, so they share some 
-similarities.  They have however some differences.  For example, the dimension
-in theta and phi arraies are npar x nchain x nmc. DMC uses nchain x npar x nmc.  
-The dimension of the log_likelihoods and summed_log_prior matrices are 
-nchain x nmc. DMC uses nmc x nchain.  Remember to alter them, if you want to 
-operate objects back-and-forth between them. Convenient codes, using aperm, for 
-doing this will be added in the future version.
+similarities.  They have however some differences.  For example, in the latest
+version of ggdmc, the dimension of theta and phi arrays are 
+'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. The dimension of the 
+'log_likelihoods' and 'summed_log_prior' matrices are 'nchain x nmc'. DMC uses 
+'nmc x nchain'.  Remember to transpose them, if you want to operate objects 
+back-and-forth. Convenient functions, using 'aperm' and 't', for doing this will be 
+added in the future version.
 
 Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
 more examples.
@@ -186,14 +189,14 @@ more examples.
 
 ## Installation
 
-From CRAN (0.2.5.7): 
+From CRAN (0.2.6.0): 
 > install.packages("ggdmc")
 
 From source: 
 
-> install.packages("ggdmc_0.2.5.7.tar.gz", repos = NULL, type="source")
+> install.packages("ggdmc_0.2.6.0.tar.gz", repos = NULL, type="source")
 
-From GitHub (you need _devtools_) (0.2.5.9):
+From GitHub (you need _devtools_) (0.2.6.0):
 
 > devtools::install_github(“yxlin/ggdmc”)
 
@@ -216,6 +219,7 @@ own risk.~~
 
 A configure script now disables OpenMP, so macOS users can install without
 encountering the OpenMP problem. 
+
 
 ## Citation
 

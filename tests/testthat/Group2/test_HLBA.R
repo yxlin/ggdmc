@@ -31,7 +31,7 @@ cat("\n-------------------- Testing HLBA --------------------")
 
 
   ## Simulate some data ----------
-  dat <- simulate(model, nsub = 4, nsim = 10, prior = pop.prior)
+  dat <- simulate(model, nsub = 30, nsim = 30, prior = pop.prior)
   dmi <- BuildDMI(dat, model)
   ps <- attr(dat, "parameters")
 
@@ -57,8 +57,8 @@ cat("\n-------------------- Testing HLBA --------------------")
   ## Sampling -------------
   priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
 
-  fit0 <- StartNewsamples(dmi, priors)
-  fit  <- run(fit0)
+  fit0 <- StartNewsamples(dmi, priors, thin = 8)
+  fit  <- run(fit0, thin = 8)
   fit  <- run(fit, 1e2, add=TRUE)
 
   pdf(file = "HLBA.pdf")
@@ -72,7 +72,6 @@ cat("\n-------------------- Testing HLBA --------------------")
 
   ## Analysis -----------
   res <- hgelman(fit, verbose = TRUE)
-
   est0 <- summary(fit, recovery = TRUE, ps = ps, verbose = TRUE)
   est1 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.mean,  type = 1, verbose = TRUE)
   est2 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.scale, type = 2, verbose = TRUE)

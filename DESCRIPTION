@@ -1,8 +1,8 @@
 Package: ggdmc
 Type: Package
 Title: Cognitive Models
-Version: 0.2.5.9
-Date: 2019-04-18
+Version: 0.2.6.1
+Date: 2019-05-14
 Author: Yi-Shin Lin [aut, cre], Andrew Heathcote [aut]
 Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
 Description: Hierarchical Bayesian models. The package provides tools to fit two response time models, using the population-based Markov Chain Monte Carlo. 
@@ -17,5 +17,5 @@ Suggests: testthat
 RoxygenNote: 6.1.1
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2019-04-18 13:23:30 UTC; yslin
+Packaged: 2019-05-14 16:45:30 UTC; yslin
 Repository: CRAN

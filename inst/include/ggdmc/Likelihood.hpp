@@ -196,7 +196,7 @@ public:
 
         RTIdx = arma::find(m_d->m_is_this_cell.col(i) == 1);
           out(RTIdx) = n1PDFfixedt0(m_d->m_RT(RTIdx), pmat.col(0), pmat.col(1),
-              pmat.col(3), pmat.col(4), pmat.col(2), m_posdrift);
+              pmat.col(3), pmat.col(4), pmat.col(2), pmat.col(5), m_posdrift);
       }
 
     }

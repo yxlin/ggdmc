@@ -62,6 +62,7 @@ cat("\n-------------------- Testing HDDM --------------------")
   p1 <- plot(fit0, hyper = TRUE, start = 51)
   p2 <- plot(fit, pll = FALSE)
   p3 <- plot(fit)
+  dev.off()
 
   ##                    a    sv    sz    t0  v.f1  v.f2    z
   ## True            2.00  1.00  0.30  0.30  4.00  3.00 0.50

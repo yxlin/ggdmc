@@ -231,10 +231,10 @@ Lin, Y.-S and Strickland, L. (accepted). Evidence accumulation models with R: A 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computations, new
 genetic algorithm, R helper functions and R packaging are 
-developed by Yi-Shin Lin. The substantive part of R codes for handling 
+developed by Yi-Shin Lin. A substantial part of R codes for handling 
 experimental designed are adapted from the DMC, developed by Andrew Heathcote 
 (Heathcote et al., 2018). You would find more different and intersting 
-cognitive models. 
+cognitive models there. 
 
 Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
 page at this GitHub.

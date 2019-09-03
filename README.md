@@ -237,7 +237,7 @@ experimental designed are adapted from the DMC, developed by Andrew Heathcote
 cognitive models there. 
 
 Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
-page at this GitHub.
+here.
 
 ## License
 

@@ -500,7 +500,7 @@ gelman <- function(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
 ##' @export
 hgelman <- function(x, start = 1, end = NA, confidence = 0.95, transform = TRUE,
   autoburnin = FALSE, split = TRUE, subchain = FALSE, nsubchain = 3, digits = 2,
-  verbose = FALSE, ...)
+  verbose = TRUE, ...)
 {
 
   step1 <- lapply(gelman(x, start = start, end = end, confidence = confidence,
@@ -1092,4 +1092,73 @@ BPIC <- function(object, ...)
   if (ds$minD < ds$Dmean) pd <- pds$Pmin else pd <- pds$Pmean
   out <- ds$meanD+2*pd
   return(out)
+}
+
+logLik_one <- function(object, start, end, ...)
+{
+  if (missing(start)) start <- 1
+  if (missing(end)) end <- object$nmc
+  if ( end <= start ) stop("End must be greater than start")
+
+  tmp <- dim(object$summed_log_prior)
+  if (tmp[2] < tmp[1]) stop("Did you use DMC or earlier version? Remember to transpose the matrices.")
+
+  lp <- object$summed_log_prior[,start:end]
+  ll <- object$log_likelihoods[,start:end]
+  out <-  lp + ll
+  return(out)
+}
+
+
+
+logLik_many <- function(object, start, end, ...)
+{
+  if (missing(start)) start <- 1
+  if (missing(end)) end <- object[[1]]$nmc
+  if ( end <= start ) stop("End must be greater than start")
+
+  out <- lapply(object, function(x)
+    { x$summed_log_prior[, start:end] + x$log_likelihoods[, start:end] })
+  return(out)
+}
+
+
+logLik_hyper <- function(object, start, end, ...)
+{
+  hyper <- attr(object, "hyper")
+  if (is.null(hyper)) stop("Samples are not from a hierarhcial model fit")
+  if (missing(start)) start <- 1
+  if (missing(end)) end <- hyper$nmc
+  if (end <= start) stop("End must be greater than start")
+
+  lp <- hyper$h_summed_log_prior[,start:end]
+  ll <- hyper$h_log_likelihoods[,start:end]
+  out <-  lp + ll
+  return(out)
+}
+
+##' Extract Log-Likelihood
+##'
+##' This is beta-version of logLik for model object in ggdmc to handle the
+##' "model" class.
+##'
+##' @param object posterior samples
+##' @param hyper whether to summarise hyper parameters
+##' @param start start from which iteration.
+##' @param end end at which iteration. For example, set
+##' \code{start = 101} and \code{end = 1000}, instructs the function to
+##' calculate from 101 to 1000 iteration.
+##' @param
+##' @param ... other arguments passing through dot dot dot.
+##' @export
+logLik.model <- function(object, hyper = FALSE, start = 1, end = NA, ...)
+{
+  if (hyper) {
+    out <- logLik_hyper(object, start, end)
+  } else if (!is.null(object$theta)){
+    out <- logLik_one(object, start, end)
+  } else {
+    out <- logLik_many(object, start, end)
+  }
+  out
 }

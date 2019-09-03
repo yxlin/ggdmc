@@ -34,7 +34,7 @@ cat("\n-------------------- Testing DDM Multi-core 8 Subjects ----------------")
     upper = c(5, 7,  7, 1, 2, 2, 1))
 
   ## Sampling separately ----------
-  fit0 <- StartNewsamples(dmi, p.prior, ncore=2)
+  fit0 <- StartNewsamples(dmi, p.prior, ncore=1)
   fit  <- run(fit0, 5e2, ncore=2)
   fit  <- run(fit, 1e2, add=TRUE, ncore=2)
 

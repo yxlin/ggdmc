@@ -156,9 +156,12 @@ for(i in 1:length(fit))
 7. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
 8. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
 9. The correlated accumualtor model; type = "cnorm".
-
+10. The leaking, competing model ()
 4 to 9 are separated from the latest version of the package. For these 
 PDA-based models see my BRM paper and associated packages there. 
+10 is a separate module, which has yet incorporated. See the LCA 
+[tutorial](https://yxlin.github.io/cognitive-model/lca/) for its testing result,
+using MLE. 
 
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
@@ -223,19 +226,18 @@ encountering the OpenMP problem.
 
 ## Citation
 
-If you use this package, please cite the software, for example:
-
-Lin, Y.-S and Strickland, L.. (in preparation). Evidence accumulation models with
-R: A practical guide to hierarchical Bayesian methods. 
+Lin, Y.-S and Strickland, L. (accepted). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computations, new
 genetic algorithm, R helper functions and R packaging are 
-developed by Yi-Shin Lin. DMC is developed by Andrew 
-Heathcote (Heathcote et al., 2018), where you may find more different and 
-intersting models.
+developed by Yi-Shin Lin. The substantive part of R codes for handling 
+experimental designed are adapted from the DMC, developed by Andrew Heathcote 
+(Heathcote et al., 2018). You would find more different and intersting 
+cognitive models. 
 
-Please report bugs to [me](mailto:yishinlin001@gmail.com).
+Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
+page at this GitHub.
 
 ## License
 
@@ -249,7 +251,7 @@ Voss & Voss's fast-dm 30.2 and rtdists 0.9-0.
 [Jonathan Olmsted's](mailto:jpolmsted@gmail.com) RcppTN 0.1-8 at
 https://github.com/olmjo/RcppTN,
 [Christopher Jackson's](chris.jackson@mrc-bsu.cam.ac.uk) R codes in msm package,
-and Robert (1995, Statistics & Computing). 
+and Robert's paper (1995, Statistics & Computing). 
 * Thanks to Matthew Gretton's consultation regarding the rtdists. 
 * Thanks to Andrew Heathcote for lending me his MacBook Air. 
 _ggdmc_ works on OS X (macOS High Sierra Version 10.13.4) 

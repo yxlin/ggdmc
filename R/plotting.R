@@ -272,9 +272,11 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
     ## Output 1
     f1 <- ggplot(DT) +
       geom_line(aes_string(x = "Iteration", y = "value", color = "Chain")) +
-      ylab("Log-posterior likelihood") +
+      ylab("Posterior log-likelihood") +
+      theme_bw(base_size = 14) +
       theme(legend.position = "none")
-    print(f1)
+    # print(f1)
+
   } else if (den) {
 
     f1 <- ggplot(DT, aes_string(x = "value", colour = "Chain", fill = "Chain")) +
@@ -284,7 +286,7 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
       facet_wrap(~Parameter, scales = "free") +
       xlab("") + ylab("Density") + theme(legend.position="none") +
       geom_rug(alpha = 0.1)
-    print(f1)
+    # print(f1)
 
   } else {
     f1 <- ggplot(DT, aes_string(x = "Iteration", y = "value", colour = "Chain")) +
@@ -292,7 +294,7 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
       scale_colour_discrete(name = "Chain") +
       facet_wrap(~Parameter, scales = "free") +
       ylab("") + theme(legend.position = "none")
-    print(f1)
+    # print(f1)
 
   }
   if (save) { return(DT) } else { return(f1) }

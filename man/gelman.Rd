@@ -12,8 +12,7 @@ gelman(x, hyper = FALSE, start = 1, end = NA, confidence = 0.95,
 
 hgelman(x, start = 1, end = NA, confidence = 0.95,
   transform = TRUE, autoburnin = FALSE, split = TRUE,
-  subchain = FALSE, nsubchain = 3, digits = 2, verbose = FALSE,
-  ...)
+  subchain = FALSE, nsubchain = 3, digits = 2, verbose = TRUE, ...)
 }
 \arguments{
 \item{x}{posterior samples}

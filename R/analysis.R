@@ -1048,16 +1048,31 @@ unstick_one <- function(x, bad) {
 ##'
 ##' @param object posterior samples
 ##' @param ... other plotting arguments passing through dot dot dot.
+##' @references
+##' Spiegelhalter, D. J., Best, N. G., Carlin, B. P., & van der Linde, A.
+##' (2002). Bayesian Measures of Model Complexity and Fit. Journal of the Royal
+##' Statistical Society, Series B (Statistical Methodology), 64(4), 583--639.
+##' doi:10.1111/1467-9868.00353\cr
+##'
+##' Ando, T. (2007). Bayesian predictive information criterion for the
+##' evaluation of hierarchical Bayesian and empirical Bayes models.
+##' Biometrika. 94(2), 443–458. doi:10.1093/biomet/asm017.
 ##' @importFrom stats var
 ##' @export
-deviance.model <- function(object, ...) {
+deviance.model <- function(object, start, end, ...) {
 
-  D <- -2*object$log_likelihoods
+  ## The deviance; constant term drop when comparing models
+  ## See equation (10) "where" (p. 587) and
+  ## https://en.wikipedia.org/wiki/Deviance_information_criterion
+  D <- -2*object$log_likelihoods[,start:end]
 
   ## Average across chains and iterations
-  mtheta <- apply(object$theta, 2, mean)
-  model  <- attr(object$data, "model")
-  type   <- attr(model, "type")
+  ## the expectation of theta; ie the posterior mean of the parameters
+  mtheta <- apply(object$theta[,, start:end], 2, mean)
+  model  <- attr(object$data, "model") ## To harness likelihood internal for
+  type   <- attr(model, "type")        ## calculating different model likelihoods
+
+  ## The deviance based on the expectation of theta
   Dmean <- -2*sum(log(likelihood(mtheta, object$data)))
 
   # A list with mean (meanD), variance (varD) and min (minD)
@@ -1067,38 +1082,171 @@ deviance.model <- function(object, ...) {
   return(out)
 }
 
-##' Deviance information criteria
-##'
-##' Calculate DIC and BPIC.
-##'
-##' @param object posterior samples
-##' @param ... other plotting arguments passing through dot dot dot.
-##' @export
-DIC <- function(object, ...)
+DIC_one <- function(object, start, end, BPIC, ...)
 {
-  ds <- deviance.model(object)
-  pds <- list(Pmean=ds$meanD-ds$Dmean,Pmin=ds$meanD-ds$minD,Pvar=ds$varD/2)
-  if (ds$minD < ds$Dmean) pd <- pds$Pmin else pd <- pds$Pmean
-  out <- ds$meanD+pd
+  if (is.na(end)) end <- object$nmc
+  if ( end <= start ) {
+    stop("End must be greater than start")
+  }
+
+  ds <- deviance.model(object, start, end)
+  ## Three different definitions of "the effective number of parameters of the
+  ## model" (1) Spiegelhalter et al (2002, p. 587); (2) ???; (3) Gelman et al
+  ## (2014, p. 173, equation 7.10)
+  pds <- list(Pmean = ds$meanD-ds$Dmean, ## (1)
+              Pmin  = ds$meanD-ds$minD,
+              Pvar  = 2*ds$varD)         ## (3) Never been used?
+
+  if (ds$minD < ds$Dmean) {
+    pd <- pds$Pmin
+  } else {
+    pd <- pds$Pmean
+  }
+
+  ## Both return the same number
+  ## pd + ds$meanD    ## Spiegelhalter et al's method
+  ## ds$Dmean + 2*pd  ## Gelman et al (2014, p. 173, the equation after 7.10)
+  ## ds$meanD + 2*pd  ## Ando (2007)
+  if (BPIC) {
+    out <- ds$meanD+2*pd
+  } else {
+    out <- ds$meanD+pd
+  }
+
   return(out)
 }
 
-##' @rdname DIC
-##' @export
-BPIC <- function(object, ...)
+DIC_many <- function(object, start, end, BPIC, ...)
 {
-  ds <- deviance.model(object)
-  pds <- list(Pmean=ds$meanD-ds$Dmean,Pmin=ds$meanD-ds$minD,Pvar=ds$varD/2)
-  if (ds$minD < ds$Dmean) pd <- pds$Pmin else pd <- pds$Pmean
-  out <- ds$meanD+2*pd
-  return(out)
+  out <- sapply(object, DIC_one, start, end, BPIC)
+
+  if (BPIC) {
+    cat("Summed BPIC:", sum(out))
+  } else {
+    cat("Summed DIC:", sum(out))
+  }
+  invisible(out)
+}
+
+
+##' Deviance Information Criteria
+##'
+##' Calculate DIC and BPIC.
+##'
+##' This function implements three different definitions of the "effective
+##' number of parameters of the model". First is from Spiegelhalter et al
+##' (2002, p. 587), "... that pD can be considered as a 'mean deviance minus
+##' the deviance of the means'". Second is from Gelman et al (2014, p. 173,
+##' equation 7.10), and third subtracts the minimal value of the deviance from
+##' the mean of the deviance.
+##'
+##' @param object posterior samples from one participant
+##' @param start start from which iteration.
+##' @param end end at which iteration. For example, set
+##' \code{start = 101} and \code{end = 1000}, instructs the function to
+##' calculate from 101 to 1000 iteration.
+##' @param ... other plotting arguments passing through dot dot dot.
+##' @examples
+##' ## Calculate DIC from data of one participant
+##' \dontrun{
+##' model <- BuildModel(
+##'   p.map     = list(A = "1", B = "1", t0 = "1", mean_v = "M", sd_v = "1",
+##'                   st0 = "1"),
+##'   match.map = list(M = list(s1 = 1, s2 = 2)),
+##'   factors   = list(S = c("s1", "s2")),
+##'   constants = c(st0 = 0, sd_v = 1),
+##'   responses = c("r1", "r2"),
+##'   type      = "norm")
+##'
+##' p.vector <- c(A = .75, B = 1.25, t0 = .15, mean_v.true = 2.5,
+##'               mean_v.false = 1.5)
+##' ntrial <- 50
+##' dat <- simulate(model, nsim = ntrial, ps = p.vector)
+##' dmi <- BuildDMI(dat, model)
+##'
+##' p.prior <- BuildPrior(
+##'   dists = c("tnorm", "tnorm", "beta", "tnorm", "tnorm"),
+##'   p1    = c(A = 1, B = 1, t0 = 1, mean_v.true = 1, mean_v.false = 1),
+##'   p2    = c(1,  1,  1, 1, 1),
+##'   lower = c(rep(0, 3),  rep(NA, 2)),
+##'   upper = c(rep(NA, 2), 1, rep(NA, 2)))
+##'
+##' ## Sampling
+##' fit0 <- StartNewsamples(dmi, p.prior)
+##' fit  <- run(fit0, thin = 8)
+##'
+##' DIC(fit)
+##' DIC(fit)
+##' DIC(fit, start=100, end=200)
+##' DIC(fit, BPIC=TRUE)
+##' DIC(fit, BPIC=TRUE, start=201, end=400)
+##' }
+##'
+##' ## Calculate DICs from data of 8 participant
+##' \dontrun{
+##' model <- BuildModel(
+##' p.map     = list(a = "1", v = "F", z = "1", d = "1", sz = "1", sv = "1",
+##'                  t0 = "1", st0 = "1"),
+##' match.map = list(M = list(s1 = "r1", s2 = "r2")),
+##' factors   = list(S = c("s1", "s2"), F = c("f1", "f2")),
+##' constants = c(st0 = 0, d = 0),
+##' responses = c("r1", "r2"),
+##' type      = "rd")
+##' npar <- length(GetPNames(model))
+##'
+##' ## Population distribution
+##' pop.mean  <- c(a=2,   v.f1=4,  v.f2=3,  z=0.5, sz=0.3, sv=1,  t0=0.3)
+##' pop.scale <- c(a=0.5, v.f1=.5, v.f2=.5, z=0.1, sz=0.1, sv=.3, t0=0.05)
+##' pop.prior <- BuildPrior(
+##'   dists = rep("tnorm", npar),
+##'   p1    = pop.mean,
+##'   p2    = pop.scale,
+##'   lower = c(0,-5, -5, 0, 0, 0, 0),
+##'   upper = c(5, 7,  7, 1, 2, 1, 1))
+##'
+##' ## Simulate some data
+##' dat <- simulate(model, nsub = 8, nsim = 10, prior = pop.prior)
+##' dmi <- BuildDMI(dat, model)
+##' ps <- attr(dat, "parameters")
+##'
+##' p.prior <- BuildPrior(
+##'   dists = rep("tnorm", npar),
+##'   p1    = pop.mean,
+##'   p2    = pop.scale*5,
+##'   lower = c(0,-5, -5, 0, 0, 0, 0),
+##'   upper = c(5, 7,  7, 1, 2, 2, 1))
+##'
+##' ## Sampling
+##' fit0 <- StartNewsamples(dmi, p.prior, ncore=1)
+##' fit  <- run(fit0, ncore=4)  ## No printing when running in RStudio
+##'
+##' ## Calculate DIC for participant 1
+##' DIC(fit[[1]])
+##'
+##' ## Calculate all participants
+##' res <- DIC(fit)
+##'
+##' ## BPIC
+##' res <- DIC(fit, BPIC = TRUE)
+##' }
+##'
+##' @export
+DIC <- function(object, start = 1, end = NA, BPIC = FALSE, ...)
+{
+  if (!is.null(object$theta)) {
+    out <- DIC_one(object, start, end, BPIC)
+  } else {
+    out <- DIC_many(object, start, end, BPIC)
+  }
+  out
 }
 
 logLik_one <- function(object, start, end, ...)
 {
-  if (missing(start)) start <- 1
-  if (missing(end)) end <- object$nmc
-  if ( end <= start ) stop("End must be greater than start")
+  if (is.na(end)) end <- object$nmc
+  if ( end <= start ) {
+    stop("End must be greater than start")
+  }
 
   tmp <- dim(object$summed_log_prior)
   if (tmp[2] < tmp[1]) stop("Did you use DMC or earlier version? Remember to transpose the matrices.")
@@ -1109,12 +1257,9 @@ logLik_one <- function(object, start, end, ...)
   return(out)
 }
 
-
-
 logLik_many <- function(object, start, end, ...)
 {
-  if (missing(start)) start <- 1
-  if (missing(end)) end <- object[[1]]$nmc
+  if (is.na(end)) end <- object$nmc
   if ( end <= start ) stop("End must be greater than start")
 
   out <- lapply(object, function(x)
@@ -1122,13 +1267,11 @@ logLik_many <- function(object, start, end, ...)
   return(out)
 }
 
-
 logLik_hyper <- function(object, start, end, ...)
 {
   hyper <- attr(object, "hyper")
   if (is.null(hyper)) stop("Samples are not from a hierarhcial model fit")
-  if (missing(start)) start <- 1
-  if (missing(end)) end <- hyper$nmc
+  if (is.na(end)) end <- object$nmc
   if (end <= start) stop("End must be greater than start")
 
   lp <- hyper$h_summed_log_prior[,start:end]
@@ -1137,10 +1280,9 @@ logLik_hyper <- function(object, start, end, ...)
   return(out)
 }
 
-##' Extract Log-Likelihood
+##' Extract Posterior Log-Likelihood
 ##'
-##' This is beta-version of logLik for model object in ggdmc to handle the
-##' "model" class.
+##' This function is to extract posterior log-likelihood in a "model" object.
 ##'
 ##' @param object posterior samples
 ##' @param hyper whether to summarise hyper parameters
@@ -1151,6 +1293,8 @@ logLik_hyper <- function(object, start, end, ...)
 ##' @param
 ##' @param ... other arguments passing through dot dot dot.
 ##' @export
+##' @examples
+##'
 logLik.model <- function(object, hyper = FALSE, start = 1, end = NA, ...)
 {
   if (hyper) {

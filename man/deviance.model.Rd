@@ -4,7 +4,7 @@
 \alias{deviance.model}
 \title{Calculate the statistics of model complexity}
 \usage{
-\method{deviance}{model}(object, ...)
+\method{deviance}{model}(object, start, end, ...)
 }
 \arguments{
 \item{object}{posterior samples}
@@ -15,4 +15,14 @@
 Calculate deviance for a model object for which a
 log-likelihood value can be obtained, according to the formula
 -2*log-likelihood.
+}
+\references{
+Spiegelhalter, D. J., Best, N. G., Carlin, B. P., & van der Linde, A.
+(2002). Bayesian Measures of Model Complexity and Fit. Journal of the Royal
+Statistical Society, Series B (Statistical Methodology), 64(4), 583--639.
+doi:10.1111/1467-9868.00353\cr
+
+Ando, T. (2007). Bayesian predictive information criterion for the
+evaluation of hierarchical Bayesian and empirical Bayes models.
+Biometrika. 94(2), 443–458. doi:10.1093/biomet/asm017.
 }

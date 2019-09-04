@@ -156,7 +156,7 @@ for(i in 1:length(fit))
 7. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
 8. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
 9. The correlated accumualtor model; type = "cnorm".
-10. The leaking, competing model ()
+10. The leaky, competing accumulator model.
 4 to 9 are separated from the latest version of the package. For these 
 PDA-based models see my BRM paper and associated packages there. 
 10 is a separate module, which has yet incorporated. See the LCA 

@@ -1,0 +1,20 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+src/*.o
+*~
+src/*.so
+src/*.dll
+src/Makevars
+config.*
+inst/include/RcppArmadilloConfigGenerated.h
+.Rproj.user/*
+tests/Group1/*.pdf
+tests/Group2/*.pdf
+tests/Group3/*
+tests/Group4/*
+tests/Group5/*.pdf
+.Rbuildignore
+configure
+rm -rf autom4te.cache/

@@ -1,7 +1,10 @@
 /* Parameters.h - A class to contain the model parameters and precision tuning
- *   (originally in parameters.c and precision.c)
  *
- * Copyright (C) 2006  Jochen Voss, Andreas Voss.
+ *  - The adapation is largely from Matthew Gretton's C++ codes in the rtdists
+ *   package
+ *  - Originally from parameters.c and precision.c (C) 2006-2012 Jochen Voss,
+ *   & Andreas Voss.
+ *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

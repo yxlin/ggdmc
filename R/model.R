@@ -448,25 +448,32 @@ TableParameters <- function(p.vector, cell, model, n1order)
   dim1 <- dimnames(model)[[2]]
   dim2 <- dimnames(model)[[3]]
 
-  parmeter_matrix <- p_df(p.vector, cell, type, pnames, parnames, dim0, dim1,
-                          dim2, allpar, model,  isr1, n1idx, n1order)
+  pmatrix <- p_df(p.vector, cell, type, pnames, parnames, dim0, dim1,
+                  dim2, allpar, model,  isr1, n1idx, n1order)
 
-  out <- as.data.frame(parmeter_matrix)
+  out <- as.data.frame(pmatrix)
 
   if(type == "rd")
   {
     names(out) <- c("a","v","z","d","sz","sv","t0","st0")
-    rownames(out) <- attr(model, "response")
+    # rownames(out) <- attr(model, "response")
   }
 
   if(type %in% c("norm", "norm_pda", "norm_pda_gpu"))
   {
-    if (dim(out)[[2]] != 6)   ## Prospective memory?
+    if (dim(out)[[2]] == 7)   ## Prospective memory? Yes
     {
       names(out) <- c("A", "b", "t0", "mean_v", "sd_v", "st0", "nacc")
     } else {
       names(out) <- c("A", "b", "t0", "mean_v", "sd_v", "st0")
     }
+  }
+
+  if(type == "cddm")
+  {
+    if (length(out) != 10) stop("Forget tmax and/or h?")
+    names(out) <- c("v1","v2","a","t0","sigma1","sigma2","eta1","eta2","tmax",
+                    "h")
   }
 
   return(out)
@@ -560,21 +567,38 @@ check_BuildModel <- function(p_map, responses, factors, match_map, constants,
   return(out)
 }
 
-check_factors <- function(responses, factors,  match_map, map_names) {
-  factors_long <- factors
-  factors_long$R <- responses
-  if (!is.null(match_map)) factors_long$M <- c("true", "false")
+check_factors <- function(response, factor,  match_map, map_name) {
+  out   <- factor   ## out is a list
+  out$R <- response
+  if (!is.null(match_map)) out$M <- c("true", "false")
+
+  factor_level <- unlist(out)
 
   # protect againt grep problems
-  for (i in unlist(factors_long)) if ( length(grep(i,unlist(factors_long)))!=1 )
-    stop("Factor, response or map level is not unique or is substring of another
-      level or of \"true\" or \"false\"!" )
+  for (i in factor_level)
+  {
+    which_level <- grep(i, factor_level) ## This must return only 1 element
+    if ( length(which_level) != 1 )
+    {
+      message("You probably have specified redundant levels in factor, ")
+      message("response and/or match.map or their names can be a substring of ")
+      message("another level e.g., theta1 is a substring of theta10.")
+      message("In addition, you must not use \"true\" or \"false\" to label")
+      message("a factor level.")
+      stop("Violation of labelling convention")
+    }
+  }
 
   # Add in extra match.map factors (if any)
-  if ( !is.null(match_map) ) for (i in map_names)
-    factors_long[[i]] <- levels(match_map[[i]])
+  if ( !is.null(match_map) )
+  {
+    for (i in map_name)
+    {
+      out[[i]] <- levels(match_map[[i]])
+    }
+  }
 
-  return(factors_long)
+  return(out)
 }
 
 make_pnames <- function(p_map, factors_long) {
@@ -683,7 +707,8 @@ make_n1order <- function(responses, level_array) {
   return(out)
 }
 
-flipz <- function(responses, match.map, type, level_array) {
+flipz <- function(responses, match.map, type, level_array)
+{
   dim1       <- as.vector(level_array)
   ncondition <- length(dim1)
 
@@ -742,12 +767,12 @@ check_BuildDMI <- function(data, model) {
 
   ## check data
   if ( !is.data.frame(data) ) stop(message3)
-  if (!type %in% c("glm", "logit")) {
-    if (!all(c(fnams, "R", "RT") %in% names(data)) ) stop(message4)
-    if ( !all(sort(resps) == sort(levels(data[, "R"]))) )
-      stop(paste("R must have levels:", paste(resps, collapse=" ")))
-    if ( !is.numeric(data$RT) ) stop("RT must be of type numeric")
+  if (!all(c(fnams, "R", "RT") %in% names(data)) ) stop(message4)
+  if ( !all(sort(resps) == sort(levels(data[, "R"]))) )
+  {
+    stop(paste("R must have levels:", paste(resps, collapse=" ")))
   }
+  if ( !is.numeric(data$RT) ) stop("RT must be of type numeric")
 
   # i <- 1
   # data <- d
@@ -890,20 +915,29 @@ nadf <- function(n, facs, levs, type) {
   return(out)
 }
 
-FlipResponse_rd <- function(model, data, facs) {
-  cell.names <- apply(data[, 1:length(names(facs)), drop = F], 1, paste, collapse=".")
+FlipResponse_rd <- function(model, data, facs)
+{
+  cell.names <- apply(data[, 1:length(names(facs)), drop = F], 1,
+                      paste, collapse=".")
   M <- attr(model, "match.map")$M
   R <- attr(model, "responses")
+
   for ( i in names(M) )
+  {
     if ( M[[i]] == R[1] )
-      data[grep(i, cell.names),"R"] <- as.character(
+    {
+      data[grep(i, cell.names), "R"] <- as.character(
         factor(as.character(data[grep(i, cell.names), "R"]),
-          levels=R, labels=R[2:1]))
+               levels=R, labels=R[2:1]))
+    }
+  }
+
   return(data)
 }
 
 
 ######### CUSTOM MAP MAKING for PM -------------------------------
+
 MakeEmptyMap <- function(FR, levels) {
   ## This derives from DMC's empty.map
   level_array <- make_level_array(FR)

@@ -1,3 +1,18 @@
+// Copyright (C) <2019>  <Yi-Shin Lin>
+//
+//    This program is free software; you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation; either version 2 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License along
+//    with this program; if not, write to the Free Software Foundation, Inc.,
+//    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <ggdmc.hpp>
 
 tnorm::tnorm (double mu, double sig, double lower, double upper, bool lg) :
@@ -5,6 +20,7 @@ tnorm::tnorm (double mu, double sig, double lower, double upper, bool lg) :
 // Constructor. Initialize with mu and sigma. The default with no arguments
 // is tnorm(0, 1, 0, Inf).
 {
+  // TODO: Reorganize this class to be in line with other classes.
   // Bayesian optimization must allow bad values.
   // if (sig < 0.)
   // {

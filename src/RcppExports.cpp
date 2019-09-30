@@ -6,6 +6,79 @@
 
 using namespace Rcpp;
 
+// dcircle
+arma::vec dcircle(arma::vec RT, arma::vec A, arma::vec P, double tmax, unsigned int kmax, unsigned int sz, unsigned int nw);
+RcppExport SEXP _ggdmc_dcircle(SEXP RTSEXP, SEXP ASEXP, SEXP PSEXP, SEXP tmaxSEXP, SEXP kmaxSEXP, SEXP szSEXP, SEXP nwSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type RT(RTSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type A(ASEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type P(PSEXP);
+    Rcpp::traits::input_parameter< double >::type tmax(tmaxSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type kmax(kmaxSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type sz(szSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nw(nwSEXP);
+    rcpp_result_gen = Rcpp::wrap(dcircle(RT, A, P, tmax, kmax, sz, nw));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dcircle300
+Rcpp::List dcircle300(arma::vec P, double tmax, unsigned int kmax, unsigned int sz, unsigned int nw);
+RcppExport SEXP _ggdmc_dcircle300(SEXP PSEXP, SEXP tmaxSEXP, SEXP kmaxSEXP, SEXP szSEXP, SEXP nwSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type P(PSEXP);
+    Rcpp::traits::input_parameter< double >::type tmax(tmaxSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type kmax(kmaxSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type sz(szSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nw(nwSEXP);
+    rcpp_result_gen = Rcpp::wrap(dcircle300(P, tmax, kmax, sz, nw));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcircle
+arma::mat rcircle(unsigned int n, arma::vec P, double tmax, double h, unsigned int nw);
+RcppExport SEXP _ggdmc_rcircle(SEXP nSEXP, SEXP PSEXP, SEXP tmaxSEXP, SEXP hSEXP, SEXP nwSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type P(PSEXP);
+    Rcpp::traits::input_parameter< double >::type tmax(tmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
+    Rcpp::traits::input_parameter< unsigned int >::type nw(nwSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcircle(n, P, tmax, h, nw));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcircle_process
+Rcpp::List rcircle_process(arma::vec P, double tmax, double h);
+RcppExport SEXP _ggdmc_rcircle_process(SEXP PSEXP, SEXP tmaxSEXP, SEXP hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type P(PSEXP);
+    Rcpp::traits::input_parameter< double >::type tmax(tmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcircle_process(P, tmax, h));
+    return rcpp_result_gen;
+END_RCPP
+}
+// r1d
+Rcpp::List r1d(arma::vec P, double tmax, double h);
+RcppExport SEXP _ggdmc_r1d(SEXP PSEXP, SEXP tmaxSEXP, SEXP hSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type P(PSEXP);
+    Rcpp::traits::input_parameter< double >::type tmax(tmaxSEXP);
+    Rcpp::traits::input_parameter< double >::type h(hSEXP);
+    rcpp_result_gen = Rcpp::wrap(r1d(P, tmax, h));
+    return rcpp_result_gen;
+END_RCPP
+}
 // likelihood
 std::vector<double> likelihood(arma::vec pvector, List data, double min_lik);
 RcppExport SEXP _ggdmc_likelihood(SEXP pvectorSEXP, SEXP dataSEXP, SEXP min_likSEXP) {
@@ -206,6 +279,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// spdf
+arma::vec spdf(arma::vec x, arma::vec RT, int n, double h_in, bool debug);
+RcppExport SEXP _ggdmc_spdf(SEXP xSEXP, SEXP RTSEXP, SEXP nSEXP, SEXP h_inSEXP, SEXP debugSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type RT(RTSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type h_in(h_inSEXP);
+    Rcpp::traits::input_parameter< bool >::type debug(debugSEXP);
+    rcpp_result_gen = Rcpp::wrap(spdf(x, RT, n, h_in, debug));
+    return rcpp_result_gen;
+END_RCPP
+}
 // dtnorm
 std::vector<double> dtnorm(std::vector<double> x, double p1, double p2, double lower, double upper, bool lg);
 RcppExport SEXP _ggdmc_dtnorm(SEXP xSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP lowerSEXP, SEXP upperSEXP, SEXP lgSEXP) {
@@ -254,8 +342,53 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rvonmises
+arma::vec rvonmises(unsigned int n, double mu, double kappa);
+RcppExport SEXP _ggdmc_rvonmises(SEXP nSEXP, SEXP muSEXP, SEXP kappaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< unsigned int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rvonmises(n, mu, kappa));
+    return rcpp_result_gen;
+END_RCPP
+}
+// dvonmises
+arma::vec dvonmises(arma::vec x, double mu, double kappa);
+RcppExport SEXP _ggdmc_dvonmises(SEXP xSEXP, SEXP muSEXP, SEXP kappaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    Rcpp::traits::input_parameter< double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    rcpp_result_gen = Rcpp::wrap(dvonmises(x, mu, kappa));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pvonmises
+arma::vec pvonmises(arma::vec q, double mu, double kappa, double tol);
+RcppExport SEXP _ggdmc_pvonmises(SEXP qSEXP, SEXP muSEXP, SEXP kappaSEXP, SEXP tolSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type q(qSEXP);
+    Rcpp::traits::input_parameter< double >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< double >::type kappa(kappaSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(pvonmises(q, mu, kappa, tol));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_ggdmc_dcircle", (DL_FUNC) &_ggdmc_dcircle, 7},
+    {"_ggdmc_dcircle300", (DL_FUNC) &_ggdmc_dcircle300, 5},
+    {"_ggdmc_rcircle", (DL_FUNC) &_ggdmc_rcircle, 5},
+    {"_ggdmc_rcircle_process", (DL_FUNC) &_ggdmc_rcircle_process, 3},
+    {"_ggdmc_r1d", (DL_FUNC) &_ggdmc_r1d, 3},
     {"_ggdmc_likelihood", (DL_FUNC) &_ggdmc_likelihood, 3},
     {"_ggdmc_p_df", (DL_FUNC) &_ggdmc_p_df, 13},
     {"_ggdmc_ac_", (DL_FUNC) &_ggdmc_ac_, 2},
@@ -268,9 +401,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_rprior_mat", (DL_FUNC) &_ggdmc_rprior_mat, 2},
     {"_ggdmc_test_sumlogprior", (DL_FUNC) &_ggdmc_test_sumlogprior, 2},
     {"_ggdmc_test_dprior", (DL_FUNC) &_ggdmc_test_dprior, 2},
+    {"_ggdmc_spdf", (DL_FUNC) &_ggdmc_spdf, 5},
     {"_ggdmc_dtnorm", (DL_FUNC) &_ggdmc_dtnorm, 6},
     {"_ggdmc_rtnorm", (DL_FUNC) &_ggdmc_rtnorm, 5},
     {"_ggdmc_ptnorm", (DL_FUNC) &_ggdmc_ptnorm, 7},
+    {"_ggdmc_rvonmises", (DL_FUNC) &_ggdmc_rvonmises, 3},
+    {"_ggdmc_dvonmises", (DL_FUNC) &_ggdmc_dvonmises, 3},
+    {"_ggdmc_pvonmises", (DL_FUNC) &_ggdmc_pvonmises, 4},
     {NULL, NULL, 0}
 };
 

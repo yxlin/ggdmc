@@ -1,5 +1,5 @@
 /* - Parameter class is adapted from rtdists 0.9-0 by Singmann, Brown,
- * Gretton, Heathcote, Voss, Voss & Terry.
+ *   Gretton, Heathcote, Voss, Voss & Terry.
  * - density.c - compute the densities g- and g+ of the first exit time
  *
  * ------------------------------------------------------------------------

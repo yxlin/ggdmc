@@ -65,23 +65,25 @@ rdiffusion <- function (n,
 }
 
 ######### Generic functions -----------------------------------
-##' Generate random numbers
+##' Random number generation
 ##'
 ##' A wrapper function for generating random numbers of either
-##' the model type, \code{rd}, or \code{norm}.
+##' the model type, \code{rd}, \code{norm}, \code{norm_pda},
+##' \code{norm_pda_gpu}, or \code{cddm}. \code{pmat} is generated usually by
+##' \code{TableParameter}.
+##'
+##' Note PM model uses \code{norm} type.
 ##'
 ##' @param type a character string of the model type
 ##' @param pmat a matrix of response x parameter
-##' @param n number of observations
+##' @param n number of observations. This can be a scalar or a integer vector.
 ##' @param seed an integer specifying a random seed
+##' @param ... other arguments
 ##' @export
-random <- function(type, pmat, n, seed = NULL)
+random <- function(type, pmat, n, seed = NULL, ...)
 {
-
   set.seed(seed)
-
   if (type == "rd") {
-
     out <- rdiffusion(n, a = pmat$a[1], v = pmat$v[1],
       t0 = pmat$t0[1],
       z  = pmat$z[1]*pmat$a[1], # convert to absolute
@@ -90,11 +92,34 @@ random <- function(type, pmat, n, seed = NULL)
       sv = pmat$sv[1], st0 = pmat$st0[1], stop_on_error = TRUE)
 
   } else if (type %in% c("norm", "norm_pda", "norm_pda_gpu")) {
-    ## pmat: A b t0 mean_v sd_v st0
+    ## posdrift is always TRUE in simulation
+    ## pmat: A b t0 mean_v sd_v st0 (nacc)
+    if (ncol(pmat) == 7) ## PM model
+    {
+      ## The only difference is to selectively pick 2 or 3 accumulators.
+      ## This has been done by BuildModel and p_df.
+      nacc <- pmat[1,7]
+      A <- pmat[1:nacc,1]
+      b <- pmat[1:nacc,2]
+      t0 <- pmat[1:nacc,3]
+      mean_v <- pmat[1:nacc,4]
+      sd_v <- pmat[1:nacc,5]
+      st0 <- pmat[1:nacc,6]
+      posdrift <- TRUE
 
-    out <- rlba_norm(n, pmat[, 1], pmat[, 2], pmat[, 4], pmat[, 5],
-      pmat[,3], pmat[1,6], TRUE) ## posdrift is RUE
+      out <- rlba_norm(n, A, b, mean_v, sd_v, t0, st0, posdrift)
+    }
+    else
+    {
+      out <- rlba_norm(n, pmat[, 1], pmat[, 2], pmat[, 4], pmat[, 5],
+                       pmat[,3], pmat[1,6], TRUE)
+    }
 
+  } else if (type=="cddm") {
+    # nw <- nrow(pmat)
+    pvec <- as.vector(t(pmat[1,]))
+    out  <- rcircle(n=n, P=pvec[1:8], tmax=pvec[9], h=pvec[10],
+                    nw = nrow(pmat))
   } else {
     stop("Model type yet created")
   }
@@ -199,6 +224,7 @@ GetParameterMatrix <- function(x, nsub, prior = NA, ps = NA, seed = NULL)
 }
 
 
+
 simulate_one <- function(model, n, ps, seed)
 {
   if (check_pvec(ps, model)) stop("p.vector and model incompatible")
@@ -211,19 +237,25 @@ simulate_one <- function(model, n, ps, seed)
   row1 <- 1
 
   dfnames <- names(dat)
-  Xnames   <- dfnames[!dfnames %in% c("R", "N", "Y")]
+  reserved_names <- c("RT", "R")
+  if (type == "cddm") reserved_names <- c("R", "RT", "A")
 
-  # i <- 2
-  for (i in 1:nrow(facs)) {
-    pmat <- TableParameters(ps, i, model, FALSE) ## simulate use n1.order == FALSE
+  for (i in 1:nrow(facs))
+  {
+    ## simulate use n1.order == FALSE for LBA
+    pmat <- TableParameters(ps, i, model, FALSE)
     rown <- row1 + nvec[i] - 1
-
-    dat[row1:rown, c("RT", "R")] <- random(type, pmat, nvec[i], seed)
+    dat[row1:rown, reserved_names] <- random(type, pmat, nvec[i], seed)
     row1 <- rown+1
   }
 
-  dat$R <- factor(dat$R, levels = 1:length(resp), labels = resp)
-  if (type == "rd") dat <- FlipResponse_rd(model, dat, facs)
+  if (type %in% c("norm", "norm_pda", "norm_pda_gpu", "rd")) {
+    dat$R <- factor(dat$R, levels = 1:length(resp), labels = resp)
+    if (type == "rd") dat <- FlipResponse_rd(model, dat, facs)
+  } else if (type == "cddm") {
+    dat$R <- LabelTheta(dat, resp)
+  }
+
   return(dat)
 }
 
@@ -382,11 +414,27 @@ simulate.model <- function(object, nsim = NA, seed = NULL, nsub = NA,
 
 ######### Utility functions -----------------------------------
 ## [MG 20150616]
-## In line with LBA, adjust t0 to be the lower bound of the non-decision time distribution
-## rather than the average
+## In line with LBA, adjust t0 to be the lower bound of the non-decision time
+## distribution rather than the average
 ## Called from prd, drd, rrd (Extracted from rtdists)
 recalc_t0 <- function (t0, st0) { t0 <- t0 + st0/2 }
 
 "%w/o%" <- function(x, y) x[!x %in% y] #--  x without y
 
 
+LabelTheta <- function(dat, response)
+{
+  ## This is a new function for cddm only
+  nw <- length(response)
+  w <- 2*pi/nw
+  theta <- seq(-pi, pi-w, w)
+  R <- rep(NA, nrow(dat))
+  for(i in 1:nw)
+  {
+    idx <- which(round(dat$R, 2) == round(theta[i], 2))
+    R[idx] <- response[i]
+  }
+
+  out <- factor(R, levels=response)
+  return(out)
+}

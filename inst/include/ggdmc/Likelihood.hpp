@@ -8,12 +8,13 @@ using namespace Rcpp;
 class Likelihood
 {
 private:
-  enum ModelType { DEFAULT, DDM, LBA };
+  enum ModelType { DEFAULT, DDM, LBA, CDDM };
 
   ModelType resolve_option(std::string type)
   {
     if(type == "rd")   return DDM; // 1
     if(type == "norm") return LBA; // 2
+    if(type == "cddm") return CDDM; // 3
     return DEFAULT;  // 0
   }
 
@@ -100,7 +101,6 @@ public:
     arma::mat out = parmat;
 
     // n1idx: nc x nr
-
     if (n1order)
     {
       for (size_t i=0; i<m_d->m_nc; i++)
@@ -194,14 +194,43 @@ public:
         arma::mat pmat = transform(pmat0, m_d->m_dim0[i], m_n1order);
         pmat = arma::trans(pmat);
 
+        // PM model
+        if (pmat.n_cols == 7) { pmat = pmat.rows(0, pmat(1,6)-1); }
+
         RTIdx = arma::find(m_d->m_is_this_cell.col(i) == 1);
-          out(RTIdx) = n1PDFfixedt0(m_d->m_RT(RTIdx), pmat.col(0), pmat.col(1),
+        out(RTIdx) = n1PDFfixedt0(m_d->m_RT(RTIdx), pmat.col(0), pmat.col(1),
               pmat.col(3), pmat.col(4), pmat.col(2), pmat.col(5), m_posdrift);
       }
 
     }
 
     // for (size_t i = 0; i < m_d->m_nRT; i++) out[i] = R::fmax2(out[i], 1e-10);
+    return out;
+  }
+
+  arma::vec cddm (arma::vec & pvector)
+  {
+    arma::mat pmat0(m_d->m_nParameter, m_d->m_nr);
+    arma::vec out(m_d->m_nRT);
+    arma::uvec idx;
+
+    unsigned int sz = 300, nw=50, kmax = 50;
+
+    for (size_t i=0; i<m_d->m_nc; i++) // loop through each condition
+    {
+      if (!m_d->m_is_empty_cell[i])
+      {
+        parameter_matrix(pvector, m_d->m_dim0[i], pmat0);
+        // Rprintf("Condition %d: ", i);
+        // pmat0.print("pmat0");
+        arma::vec P = pmat0.col(0); // Use the 1st accumulation parameter vector
+        idx = arma::find(m_d->m_is_this_cell.col(i) == 1);
+        // sz = P(8)/P(9);  // tmax/h
+        out(idx) = dcircle(m_d->m_RT(idx), m_d->m_A(idx), P.subvec(0, 7), P(8),
+            kmax, sz, nw);
+      }
+    }
+    out.fill(1e-10);
     return out;
   }
 
@@ -269,6 +298,10 @@ public:
     case LBA:
       den = lba_(pvector);
       break;
+    case CDDM:
+      // Rcout << "CDDM removed \n"; den.fill(1e-10);
+      den = cddm(pvector);
+      break;
     case DEFAULT:
       Rcout << "Undefined model type\n"; den.fill(1e-10);
       break;
@@ -285,9 +318,7 @@ public:
 
   arma::vec likelihood(arma::vec & pvector)
   {
-
     arma::vec den;
-
     switch(resolve_option(m_mtype))
     {
     case DDM:
@@ -295,6 +326,10 @@ public:
       break;
     case LBA:
       den = lba_(pvector);
+      break;
+    case CDDM:
+      // Rcout << "CDDM removed \n"; den.fill(1e-10);
+      den = cddm(pvector);
       break;
     case DEFAULT:
       Rcout << "Undefined model type\n"; den.fill(1e-10);
@@ -320,6 +355,9 @@ public:
     case LBA:  // 2
       parameter_matrix(pvector, cell, pmat);
       pmat = transform(pmat, cell, m_n1order);
+      break;
+    case CDDM: // 3
+      parameter_matrix(pvector, cell, pmat);
       break;
     case DEFAULT:  // 0
       Rcout << "Undefined model.\n"; pmat.fill(NA_REAL);

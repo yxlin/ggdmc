@@ -275,7 +275,7 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
       ylab("Posterior log-likelihood") +
       theme_bw(base_size = 14) +
       theme(legend.position = "none")
-    # print(f1)
+    print(f1)
 
   } else if (den) {
 
@@ -286,7 +286,7 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
       facet_wrap(~Parameter, scales = "free") +
       xlab("") + ylab("Density") + theme(legend.position="none") +
       geom_rug(alpha = 0.1)
-    # print(f1)
+    print(f1)
 
   } else {
     f1 <- ggplot(DT, aes_string(x = "Iteration", y = "value", colour = "Chain")) +
@@ -294,7 +294,7 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
       scale_colour_discrete(name = "Chain") +
       facet_wrap(~Parameter, scales = "free") +
       ylab("") + theme(legend.position = "none")
-    # print(f1)
+    print(f1)
 
   }
   if (save) { return(DT) } else { return(f1) }
@@ -445,7 +445,7 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
 ##' @rdname plot_prior
 ##' @export
 plot.prior <- function(x, save = FALSE, ps = NULL, ...) {
-  if( is.null(names(x))) stop("Prior object must has name attributes.")
+  if( is.null(names(x))) stop("Prior object must have name attributes.")
 
   pD <- NULL
   for(j in names(x)) {

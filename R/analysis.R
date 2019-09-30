@@ -797,8 +797,10 @@ summary_recovermany <- function(object, start, end, ps, digits, prob)
 
   rownames(out) <- c("Mean", "True", "Diff", "Sd", "True", "Diff")
   colnames(out) <- object[[1]]$p.names
+
   print(round(out, digits))
-  invisible(return(out))
+  rownames(df_form) <- names(object)
+  invisible(return(list(summary=out, estimate = df_form)))
 }
 
 check_nonna <- function(x, type) {
@@ -1290,7 +1292,6 @@ logLik_hyper <- function(object, start, end, ...)
 ##' @param end end at which iteration. For example, set
 ##' \code{start = 101} and \code{end = 1000}, instructs the function to
 ##' calculate from 101 to 1000 iteration.
-##' @param
 ##' @param ... other arguments passing through dot dot dot.
 ##' @export
 ##' @examples

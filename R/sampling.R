@@ -57,7 +57,8 @@ run_many <- function(data, prior, nchain, nmc, thin, report, rp, gammamult,
   {
     message("Run subjects in parallel")
     out <- parallel::mclapply(data, init_new, prior, nchain, nmc, thin, report,
-                              rp, gammamult, pm0, pm1, block)
+                              rp, gammamult, pm0, pm1, block,
+                              mc.cores=getOption("mc.cores", ncore))
   }
   else
   {
@@ -97,7 +98,8 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
   {
     message("Run subjects in parallel")
     out <- parallel::mclapply(samples, init_old, nmc, thin, report, rp,
-                              gammamult, pm0, pm1, block, add)
+                              gammamult, pm0, pm1, block, add,
+                              mc.cores=getOption("mc.cores", ncore))
   }
   else
   {
@@ -154,7 +156,6 @@ StartNewsamples <- function(data, prior=NULL, nmc=2e2, thin=1, nchain=NULL,
   {
     nchain <- CheckHyperDMI(data, prior, nchain)
     checklba(data[[1]])
-
 
     message("Hierarchical model")
     out <- run_hier(prior[[1]], prior[[2]], prior[[3]], data, nchain, nmc, thin,

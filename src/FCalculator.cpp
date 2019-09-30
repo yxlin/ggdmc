@@ -10,7 +10,7 @@
  *
  *
  * ------------------------------------------------------------------------
- * A verbatim copy of Jochen Voss & Andreas Voss's copyright declaration.
+ * A verbatim copy of Jochen Voss & Andreas Voss's copyright.
  * ------------------------------------------------------------------------
  * Copyright (C) 2006  Jochen Voss, Andreas Voss.
  *

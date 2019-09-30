@@ -210,7 +210,7 @@ From source:
 
 > install.packages("ggdmc_0.2.6.0.tar.gz", repos = NULL, type="source")
 
-From GitHub (you need _devtools_) (0.2.6.0):
+From GitHub (you need _devtools_) (0.2.7.1):
 
 > devtools::install_github(“yxlin/ggdmc”)
 

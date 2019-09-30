@@ -2,20 +2,27 @@
 % Please edit documentation in R/random.R
 \name{random}
 \alias{random}
-\title{Generate random numbers}
+\title{Random number generation}
 \usage{
-random(type, pmat, n, seed = NULL)
+random(type, pmat, n, seed = NULL, ...)
 }
 \arguments{
 \item{type}{a character string of the model type}
 
 \item{pmat}{a matrix of response x parameter}
 
-\item{n}{number of observations}
+\item{n}{number of observations. This can be a scalar or a integer vector.}
 
 \item{seed}{an integer specifying a random seed}
+
+\item{...}{other arguments}
 }
 \description{
 A wrapper function for generating random numbers of either
-the model type, \code{rd}, or \code{norm}.
+the model type, \code{rd}, \code{norm}, \code{norm_pda},
+\code{norm_pda_gpu}, or \code{cddm}. \code{pmat} is generated usually by
+\code{TableParameter}.
+}
+\details{
+Note PM model uses \code{norm} type.
 }

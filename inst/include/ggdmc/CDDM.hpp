@@ -155,10 +155,10 @@ const cheb_series _gsl_sf_bessel_amp_phase_bth1_cs = {
 class cddm
 {
   public:
-    double m_v1, m_v2, m_eta1, m_eta2, m_sigma1, m_sigma2, m_a, m_t0;
-    double m_w, m_h, m_tmax, m_eta1onsigma2, m_eta2onsigma2;
-    double m_a2, sigmasq, m_twoa2, sigma2overa2;
-    unsigned int m_kmax, m_sz, m_nw;
+    double m_v1, m_v2, m_a, m_t0, m_sigma1, m_sigma2, m_eta1, m_eta2, m_tmax;
+    double sigmasq, m_a2, m_twoa2, sigma2overa2, m_h, m_w;
+    double m_eta1onsigma2, m_eta2onsigma2;
+    unsigned int m_kmax, m_nw, m_sz;
     double m_sigma;
     // m_tmax,  /* Define the maximum time   */
     // m_nw,    /* Number of steps on circle */
@@ -364,7 +364,7 @@ class cddm
 
     double divider(double theta)
     {
-      double out;
+      double out = NA_REAL;
 
       for(size_t i=0; i<(m_nw+1); i++)
       {
@@ -450,7 +450,7 @@ class cddm
       const double cy = cos(y);
       const double s = sy + cy;
       const double d = sy - cy;
-      const double abs_sum = fabs(cy) + fabs(sy);
+      // const double abs_sum = fabs(cy) + fabs(sy);
       double seps;
       double ceps;
       if(fabs(eps) < GSL_ROOT5_DBL_EPSILON) {

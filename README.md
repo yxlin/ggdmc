@@ -1,17 +1,19 @@
-# Bayesian Cognitive Modelling
+# Modelling Cognitive Processes
 
-_ggdmc_ is a generic tool for conducting hierarchical Bayesian computation on
-cognitive (RT) models. The package uses the population-based Markov chain 
-Monte Carlo (pMCMC).
+_ggdmc_ is an R package for modelling cognitive processes. Although its focus
+is on the challenging hierarchical Bayesian models, fitting them with Bayesian
+MCMC. It can also fit cognitive models with the conventional methods, such as
+maximum likelihood estimation and least squares. The package uses the sampling
+method of population-based Markov chain Monte Carlo (pMCMC).
 
 ## Getting Started
 This example demonstrates the Wiener diffusion model.  For other models, 
-see my [tutorials site](https://yxlin.github.io/).  The naming of _R_ functions 
+see my [tutorials site](https://yxlin.github.io/). The naming of _R_ functions 
 in _ggdmc_ attempts to inform the user what the functions are for. For 
 example,  _BuildModel_ is to build a model object.  
 
 As the user is often reminded in using Bayesian tools, it is always a good 
-practice to check the result of a model fit.  Note also the sequence of 
+practice to check the result of a model fit. Note that the sequence of 
 parameters in a parameter vector (i.e., p.vector) must follow the sequence in 
 the _p.vector_ reported by _BuildModel_.  Some build-in checks will try to 
 safeguard this, but they are far from bulletproof. 
@@ -144,7 +146,7 @@ for(i in 1:length(fit))
 
 ```
 
-## List of models currently hard-wired in _ggdmc_
+## Response time models 
 1. The LBA model, type = "norm",
 2. The DDM, type = "rd",
 3. The Wiener diffusion, type = "rd" and set sv=0 and sz=0
@@ -160,22 +162,30 @@ for(i in 1:length(fit))
 
 4 to 9 are separated from the latest version of the package. For these 
 PDA-based models see my BRM paper and associated packages there. 
-10 is a separate module, which has yet incorporated. See the LCA 
+10 is in a separate module, which has yet incorporated. See the LCA 
 [tutorial](https://yxlin.github.io/cognitive-model/lca/) for its testing result,
 using MLE. 
 
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
 
+## Memory models
+11. 2-D/circular drift-diffusion model, type = "cddm"
+12. Prospective memory model, type = "norm" (see tutorial for more details)
+
+
 ## Further information
 One aim in designing _ggdmc_ is to read objects from DMC, so they share some 
-similarities.  They have however some differences.  For example, in the latest
-version of ggdmc, the dimension of theta and phi arrays are 
-'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. The dimension of the 
-'log_likelihoods' and 'summed_log_prior' matrices are 'nchain x nmc'. DMC uses 
-'nmc x nchain'.  Remember to transpose them, if you want to operate objects 
-back-and-forth. Convenient functions, using 'aperm' and 't', for doing this will be 
-added in the future version.
+similarities.  They have however some differences. For example, in the latest
+version of _ggdmc_, the dimension of theta and phi arrays are 
+'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. To reduce the 
+computation time for manipulating the matrices and arrays. we make this change.
+Therefore, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
+matrices are 'nchain x nmc'. DMC however uses 'nmc x nchain'.  Remember to 
+transpose them, if you want to operate objects back-and-forth. Currently we use
+the R functions, 'aperm' and 't', to do this matrix/array manipulation. 
+Convenient functions for doing matrix/array manipulation shall be added in the 
+future version.
 
 Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
 more examples.
@@ -242,7 +252,7 @@ here.
 
 ## License
 
-GPL-2 
+[GPL-2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt)
 
 ## Acknowledgments
 
@@ -254,5 +264,10 @@ https://github.com/olmjo/RcppTN,
 [Christopher Jackson's](chris.jackson@mrc-bsu.cam.ac.uk) R codes in msm package,
 and Robert's paper (1995, Statistics & Computing). 
 * Thanks to Matthew Gretton's consultation regarding the rtdists. 
-* Thanks to Andrew Heathcote for lending me his MacBook Air. 
-_ggdmc_ works on OS X (macOS High Sierra Version 10.13.4) 
+* Thanks to Andrew Heathcote for lending me his MacBook Air. _ggdmc_ works on 
+OS X (macOS High Sierra Version 10.13.4) 
+* The PDF and random number generation of the 2-D diffusion/circular diffusion 
+model are based on Smith (2016).
+
+## Reference
+Smith, P. (2016). Diffusion Theory of Decision Making in Continuous Report, Psychology Review, 123(4), 425-451. http://dx.doi.org/10.1037/rev0000023

@@ -10,8 +10,7 @@ src/Makevars
 config.*
 inst/include/RcppArmadilloConfigGenerated.h
 .Rproj.user/*
-tests/Group3/*
-tests/Group4/*
+tests/*
 .Rbuildignore
 configure
 rm -rf autom4te.cache/

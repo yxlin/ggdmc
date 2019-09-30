@@ -269,7 +269,13 @@ CheckHyperDMI <- function(data = NULL, prior = NULL, nchain = NULL)
   isppriorok <- pnames %in% names(prior[[1]])
   islpriorok <- pnames %in% names(prior[[2]])
   isspriorok <- pnames %in% names(prior[[3]])
-  if (!all(isppriorok)) stop("data prior incompatible with model")
+  if (!all(isppriorok))  {
+    cat("Here is the parameter in your model\n")
+    print(pnames)
+    cat("Here is the parameter in your data prior\n")
+    print(names(prior[[1]]))
+    stop("data prior incompatible with model")
+  }
   if (!all(islpriorok)) stop("location prior incompatible with model")
   if (!all(isppriorok)) stop("scale prior incompatible with model")
 

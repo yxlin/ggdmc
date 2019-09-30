@@ -234,9 +234,7 @@ own risk.~~
 A configure script now disables OpenMP, so macOS users can install without
 encountering the OpenMP problem. 
 
-
 ## Citation
-
 Lin, Y.-S and Strickland, L. (accepted). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
 
 ## Contributors
@@ -270,5 +268,6 @@ OS X (macOS High Sierra Version 10.13.4)
 model are based on Smith (2016).
 
 ## Reference
-* Smith, P. (2016). Diffusion Theory of Decision Making in Continuous Report, Psychology Review, 123(4), 425-451. http://dx.doi.org/10.1037/rev0000023
 * Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland. L. Gretton, M., & Matzke, D. (2018). Dynamic models of choice, Behavior Research Methods. https://doi.org/10.3758/s13428-018-1067-y
+* Lin, Y.-S and Strickland, L. (accepted). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
+* Smith, P. (2016). Diffusion Theory of Decision Making in Continuous Report, Psychology Review, 123(4), 425-451. http://dx.doi.org/10.1037/rev0000023

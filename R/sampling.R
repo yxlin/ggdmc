@@ -157,18 +157,22 @@ StartNewsamples <- function(data, prior=NULL, nmc=2e2, thin=1, nchain=NULL,
     nchain <- CheckHyperDMI(data, prior, nchain)
     checklba(data[[1]])
 
-    message("Hierarchical model")
+    message("Hierarchical model: ", appendLF = FALSE)
+    t0 <- Sys.time()
     out <- run_hier(prior[[1]], prior[[2]], prior[[3]], data, nchain, nmc, thin,
                     report, rp, gammamult, pm0, pm1, block)
+    t1 <- Sys.time()
   }
   else if ( is.data.frame(data) )
   {
     nchain <- CheckDMI(data, prior, nchain)
     checklba(data)
 
-    message("Non-hierarchical model")
+    message("Non-hierarchical model: ", appendLF = FALSE)
+    t0 <- Sys.time()
     out <- run_one(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
                    pm1, block)
+    t1 <- Sys.time()
   }
   else
   {
@@ -176,12 +180,16 @@ StartNewsamples <- function(data, prior=NULL, nmc=2e2, thin=1, nchain=NULL,
     checklba(data[[1]])
 
     message("Non-hierarchical model with many subjects")
+    t0 <- Sys.time()
     out <- run_many(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
                     pm1, block, ncore)
+    t1 <- Sys.time()
   }
 
   class(out) <- c("model", "list")
-  cat("\n")
+  proc_time <- difftime(t1, t0, units = "secs")[[1]]
+  message("Processing time: ", round(proc_time, 2), " secs.")
+
   return(out)
 }
 
@@ -195,8 +203,10 @@ run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
 
   if ( !is.null(hyper) )
   {
+    t0 <- Sys.time()
     out <- init_oldhier(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                         block, add)
+    t1 <- Sys.time()
 
     pnames   <- GetPNames(attr(out[[1]]$data, "model"))
     phi1_tmp <- attr(out, "hyper")$phi[[1]]
@@ -216,19 +226,25 @@ run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
   }
   else if (any(names(samples) == "theta"))
   {
+    t0 <- Sys.time()
     out <- init_old(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                     block, add)
+    t1 <- Sys.time()
     pnames <- GetPNames(attr(out$data, "model"))
     dimnames(out$theta) <- list(pnames, NULL, NULL)
   }
   else
   {
+    t0 <- Sys.time()
     out <- rerun_many(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                       block, add, ncore)
+    t1 <- Sys.time()
   }
 
   class(out) <- c("model", "list")
-  cat("\n")
+  proc_time <- difftime(t1, t0, units = "secs")[[1]]
+  message("Processing time: ", round(proc_time, 2), " secs.")
+
   return(out)
 }
 

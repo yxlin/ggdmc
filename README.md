@@ -180,15 +180,15 @@ similarities.  They have however some differences. For example, in the latest
 version of _ggdmc_, the dimension of theta and phi arrays are 
 'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. To reduce the 
 computation time for manipulating the matrices and arrays. we make this change.
-Therefore, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
-matrices are 'nchain x nmc'. DMC however uses 'nmc x nchain'.  Remember to 
-transpose them, if you want to operate objects back-and-forth. Currently we use
-the R functions, 'aperm' and 't', to do this matrix/array manipulation. 
-Convenient functions for doing matrix/array manipulation shall be added in the 
-future version.
+Similarly, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
+matrices are 'nchain x nmc'. DMC uses 'nmc x nchain'.  Remember to transpose
+them, if you want to operate objects back-and-forth. Currently, we use
+the R functions, 'aperm' and 't', to transpose matrices and arrays when we
+have to operate between DMC and _ggdmc_. Convenient functions for doing this 
+shall be added in the future version.
 
-Please see my [tutorials site, Cognitive Model](https://yxlin.github.io/), for 
-more examples.
+Please do visit my [tutorials site, Cognitive Model](https://yxlin.github.io/), 
+for more examples.
 
 ## Prerequisites
  - R (>= 3.3.0)

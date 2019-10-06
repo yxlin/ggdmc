@@ -225,12 +225,12 @@ public:
         // pmat0.print("pmat0");
         arma::vec P = pmat0.col(0); // Use the 1st accumulation parameter vector
         idx = arma::find(m_d->m_is_this_cell.col(i) == 1);
+
         // sz = P(8)/P(9);  // tmax/h
         out(idx) = dcircle(m_d->m_RT(idx), m_d->m_A(idx), P.subvec(0, 7), P(8),
             kmax, sz, nw);
       }
     }
-    out.fill(1e-10);
     return out;
   }
 

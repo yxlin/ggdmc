@@ -111,7 +111,7 @@ arma::mat rcircle(unsigned int n, arma::vec P, double tmax, double h,
   arma::mat out(n, 3); out.fill(NA_REAL);
   obj->r(n, out);
   delete obj;
-  return out;   // [RT R]
+  return out;   // [R RT A]
 }
 
 //' @rdname dcircle

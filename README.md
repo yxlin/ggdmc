@@ -187,8 +187,8 @@ the R functions, 'aperm' and 't', to transpose matrices and arrays when we
 have to operate between DMC and _ggdmc_. Convenient functions for doing this 
 shall be added in the future version.
 
-Please do visit my [tutorials site, Cognitive Model](https://yxlin.github.io/), 
-for more examples.
+Please see [the lba3 example](https://yxlin.github.io/lba3), for more 
+information about one method to fix this problem.
 
 ## Prerequisites
  - R (>= 3.3.0)

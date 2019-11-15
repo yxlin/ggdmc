@@ -1,15 +1,20 @@
 ######### CORE ---------------------------------------------------
-##' Bayeisan computation of response time models
+##' Cognitive Multilevel Models
 ##'
-##' \pkg{ggdmc} uses the population-based Markov chain Monte Carlo to
-##' conduct Bayesian computation on cognitive models.
+##' \pkg{ggdmc} provides tools for conducting Bayesian inference in cognitive
+##' models.
 ##'
 ##' @keywords package
+##'
 ##' @name ggdmc
 ##' @docType package
 ##' @author  Yi-Shin Lin <yishinlin001@gmail.com> \cr
 ##' Andrew Heathcote <andrew.heathcote@utas.edu.au>
 ##' @references
+##' Lin, Y.-S. & Strickland, L., (2019). Evidence accumulation models with R: A
+##' practical guide to hierarchical Bayesian methods.
+##' \emph{The Quantitative Method in Psychology}. \cr
+##'
 ##' Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M. &
 ##' Matzke, D., (2018). Dynamic model of choice.
 ##' \emph{Behavior Research Methods}.
@@ -49,33 +54,52 @@ grepl_dot <- function(pattern, x) {
 
 ##' Create a model object
 ##'
-##' A model object consists of arraies with model attributes.
+##' A model object consists of arrays with model attributes.
 ##'
 ##' @param p.map parameter map. This option maps a particular factorial design
 ##' to model parameters
 ##' @param match.map match map. This option matches stimuli and responses
-##' @param factors specifying a list of factors and their levels
-##' @param constants specifying the parameters with fixed values
+##' @param factors specifying a list of factors and their treatment levels
+##' @param constants specifying the parameters that you want to be fixed.
 ##' @param responses specifying the response names and levels
-##' @param type specifying model type, either "rd" or "norm".
+##' @param type the model type defined in the package, "rd", "norm", or "cddm".
 ##' @param posdrift a Boolean, switching between enforcing strict postive drift
 ##' rates by using truncated normal distribution. This option is only useful in
 ##' "norm" model type.
 ##' @param verbose Print p.vector, constants and model type
-##' @param x a model object
-##' @param p.vector parameter vector
-##' @param ... other arguments
-##' @importFrom utils glob2rx
-##' @export
 ##' @examples
+##' ## A diffusion decision model
 ##' model <- BuildModel(
-##'         p.map     = list(a = "1", v = "1", z = "1", d = "1", t0 = "1",
-##'                      sv = "1", sz = "1", st0 = "1"),
-##'         constants = c(st0 = 0, d = 0, sz = 0, sv = 0),
-##'         match.map = list(M = list(s1 = "r1", s2 = "r2")),
-##'         factors   = list(S = c("s1", "s2")),
-##'         responses = c("r1", "r2"),
-##'         type      = "rd")
+##' p.map     = list(a ="1", v = "1",z = "1", d = "1", sz = "1", sv = "1",
+##'                  t0 = "1", st0 = "1"),
+##' match.map = list(M = list(s1 = "r1", s2 ="r2")),
+##' factors   = list(S = c("s1", "s2")),
+##' constants = c(st0 = 0, d = 0),
+##' responses = c("r1", "r2"),
+##' type      = "rd")
+##'
+##' ## A LBA model
+##' model <- BuildModel(
+##'   p.map     = list(A = "1", B = "1", t0 = "1", mean_v = "M", sd_v = "1",
+##'                    st0 = "1"),
+##'   match.map = list(M = list(s1 = 1, s2 = 2)),
+##'   factors   = list(S = c("s1", "s2")),
+##'   constants = c(st0 = 0, sd_v = 1),
+##'   responses = c("r1", "r2"),
+##'   type      = "norm")
+##'
+##' ## A circular diffusion decision model
+##' model <- BuildModel(
+##'   p.map     = list(v1 = "1", v2 = "1", a = "1", t0 = "1", sigma1="1",
+##'                    sigma2="1", eta1="1", eta2="1", tmax="1", h="1"),
+##'   match.map = list(M=list()),
+##'   constants = c(sigma1 = 1, sigma2 = 1, eta1=0, eta2=0, tmax=6, h=1e-4),
+##'   factors   = list(S = c("s1", "s2")),
+##'   responses = paste0('theta_', letters[1:4]),
+##'   type      = "cddm")
+##' @importFrom utils glob2rx
+##' @importFrom methods new
+##' @export
 BuildModel <- function(
   p.map,                          # list factors and constants for parameters
   responses,                      # Response (accumulator) names
@@ -86,6 +110,14 @@ BuildModel <- function(
   posdrift   = TRUE,              # only used by norm
   verbose    = TRUE)              # Print p.vector, constants and type
 {
+  # p.map     = list(A = "1", B = "R", t0 = "1", mean_v = c("D", "M"),
+  #                  sd_v = "M", st0 = "1")
+  # match.map = list(M = list(s1 = 1, s2 = 2))
+  # factors   = list(S = c("s1", "s2"), D = c("d1", "d2"))
+  # constants = c(sd_v.false = 1, st0 = 0)
+  # responses = c("r1", "r2")
+  # type      = "norm"
+
   mapinfo <- check_BuildModel(p.map, responses, factors, match.map,
                                       constants, type)
   map.names  <- mapinfo[[1]]
@@ -219,19 +251,42 @@ BuildModel <- function(
     all.par[names(constants)] <- constants
   }
 
-  attr(out, "all.par")    <- all.par
-  attr(out, "p.vector")   <- all.par[is.na(all.par)]
-  attr(out, "par.names")  <- unique(col.par)
-  attr(out, "type")       <- type
-  attr(out, "factors")    <- factors
-  attr(out, "responses")  <- responses
-  attr(out, "constants")  <- constants
-  attr(out, "posdrift")   <- posdrift
-  attr(out, "n1.order")   <- n1order
-  attr(out, "match.cell") <- matchcell
-  if ( !is.null(match.map) ) attr(out, "match.map") <- match.map
-  attr(out, "is.r1") <- rdinfo[[1]]
-  attr(out, "bound") <- rdinfo[[2]]
+
+  m <- new( "model" ,
+            model = out,
+            all.par = all.par,
+            p.vector = all.par[is.na(all.par)],
+            par.names = unique(col.par),
+            type = type,
+            factors = factors,
+            responses = responses,
+            constants = constants,
+            posdrift = posdrift,
+            n1.order = n1order,
+            match.cell = matchcell,
+            match.map = match.map,
+            dimnames  = list(dim1, dim2, responses),
+            pnames    = names(all.par[is.na(all.par)]),
+            npar      = sum(is.na(all.par))
+            )
+
+  attr(m,"is.r1") <- rdinfo[[1]]
+  attr(m,"bound") <- rdinfo[[2]]
+
+
+  # attr(out, "all.par")    <- all.par
+  # attr(out, "p.vector")   <- all.par[is.na(all.par)]
+  # attr(out, "par.names")  <- unique(col.par)
+  # attr(out, "type")       <- type
+  # attr(out, "factors")    <- factors
+  # attr(out, "responses")  <- responses
+  # attr(out, "constants")  <- constants
+  # attr(out, "posdrift")   <- posdrift
+  # attr(out, "n1.order")   <- n1order
+  # attr(out, "match.cell") <- matchcell
+  # if ( !is.null(match.map) ) attr(out, "match.map") <- match.map
+  # attr(out, "is.r1") <- rdinfo[[1]]
+  # attr(out, "bound") <- rdinfo[[2]]
 
   if (verbose) {
     cat("\nParameter vector names are: ( see attr(,\"p.vector\") )\n")
@@ -243,105 +298,68 @@ BuildModel <- function(
     cat(paste(mod, "\n\n"))
   }
 
-  class(out) <- "model"
-  return(out)
-}
-
-##' @rdname BuildModel
-##' @export
-print.model <- function(x, p.vector = NULL, ...) {
-
-  if (!is.array(unclass(x)))
-  {
-    message("model is not an array. ")
-    stop("Do you attempt to print posterior samples or multiple models?")
-  }
-
-
-  if (is.null(p.vector)) {
-    nr <- length(attr(x, "response"))
-    for (i in 1:nr) {
-      dim3 <- dimnames(x)[[3]]
-      cat(dim3[i], "\n")
-      print(x[,, i])
-    }
-    message("Attributes: ")
-    print(names(attributes(x)))
-    return(invisible(x))
-
-  } else {
-    dim1 <- dimnames(x)[[1]]
-
-    out <- lapply(dim1, function(xx) {
-      print(xx)
-      print(TableParameters(p.vector, xx, x, TRUE))
-    })
-    return(invisible(out))
-  }
-}
-
-##' @rdname BuildModel
-##' @importFrom utils head
-##' @export
-print.dmi <- function(x, ...) {
-  model <- attr(x, "model")
-  print.model(model)
-  print(head(as.data.frame(x)))
-  return(invisible(x))
+  return(m)
+  # class(out) <- "model"
+  # return(out)
 }
 
 
 ##' Bind data and models
 ##'
-##' Binding a data set with a model object. The function also checks whether
-##' they are compatible and adds attributes on a data model instance.
+##' Binding a data set with an object of data-model instance. The function
+##' checks whether the data and the model are compatible and adds attributes
+##' to a data model instance.
 ##'
-##' @param x data as in data frame
+##' @param x data formatted as a data frame
 ##' @param model a model object
 ##' @return a data model instance
 ##' @export
+##' @importFrom methods slot
+##' @importFrom methods new
 BuildDMI <- function(x, model) {
-
   res <- check_BuildDMI(x, model)
-  subject_models <- res$issm
-  modeli <- res$model
-  fnams <- names(attr(modeli, "factors"))
+  multimodel <- res$issm
+  modeli     <- res$model
+  fnams      <- names(slot(modeli, "factors"))
 
   if ( any(names(x) == "s") ) { # more than one subject
 
     s    <- levels(x$s)
     nsub <- length(s)
-    dat  <- vector("list", nsub)
-    names(dat) <- s
-    if (subject_models) names(model) <- s
+    out  <- vector("list", nsub)
+    names(out) <- s
+    if (multimodel) names(model) <- s
 
-    # is.sim <- !is.null(attr(dat, "parameters"))
-
+    # i <- 1
     for (i in 1:nsub)
     {
       k <- s[i]
-      if (subject_models) modeli <- model[[k]] else modeli <- model
+      if (multimodel) modeli <- model[[k]] else modeli <- model
 
       ## Remove s column and extract ith subject
-      dat[[i]] <- x[x$s == k, names(x) != "s"]
+      dati <- x[x$s == k, names(x) != "s"]
 
-      # add model and index attribute to data
-      cells <- apply(dat[[k]][, c(fnams, "R")], 1, paste, collapse = ".")
-      cell.index <- vector("list", dim(modeli)[1])
-      names(cell.index) <- row.names(modeli)
+      ## add model and index attribute to data
+      cells <- apply(dati[, c(fnams, "R")], 1, paste, collapse = ".")
+
+      m <- slot(modeli, "model")
+      cell.index <- vector("list", dim(m)[1])
+      names(cell.index) <- row.names(m)
 
       for ( j in names(cell.index) ) cell.index[[j]] <- cells %in% j
 
-      attr(dat[[k]], "cell.index") <- cell.index
-      attr(dat[[k]], "cell.empty") <- sapply(cell.index, function(xx){sum(xx)}) == 0
-      attr(dat[[k]], "model") <- modeli
+      # attr(dat[[k]], "cell.index") <- cell.index
+      # attr(dat[[k]], "cell.empty") <- sapply(cell.index, function(xx){sum(xx)}) == 0
+      # attr(dat[[k]], "model") <- modeli
 
-      # if (is.sim) attr(data[[s]], "parameters") <- attr(dat, "parameters")[s,]
-
-      class(dat) <- c("dmi", "model", "list")
+      out[[k]] <- new( "dmi" ,
+                  data  = dati,
+                  model = modeli,
+                  cell.index = cell.index,
+                  cell.empty = sapply(cell.index, function(xx){sum(xx)}) == 0)
     }
 
-    return(dat)
+    # return(dat)
 
   } else { # one subject
     ## add model and index attribute to data
@@ -350,20 +368,27 @@ BuildDMI <- function(x, model) {
     cells <- apply(x[, c(fnams, "R")], 1, paste, collapse = ".")
     ## ncell == nobservation
 
-    cell.index <- vector("list", dim(model)[1])
-    names(cell.index) <- row.names(model)
+    m <- slot(model, "model")
+
+    cell.index <- vector("list", dim(m)[1])
+    names(cell.index) <- row.names(m)
     ## scan trial-by-trial (every observation)
     for ( j in names(cell.index) ) cell.index[[j]] <- cells %in% j
 
-    attr(x, "cell.index") <- cell.index
-    attr(x, "cell.empty") <- sapply(cell.index, function(xx){sum(xx)}) == 0
-    attr(x, "model") <- model
-    class(x) <- c("dmi", "model", "data.frame")
-    return(x)
+    out <- new( "dmi" ,
+                data = x,
+                model = model,
+                cell.index = cell.index,
+                cell.empty = sapply(cell.index, function(xx){sum(xx)}) == 0
+    )
+    # return(out)
   }
+
+  return(out)
 }
 
 make_level_array <- function(x = NA) {
+  # x <- fac_long
   if (all(is.na(x))) stop("Found no factors!")
   out <- x[[1]]
   nf  <- length(x)
@@ -395,7 +420,6 @@ make_level_array <- function(x = NA) {
 ##' When \code{n1.order} is FALSE, TableParameters returns a martix without
 ##' rearranging into node 1 order.  For example, this is used in
 ##' the \code{simulate} function. By default \code{n1.order} is TRUE.
-##' @export
 ##' @examples
 ##' m1 <- BuildModel(
 ##'   p.map     = list(a = "1", v = "F", z = "1", d = "1", sz = "1", sv = "F",
@@ -433,23 +457,31 @@ make_level_array <- function(x = NA) {
 ##' ##    A b  t0 mean_v sd_v st0
 ##' ## 0.75 1 0.2    2.5    1   0
 ##' ## 0.75 1 0.2    1.5    1   0
-TableParameters <- function(p.vector, cell, model, n1order)
+##' @importFrom methods slot
+##' @export
+TableParameters <- function (p.vector, cell, model, n1order)
 {
-  pnames   <- names(attr(model, "p.vector"))
-  allpar   <- attr(model, "all.par")
-  parnames <- attr(model, "par.names")
-  type     <- attr(model, "type")
-  n1idx    <- attr(model, "n1.order")
-  resp     <- attr(model, "responses")
-  cell     <- check_cell(cell, model)
-  isr1     <- check_rd(type, model)
+  # cell <- 1
+  # n1order <- F
+  # p.vector <- ps
+  m        <- slot(model, "model")
+  pnames   <- names(slot(model, "p.vector"))
+  allpar   <- slot(model, "all.par")
+  parnames <- slot(model, "par.names")
+  type     <- slot(model, "type")
+  n1idx    <- slot(model, "n1.order")
+  resp     <- slot(model, "responses")
 
-  dim0 <- dimnames(model)[[1]]
-  dim1 <- dimnames(model)[[2]]
-  dim2 <- dimnames(model)[[3]]
+  cell     <- check_cell(cell, m)
+  ## m is a model array; model is a model object
+  if(type != "rd") { isr1 <- 0 } else { isr1 <- attr(model, "is.r1") }
+
+  dim0 <- dimnames(m)[[1]]
+  dim1 <- dimnames(m)[[2]]
+  dim2 <- dimnames(m)[[3]]
 
   pmatrix <- p_df(p.vector, cell, type, pnames, parnames, dim0, dim1,
-                  dim2, allpar, model,  isr1, n1idx, n1order)
+                  dim2, allpar, m, isr1, n1idx, n1order)
 
   out <- as.data.frame(pmatrix)
 
@@ -670,6 +702,13 @@ check_keywords <- function(p.map, match.map, type, map.names) {
 }
 
 make_match_cell <- function(match.map, level_array) {
+#   fac_long <- list(S=c("s1", "s2"), D = c("d1", "d2"), R = c("r1", "r2"),
+#                        M=c("true", "false"))
+# factors_long
+#   level_array2 <- ggdmc:::make_level_array(fac_long[1:(length(fac_long) + 1)])
+#   level_array2 <- ggdmc:::make_level_array(factors_long[1:(length(factors) + 1)])
+#   fac_long == factors_long
+
   dim1 <- as.vector(level_array)
   ncondition <- length(dim1)
   out <- logical(ncondition)
@@ -677,12 +716,18 @@ make_match_cell <- function(match.map, level_array) {
 
   if (!is.null(match.map)) {
 
-    for (i in 1:length(match.map$M)) {
-      match.num <- grep(match.map$M[i], dim1)
-      idx1 <- match.num %in% grep(names(match.map$M[i]), dim1)
-      idx2 <- match.num[idx1]
-      out[idx2] <- TRUE
+    nmap <- length( match.map$M )
+    if (nmap != 0) {
+      for (i in 1:nmap) {
+        match.num <- grep(match.map$M[i], dim1)
+        idx1 <- match.num %in% grep(names(match.map$M[i]), dim1)
+        idx2 <- match.num[idx1]
+        out[idx2] <- TRUE
+      }
+    } else {
+      out <- FALSE
     }
+
 
   } else {
     message("match.map is NULL")
@@ -743,11 +788,12 @@ flipz <- function(responses, match.map, type, level_array)
   return(list(is.r1, bound))
 }
 
+##' @importFrom methods slot
 check_BuildDMI <- function(data, model) {
   message1 <- "Model list is to match multiple subjects - models. No s column was found in data frame"
   message2 <- "Mostl list must be same length as the number of subjects"
   message3 <- "data must be a data frame"
-  type <- attr(model, "type")
+  type <- slot(model, "type")
 
   if (is.list(model)) {
     if (!any(names(data) == "s")) stop(message1)
@@ -817,20 +863,20 @@ checkdesign  <- function(match.map, levelarray) {
 ##'
 ##' Check a parameter vector
 ##'
-##' @param p.vector parameter vector
+##' @param ps parameter vector
 ##' @param model a model object
 ##' @export
-check_pvec <- function(p.vector, model)
+check_pvec <- function(ps, model)
 {
-  modpvec <- names(attr(model, "p.vector"))
-  ism1 <- modpvec %in% names(p.vector)
-  ism2 <- names(p.vector) %in% modpvec
+  modpvec <- names(model@p.vector)
+  ism1 <- modpvec %in% names(ps)
+  ism2 <- names(ps) %in% modpvec
   bad  <- any(!ism1)
   if (bad) warning(paste("Parameter", modpvec[!ism1],
     "in model not present in p.vector\n"))
   bad <- bad | any(!ism2)
   if (any(!ism2)) warning(paste("Parameter",
-    names(p.vector)[!ism2], "in p.vector not present in model\n"))
+    names(ps)[!ism2], "in p.vector not present in model\n"))
   invisible(bad)
 }
 
@@ -844,20 +890,16 @@ check_cell <- function(cell, model) {
   cell
 }
 
-check_rd <- function(type, model) {
-  ## depreciate this
-  if(type != "rd") { isr1 <- 0 } else { isr1 <- attr(model, "is.r1") }
-  isr1
-}
-
-
 
 
 ######### Simulation checks -----------------------------------------------------
+##' @importFrom methods slot
 createfacsdf <- function(model) {
-  dim1 <- dimnames(model)[[1]]
-  responses <- attr(model, "responses")
-  levs      <- attr(model, "factors")
+
+  m    <- slot(model, "model")
+  dim1 <- dimnames(m)[[1]]
+  responses <- slot(model, "responses")
+  levs      <- slot(model, "factors")
   nr <-  length(responses)
 
   facs  <- lapply(strsplit(dim1, "[.]"), function(x){x[-length(x)]})

@@ -7,7 +7,7 @@
 BuildDMI(x, model)
 }
 \arguments{
-\item{x}{data as in data frame}
+\item{x}{data formatted as a data frame}
 
 \item{model}{a model object}
 }
@@ -15,6 +15,7 @@ BuildDMI(x, model)
 a data model instance
 }
 \description{
-Binding a data set with a model object. The function also checks whether
-they are compatible and adds attributes on a data model instance.
+Binding a data set with an object of data-model instance. The function
+checks whether the data and the model are compatible and adds attributes
+to a data model instance.
 }

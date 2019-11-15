@@ -9,8 +9,8 @@
 #' tmax, kmax, sz and nw are tuning parameters for determining the set.
 #' dcircle300 produces PDF table and others.
 #'
-#' @param x, n x is a data.matrix with first column of RT and a second column
-#' of R. n is the numbers of observation.
+#' @param RT, a vector storing response times
+#' @param A a vector storing response angles.
 #' @param P is a parameter vector, c(v1, v2, a, t0, sigma1, sigma2, eta1, eta2).
 #' The sequence is important. v1 is the x-axis mean drift rate. v2 is the
 #' y-axis mean drift rate. sigma1 is the x-axis within-trial drift rate SD.
@@ -20,10 +20,10 @@
 #' non-decision time.
 #' @param tmax maximum time of the model
 #' @param kmax the tuning parameter for Bessel function. Mostly 50.
-#' @param h, sz the number of time steps (h = tmax / sz). h is time step.
+#' @param h,sz sz is the number of time steps (h = tmax / sz). h is time step.
 #' Mostly .1 ms.
 #' @param nw the number of theta steps (w = 2 * pi / nw)
-#'
+#' @param n number of observations
 #' @return rcircle returns a n x 2 matrix. Each row is an [RT R] trial.
 #' dcircle returns a n vector.
 #' @examples
@@ -68,6 +68,9 @@ r1d <- function(P, tmax, h) {
 #' @param pvector a parameter vector
 #' @param data data model instance
 #' @param min_lik minimal likelihood.
+#' @param precision a tuning parameter for the precision of DDM likelihood.
+#' The larger the value is, the more precise the likelihood is and the slower
+#' the computation would be.
 #' @return a vector
 #' @references Voss, A., Rothermund, K., & Voss, J. (2004).  Interpreting the
 #' parameters of the diffusion model: An empirical validation.
@@ -105,8 +108,8 @@ r1d <- function(P, tmax, h) {
 #' den <- likelihood (p.vector, dmi)
 #'
 #' @export
-likelihood <- function(pvector, data, min_lik = 1e-10) {
-    .Call('_ggdmc_likelihood', PACKAGE = 'ggdmc', pvector, data, min_lik)
+likelihood <- function(pvector, data, min_lik = 1e-10, precision = 3.0) {
+    .Call('_ggdmc_likelihood', PACKAGE = 'ggdmc', pvector, data, min_lik, precision)
 }
 
 p_df <- function(pvector, cell, mtype, pnames, parnames, dim0, dim1, dim2, allpar, model, isr1, n1idx, n1order) {
@@ -117,20 +120,32 @@ ac_ <- function(x, nlag) {
     .Call('_ggdmc_ac_', PACKAGE = 'ggdmc', x, nlag)
 }
 
+trial_loglik <- function(samples, thin_pointwise) {
+    .Call('_ggdmc_trial_loglik', PACKAGE = 'ggdmc', samples, thin_pointwise)
+}
+
 r_fastdm <- function(num_values, params, precision = 3, stop_on_error = TRUE) {
     .Call('_ggdmc_r_fastdm', PACKAGE = 'ggdmc', num_values, params, precision, stop_on_error)
 }
 
-init_new <- function(data, prior, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block) {
-    .Call('_ggdmc_init_new', PACKAGE = 'ggdmc', data, prior, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block)
+p_fastdm <- function(rts, params, precision = 3, boundary = 2L, stop_on_error = TRUE) {
+    .Call('_ggdmc_p_fastdm', PACKAGE = 'ggdmc', rts, params, precision, boundary, stop_on_error)
+}
+
+prd <- function(rts, params, precision = 3, b = 2L) {
+    .Call('_ggdmc_prd', PACKAGE = 'ggdmc', rts, params, precision, b)
+}
+
+init_new <- function(dmi, prior, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block) {
+    .Call('_ggdmc_init_new', PACKAGE = 'ggdmc', dmi, prior, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block)
 }
 
 init_old <- function(samples, nmc, thin, report, rp, gammamult, pm, pm_old, block, add) {
     .Call('_ggdmc_init_old', PACKAGE = 'ggdmc', samples, nmc, thin, report, rp, gammamult, pm, pm_old, block, add)
 }
 
-init_newhier <- function(prior, lprior, sprior, data, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block) {
-    .Call('_ggdmc_init_newhier', PACKAGE = 'ggdmc', prior, lprior, sprior, data, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block)
+init_newhier <- function(prior, lprior, sprior, dmi, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block) {
+    .Call('_ggdmc_init_newhier', PACKAGE = 'ggdmc', prior, lprior, sprior, dmi, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block)
 }
 
 init_oldhier <- function(samples, nmc, thin, report, rp, gammamult, pm, pm_old, block, add) {
@@ -169,7 +184,6 @@ test_dprior <- function(pvec, prior) {
     .Call('_ggdmc_test_dprior', PACKAGE = 'ggdmc', pvec, prior)
 }
 
-#' @export
 spdf <- function(x, RT, n, h_in, debug) {
     .Call('_ggdmc_spdf', PACKAGE = 'ggdmc', x, RT, n, h_in, debug)
 }
@@ -189,20 +203,20 @@ spdf <- function(x, RT, n, h_in, debug) {
 #' otherwise, \code{P[X > x]}.
 #' @param lg log probability. If TRUE (default is FALSE) probabilities p are
 #' given as \code{log(p)}.
-#' @return a column vector.
+#' @return a numeric vector.
 #' @examples
-#' ## rtn example
+#' ## rtnorm example
 #' dat1 <- rtnorm(1e5, 0, 1, 0, Inf)
 #' hist(dat1, breaks = "fd", freq = FALSE, xlab = "",
 #'      main = "Truncated normal distributions")
 #'
-#' ## dtn example
+#' ## dtnorm example
 #' x <- seq(-5, 5, length.out = 1e3)
 #' dat1 <- dtnorm(x, 0, 1, -2, 2, 0)
 #' plot(x, dat1, type = "l", lwd = 2, xlab = "", ylab= "Density",
 #'      main = "Truncated normal distributions")
 #'
-#' ## ptn example
+#' ## ptnorm example
 #' x <- seq(-10, 10, length.out = 1e2)
 #' mean <- 0
 #' sd <- 1
@@ -239,7 +253,9 @@ ptnorm <- function(q, p1, p2, lower, upper, lt = TRUE, lg = FALSE) {
 #' \code{I0(kappa)} in the normalizing constant is the modified Bessel
 #' function of the first kind and order zero.
 #'
-#' @param n number of observations. Must be a scalar.
+#' @param x,q x and q are the quantiles. These must be one a scalar.
+#' @param n number of observations
+#' @param tol the tolerance imprecision for von Mist distribution function.
 #' @param mu mean direction of the distribution. Must be a scalar.
 #' @param kappa concentration parameter. A positive value
 #' for the concentration parameter of the distribution. Must be a scalar.

@@ -29,8 +29,9 @@ public:
   arma::umat m_n1idx;  // LBA
   bool m_posdrift, m_n1order;
 
-  Likelihood(List & dmi, Design * d) : m_d(d)
-  // Run constructor
+  Likelihood(List & dmi, Design * d, double precision) :
+    m_d(d), m_precision(precision)
+  // Run and likelihood constructor
   {
     NumericVector modelAttr = dmi.attr("model");
 
@@ -45,8 +46,28 @@ public:
 
     if (m_mtype == "rd") m_is_r1 = tmp_isr1;
 
-    m_precision = 3.0;
+    // m_precision = 3.0;
     m_posdrift  = modelAttr.attr("posdrift");
+    m_n1order   = true;
+  }
+
+  Likelihood(S4 & dmi, Design * d, double precision) :
+    m_d(d), m_precision(precision)
+    // Run and likelihood constructor
+  {
+    S4 model = dmi.slot("model");
+    arma::umat tmp_n1idx = model.slot("n1.order");
+    std::string type     = model.slot("type");
+
+    m_n1idx = tmp_n1idx;
+    arma::uvec tmp_isr1 = model.attr("is.r1");
+
+    m_mtype = type;
+
+    if (m_mtype == "rd") m_is_r1 = tmp_isr1;
+
+    // m_precision = 3.0;
+    m_posdrift  = model.slot("posdrift");
     m_n1order   = true;
   }
 

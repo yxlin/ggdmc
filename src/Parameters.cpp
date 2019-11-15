@@ -1,9 +1,113 @@
-/* - Parameter class is adapted from rtdists 0.9-0 by Singmann, Brown,
- *   Gretton, Heathcote, Voss, Voss & Terry.
- * - density.c - compute the densities g- and g+ of the first exit time
- *
+/* - Parameters class is not from fast-dm. It is from the src folder in
+ * rtdists 0.9-0 by M. Gretton. I extended it for FCalculator_new.
+ * - density.c - compute the densities g- and g+ of the first exit time (based
+ * on fast-dm)
+ */
+#include <ggdmc.hpp>
+
+/*---------------------------------------------------------------------------
+ Original public functions in Parameters.h. The version with std::vector is
+ an overloaded constructor. Show function is to debug.
+ ---------------------------------------------------------------------------*/
+Parameters::Parameters(std::vector<double> params, double precision, int boundary)
+{
+  // Used in prd
+  s   = params[PARAM_s];
+  d   = params[PARAM_d];
+  szr = params[PARAM_szr];
+  st0 = params[PARAM_st0];
+
+  a  = (s == 1) ? params[PARAM_a] : (params[PARAM_a] / params[PARAM_s]);
+  sv = (s == 1) ? params[PARAM_sv] : (params[PARAM_sv] / params[PARAM_s]);
+  zr = (boundary == BOUNDARY_UPPER) ? 1-params[PARAM_zr] : params[PARAM_zr];
+
+  t0 = (st0 == 0) ? params[PARAM_t0] : params[PARAM_t0] + .5*params[PARAM_st0];
+
+
+  if (s==1 && boundary == BOUNDARY_UPPER)
+  {
+    v = -params[PARAM_v];
+  }
+  else if (s!=1 && boundary == BOUNDARY_UPPER)
+  {
+    v = -params[PARAM_v] / params[PARAM_s];
+  }
+  else if (s==1 && boundary == BOUNDARY_LOWER)
+  {
+    v = params[PARAM_v];
+  } else
+  {
+    v = params[PARAM_v] / params[PARAM_s];
+  }
+
+  SetPrecision (precision);
+}
+
+Parameters::Parameters(std::vector<double> params, double precision)
+{
+  // Used in F_calculator
+  s   = params[PARAM_s];
+  d   = params[PARAM_d];
+  zr  = params[PARAM_zr];
+  szr = params[PARAM_szr];
+  st0 = params[PARAM_st0];
+
+  a  = (s == 1) ? params[PARAM_a] : (params[PARAM_a] / params[PARAM_s]);
+  v  = (s == 1) ? params[PARAM_v] : (params[PARAM_v] / params[PARAM_s]);
+  sv = (s == 1) ? params[PARAM_sv] : (params[PARAM_sv] / params[PARAM_s]);
+
+  // MG's recalc_t0  [MG 20150616]
+  // In line with LBA, adjust t0 to be the lower bound of the non-decision time
+  // distribution rather than the average
+  t0 = (st0 == 0) ? params[PARAM_t0] : params[PARAM_t0] + .5*params[PARAM_st0];
+
+  SetPrecision (precision);
+}
+
+Parameters::Parameters(double * params, double precision)
+{
+  a   = params[PARAM_a];
+  v   = params[PARAM_v];
+  zr  = params[PARAM_zr];
+  d   = params[PARAM_d];
+  szr = params[PARAM_szr];
+  sv  = params[PARAM_sv];
+  t0  = params[PARAM_t0];
+  st0 = params[PARAM_st0];
+  s   = params[PARAM_s];
+
+  SetPrecision (precision);
+}
+
+bool Parameters::ValidateParams (bool print)
+{
+  using namespace Rcpp;
+  bool valid = true;
+
+  if (a <= 0)                         { valid = false; if (print) Rcout << "error: invalid parameter a = " << a << std::endl;  }
+  if (szr < 0 || szr > 1)             { valid = false; if (print) Rcout << "error: invalid parameter szr = " << szr << std::endl; }
+  if (st0 < 0)                        { valid = false; if (print) Rcout << "error: invalid parameter st0 = " << st0 << std::endl; }
+  if (sv < 0)                         { valid = false; if (print) Rcout << "error: invalid parameter sv = " << sv << std::endl; }
+  if (t0 - std::fabs(0.5*d) - 0.5*st0 < 0) { valid = false; if (print) Rcout << "error: invalid parameter combination t0 = " << t0 << ", d = " << d << ", st0 =" << st0 << std::endl; }
+  if (zr - 0.5*szr <= 0)              { valid = false; if (print) Rcout << "error: invalid parameter combination zr = " << zr << ", szr = " << szr << std::endl;}
+  if (zr + 0.5*szr >= 1)              { valid = false; if (print) Rcout << "error: invalid parameter combination zr = " << zr << ", szr = " << szr << std::endl;}
+  if (s <= 0)  { valid = false; if (print) Rcout << "error: invalid diffusion constant " << s; }
+  return valid;
+}
+
+void Parameters::Show(std::string str) const
+{
+  Rcout << str << ":\n";
+  Rcout << "[a\tv\tt0\td]  = " << "[" << a << "\t" << v << "\t" << t0
+            << "\t" << d << "]" << std::endl;
+  Rcout << "[szr\tsv\tst0\tzr] = " << "[" << szr << "\t" << sv << "\t"
+            << st0 << "\t" << zr << "]" << std::endl;
+}
+
+/*---------------------------------------------------------------------------
+ static functions were from Density.h (rtdists) & density.c (fast-dm).
  * ------------------------------------------------------------------------
- * A verbatim copy of Jochen Voss & Andreas Voss's copyright declaration.
+ * A verbatim copy of Jochen Voss & Andreas Voss's copyright.
  * ------------------------------------------------------------------------
  * Copyright (C) 2012  Andreas Voss, Jochen Voss.
  *
@@ -21,80 +125,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 USA.
- */
-
-#include <ggdmc.hpp>
-
-/*---------------------------------------------------------------------------
- Original public functions in Parameters.h. The version with std::vector is
- an overloaded constructor. Show function is for debugging purpose.
- ---------------------------------------------------------------------------*/
-Parameters::Parameters(std::vector<double> params, double precision)
-{
-  a   = params[PARAM_a];
-  v   = params[PARAM_v];
-  zr  = params[PARAM_zr];
-  d   = params[PARAM_d];
-  szr = params[PARAM_szr];
-  sv  = params[PARAM_sv];
-  t0  = params[PARAM_t0];
-  st0 = params[PARAM_st0];
-
-  SetPrecision (precision);
-}
-
-Parameters::Parameters(double * params, double precision)
-{
-  a   = params[PARAM_a];
-  v   = params[PARAM_v];
-  zr  = params[PARAM_zr];
-  d   = params[PARAM_d];
-  szr = params[PARAM_szr];
-  sv  = params[PARAM_sv];
-  t0  = params[PARAM_t0];
-  st0 = params[PARAM_st0];
-
-  SetPrecision (precision);
-}
-
-bool Parameters::ValidateParams (bool print)
-{
-  using namespace Rcpp;
-  bool valid = true;
-
-  if (a <= 0)                         { valid = false; if (print) Rcout << "error: invalid parameter a = " << a << std::endl;  }
-  if (szr < 0 || szr > 1)             { valid = false; if (print) Rcout << "error: invalid parameter szr = " << szr << std::endl; }
-  if (st0 < 0)                        { valid = false; if (print) Rcout << "error: invalid parameter st0 = " << st0 << std::endl; }
-  if (sv < 0)                         { valid = false; if (print) Rcout << "error: invalid parameter sv = " << sv << std::endl; }
-  if (t0 - std::fabs(0.5*d) - 0.5*st0 < 0) { valid = false; if (print) Rcout << "error: invalid parameter combination t0 = " << t0 << ", d = " << d << ", st0 =" << st0 << std::endl; }
-  if (zr - 0.5*szr <= 0)              { valid = false; if (print) Rcout << "error: invalid parameter combination zr = " << zr << ", szr = " << szr << std::endl;}
-  if (zr + 0.5*szr >= 1)              { valid = false; if (print) Rcout << "error: invalid parameter combination zr = " << zr << ", szr = " << szr << std::endl;}
-
-  return valid;
-}
-
-void Parameters::Show(std::string str) const
-{
-  Rcout << str << ":\n";
-  Rcout << "[a\tv\tt0\td]  = " << "[" << a << "\t" << v << "\t" << t0
-            << "\t" << d << "]" << std::endl;
-  Rcout << "[szr\tsv\tst0\tzr] = " << "[" << szr << "\t" << sv << "\t"
-            << st0 << "\t" << zr << "]" << std::endl;
-}
-
-/*---------------------------------------------------------------------------
- static functions originally found in Density.h. They are confined within
- this file.
 ---------------------------------------------------------------------------*/
 static double g_minus_small_time (double t, double zr, int N)
-  // A3 Formula on p1217; Appendix Mathematical Details V & V (2004)
+  // A3 Formula on p1217; Appendix Mathematical Details V, R, & V (2004)
   // See also Feller (1971, p359 & p370 Problem 22); Note zr = z/a. v = 0 & a = 1
 {
   if (t <= 0) Rcpp::stop("t must be greater than 0.");
 
   int i; // i must be int not unsigned int
   double d, s = 0;
-  for (i = -N/2; i <= N/2; i++) // i must be int; it cannot be unsigned
+  for (i = -N/2; i <= N/2; i++) // i = na
   {
     d = 2*i + zr;
     s += std::exp(-d*d / (2*t)) * d;

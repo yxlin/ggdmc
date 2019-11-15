@@ -10,5 +10,5 @@ GetPNames(x)
 \item{x}{a model object}
 }
 \description{
-Extract parameter names from a model object
+GetPNames will be deprecated. Please extract pnames directly via S4 slot 'model@pnames'
 }

@@ -179,16 +179,40 @@ One aim in designing _ggdmc_ is to read objects from DMC, so they share some
 similarities.  They have however some differences. For example, in the latest
 version of _ggdmc_, the dimension of theta and phi arrays are 
 'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. To reduce the 
-computation time for manipulating the matrices and arrays. we make this change.
-Similarly, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
+computation time for manipulating the matrices and arrays. we must make this 
+change. Similarly, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
 matrices are 'nchain x nmc'. DMC uses 'nmc x nchain'.  Remember to transpose
 them, if you want to operate objects back-and-forth. Currently, we use
 the R functions, 'aperm' and 't', to transpose matrices and arrays when we
-have to operate between DMC and _ggdmc_. Convenient functions for doing this 
-shall be added in the future version.
+have to operate between DMC and _ggdmc_. The following two convenient functions
+are designed to for doing this operations. 
 
-Please see [the lba3 example](https://yxlin.github.io/lba3), for more 
-information about one method to fix this problem.
+```
+DMC2ggdmc <- function(x) {
+## x is an object of posterior samples from individual subject fit
+  x$theta <- aperm(x$theta, c(2, 1, 3))
+  x$summed_log_prior <- t(x$summed_log_prior)
+  x$log_likelihoods <- t(x$log_likelihoods)
+  class(x) <- c('list', 'model')
+  return(x)
+}
+ggdmc2DMC <- function(x) {
+  x$theta <- aperm(x$theta, c(2, 1, 3))
+  x$summed_log_prior <- t(x$summed_log_prior)
+  x$log_likelihoods <- t(x$log_likelihoods)
+  return(x)
+}
+```
+
+Note **Dstats.dmc** in DMC is also affected by the issue of different array and 
+matrix dimension, because Dstats.dmc calculates the means of the theta/phi array 
+across column, $$apply(samples$theta,2,mean)$$. _ggdmc_ provides DIC function, 
+which uses a back-end function, **deviance_model** to attain the same opeation
+
+The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) illustrates 
+an example for doing the back-and-forth operation.
+
+Note that S4 uses @ operator to extract its components (i.e., slot).
 
 ## Prerequisites
  - R (>= 3.3.0)
@@ -203,16 +227,19 @@ information about one method to fix this problem.
 
 ## Installation
 
+We now use S4 class in version 2.7.5. The new design creates a more 
+user-friendly interface of help pages.
+
 From CRAN (0.2.6.0): 
 > install.packages("ggdmc")
 
 From source: 
 
-> install.packages("ggdmc_0.2.6.0.tar.gz", repos = NULL, type="source")
+> install.packages("ggdmc_0.2.7.5.tar.gz", repos = NULL, type="source")
 
-From GitHub (you need _devtools_) (0.2.7.1):
+From GitHub (you need _devtools_) (0.2.7.5):
 
-> devtools::install_github(“yxlin/ggdmc”)
+> devtools::install_github("yxlin/ggdmc")
 
 
 For Mac Users:

@@ -30,15 +30,6 @@
 // Note: Parameters class now includes precision constants
 // Indices for packed parameters array
 
-// #define PARAM_a   0
-// #define PARAM_v   1
-// #define PARAM_t0  2
-// #define PARAM_d   3
-// #define PARAM_szr 4
-// #define PARAM_sv  5
-// #define PARAM_st0 6
-// #define PARAM_zr  7
-
 #define PARAM_a   0
 #define PARAM_v   1
 #define PARAM_zr  2
@@ -47,12 +38,13 @@
 #define PARAM_sv  5
 #define PARAM_t0  6
 #define PARAM_st0 7
+#define PARAM_s   8
 
 #define BOUNDARY_LOWER 0
 #define BOUNDARY_UPPER 1
 
 const double EPSILON = 1e-6; // used in ddiffusion
-const unsigned int MAX_INPUT_VALUES = 1e+6; // max simulation number
+const unsigned int MAX_INPUT_VALUES = 1e6; // max simulation number
 
 class Parameters
 {
@@ -65,6 +57,7 @@ public:
   double sv;    // standard deviation of v distribution
   double st0;   // width of t0 distribution
   double zr;    // Mean of diffusion starting point relative to boundaries
+  double s;     // standard deviation; sqrt(diffusion constant)
 
   // Precision constants set by SetPrecision()
   double  TUNE_DZ;
@@ -78,13 +71,15 @@ public:
   double  TUNE_INT_T0;
   double  TUNE_INT_Z;
 
-  double  TUNE_SV_EPSILON; // CONVERSION NOTE: See below in SetPrecision()
-  double  TUNE_SZ_EPSILON; // CONVERSION NOTE: See below in SetPrecision()
+  double  TUNE_SV_EPSILON;  // CONVERSION NOTE: See below in SetPrecision()
+  double  TUNE_SZ_EPSILON;  // CONVERSION NOTE: See below in SetPrecision()
   double  TUNE_ST0_EPSILON; // CONVERSION NOTE: See below in SetPrecision()
 
-  // Specialized constructor
+  // 3 constructors
+  Parameters(std::vector<double> params, double precision, int boundary);
   Parameters(std::vector<double> params, double precision);
   Parameters(double * params, double precision);
+
   bool ValidateParams (bool print);
   void Show(std::string str) const;
 

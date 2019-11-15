@@ -4,10 +4,10 @@
 \alias{check_pvec}
 \title{Does a model object specify a correct p.vector}
 \usage{
-check_pvec(p.vector, model)
+check_pvec(ps, model)
 }
 \arguments{
-\item{p.vector}{parameter vector}
+\item{ps}{parameter vector}
 
 \item{model}{a model object}
 }

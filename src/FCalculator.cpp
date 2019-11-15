@@ -191,6 +191,7 @@ double F_plain_data::F_limit(double z)
 
 static F_calculator *F_plain_new (Parameters * params)
 {
+  // Rcout << "In F_plain_new\n";
   F_calculator * fc   = new F_calculator;
   F_plain_data * data = new F_plain_data;
 
@@ -291,7 +292,7 @@ static F_calculator *F_sz_new (Parameters *params)
   N = base_fc->N;
   dz = F_plain_get_z(base_fc, 1) - F_plain_get_z(base_fc, 0);
   tmp = sz/(2*dz);
-  k = (int)(std::ceil(tmp) + 0.5); // step in z space
+  k = (int)(std::ceil(tmp) + 0.5);     // step in z space
   if (2*k > N) Rcpp::stop ("2*k > N"); // assert is slient in R
 
   fc->N = N-2*k;
@@ -666,15 +667,16 @@ static void F_st0_start (F_calculator *fc, int plus)
 
 // The entry point  ----------------------------------------------------
 // Change F_st0_new to eg F_sv_new, F_sz_new, or F_plain_new to test code from
-// a different orion layer.
+// a different onion layer.
 F_calculator * F_new (Parameters *params)
 {
   return F_st0_new (params);
+  // return F_plain_new (params);
 }
 
 void F_start (F_calculator *fc, int boundary)
   // Set the initial condition for the PDE.
-  // If upper boundary prepare to calculate the CDF for hitting a before 0,
+  // If upper boundary, it prepares to calculate the CDF for hitting a before 0,
   // otherwise prepare to calculate the CDF for hitting 0 before a.
   //
   // CONVERSION NOTE: Changed from enum boundary b to int boundary, where 0 =
@@ -763,7 +765,6 @@ static int find_slot(double target, const double *value, int l, int r)
 /*---------------------------------------------------------------------------
  Original found in rtdists 0.9-0
  ---------------------------------------------------------------------------*/
-
 Rcpp::List sampling(int s_size, Parameters * params, bool random_flag)
 {
   double Fs_min=1, Fs_max=0, t_min=-.5, t_max=.5, dt, t;
@@ -855,17 +856,40 @@ Rcpp::List sampling(int s_size, Parameters * params, bool random_flag)
                             Rcpp::Named("boundary") = out_bounds);
 }
 
+static void distribution (std::vector<double> rts, Parameters * params,
+                          int boundary, std::vector<double> & out)
+{
+  F_calculator *fc = F_new(params);
+
+  double z = params->zr*params->a;
+  unsigned int nrt = rts.size();
+
+  F_start (fc, BOUNDARY_UPPER);
+  double offset = F_get_val (fc, 0, z); // Subtract the value for t=0
+
+  if (boundary == BOUNDARY_UPPER) // Calc upper boundary
+  {
+    for (size_t i=0; i < nrt; i++) out[i] = F_get_val (fc, rts[i], z) - offset;
+  }
+  else
+  {
+    F_start(fc, BOUNDARY_LOWER);
+    for (size_t i=0; i < nrt; i++) out[i] = offset - F_get_val (fc, rts[i], z);
+  }
+
+  F_delete(fc);
+}
 
 // [[Rcpp::export]]
 Rcpp::List r_fastdm (unsigned int num_values, std::vector<double> params,
                      double precision=3, bool stop_on_error=true)
 // R-style sampling from the DM - returns a List consisting of RTs and
 // boundaries
-
 {
   if ((num_values < 1) || (num_values > MAX_INPUT_VALUES))
   {
-    Rcpp::stop("Number of samples requested exceeds maximum of %d.\n", MAX_INPUT_VALUES);
+    Rcpp::stop("Number of samples requested exceeds maximum of %d.\n",
+               MAX_INPUT_VALUES);
   }
 
   Parameters * g_Params = new Parameters (params, precision);
@@ -887,6 +911,43 @@ Rcpp::List r_fastdm (unsigned int num_values, std::vector<double> params,
 
   // Pass through to Sampling.hpp
   Rcpp::List out = sampling (num_values, g_Params, true);
+
+  delete g_Params;
+
+  return out;
+}
+
+
+// More precise R-callable CDF which finds the left-hand area (from 0 to RT) -
+// pass boundary to retrieve (1 = lower, 2 = upper)
+// [[Rcpp::export]]
+std::vector<double> p_fastdm (std::vector<double> rts,
+                        std::vector<double> params,
+                        double precision=3, int boundary=2,
+                        bool stop_on_error=true)
+{
+  unsigned int nrt = rts.size();
+  if (nrt > MAX_INPUT_VALUES)
+  {
+    Rcpp::stop("Number of RT values passed in exceeds maximum of %d.\n", MAX_INPUT_VALUES);
+  }
+
+  if ((boundary < 1) || (boundary > 2))
+  {
+    Rcpp::stop ("Boundary must be either 2 (upper) or 1 (lower)\n");
+  }
+
+  Parameters * g_Params = new Parameters (params, precision);
+  std::vector<double> out(nrt);
+
+  if (!g_Params->ValidateParams(stop_on_error))
+  {
+    if (stop_on_error) { Rcpp::stop("Error validating parameters.\n"); }
+    else return out;
+  }
+
+  distribution (rts, g_Params, boundary-1, out);
+  // for(int i=0; i <out.size(); i++) Rcout << out[i] << "\n";
 
   delete g_Params;
 

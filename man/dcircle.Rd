@@ -19,6 +19,10 @@ rcircle_process(P, tmax, h)
 r1d(P, tmax, h)
 }
 \arguments{
+\item{RT, }{a vector storing response times}
+
+\item{A}{a vector storing response angles.}
+
 \item{P}{is a parameter vector, c(v1, v2, a, t0, sigma1, sigma2, eta1, eta2).
 The sequence is important. v1 is the x-axis mean drift rate. v2 is the
 y-axis mean drift rate. sigma1 is the x-axis within-trial drift rate SD.
@@ -33,11 +37,10 @@ non-decision time.}
 
 \item{nw}{the number of theta steps (w = 2 * pi / nw)}
 
-\item{h, }{sz the number of time steps (h = tmax / sz). h is time step.
-Mostly .1 ms.}
+\item{n}{number of observations}
 
-\item{x, }{n x is a data.matrix with first column of RT and a second column
-of R. n is the numbers of observation.}
+\item{h, sz}{sz is the number of time steps (h = tmax / sz). h is time step.
+Mostly .1 ms.}
 }
 \value{
 rcircle returns a n x 2 matrix. Each row is an [RT R] trial.

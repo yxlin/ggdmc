@@ -5,16 +5,16 @@
 \alias{run}
 \title{Start new model fits}
 \usage{
-StartNewsamples(data, prior = NULL, nmc = 200, thin = 1,
-  nchain = NULL, report = 100, rp = 0.001, gammamult = 2.38,
-  pm0 = 0.05, pm1 = 0.05, block = TRUE, ncore = 1)
+StartNewsamples(dmi, prior, nmc = 200, thin = 1, nchain = NULL,
+  report = 100, rp = 0.001, gammamult = 2.38, pm0 = 0.05,
+  pm1 = 0.05, block = TRUE, ncore = 1)
 
 run(samples, nmc = 500, thin = 1, report = 100, rp = 0.001,
   gammamult = 2.38, pm0 = 0, pm1 = 0, block = TRUE, ncore = 1,
   add = FALSE)
 }
 \arguments{
-\item{data}{data model instance(s)}
+\item{dmi}{a data model instance or a list of data model instances}
 
 \item{prior}{prior objects.  For hierarchical model, this must be a
 list with three sets of prior distributions. Each is respectively named,

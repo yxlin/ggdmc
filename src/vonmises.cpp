@@ -52,7 +52,9 @@ inline arma::vec fmod(arma::vec dividend, double divisor)
 //' \code{I0(kappa)} in the normalizing constant is the modified Bessel
 //' function of the first kind and order zero.
 //'
-//' @param n number of observations. Must be a scalar.
+//' @param x,q x and q are the quantiles. These must be one a scalar.
+//' @param n number of observations
+//' @param tol the tolerance imprecision for von Mist distribution function.
 //' @param mu mean direction of the distribution. Must be a scalar.
 //' @param kappa concentration parameter. A positive value
 //' for the concentration parameter of the distribution. Must be a scalar.

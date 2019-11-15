@@ -112,6 +112,53 @@ public:
     m_usell    = m_ll.col(m_store_i);        // nchains x 1
   }
 
+  Theta(S4 & samples, unsigned int nmc, unsigned int thin, Prior * p,
+        Likelihood * l, bool add) : m_thin(thin), m_p(p), m_l(l)
+    // Restart S4
+  {
+    using namespace arma;
+
+    mat lp     = samples.slot("summed_log_prior");
+    mat ll     = samples.slot("log_likelihoods");
+    cube theta = samples.slot("theta");
+
+    unsigned int npar      = samples.slot("npar");
+    unsigned int nchain    = samples.slot("nchain");
+    unsigned int pnmc      = samples.slot("nmc");
+
+    if (add) {nmc += pnmc;}
+
+    m_theta = resize(theta, npar, nchain, nmc);
+    m_lp    = resize(lp, nchain, nmc);
+    m_ll    = resize(ll, nchain, nmc);
+
+    if (add)
+    {
+      m_theta.slices(pnmc, nmc - 1).fill(NA_REAL);
+      m_lp.cols(pnmc, nmc - 1).fill(R_NegInf);
+      m_ll.cols(pnmc, nmc - 1).fill(R_NegInf);
+      m_start_R = pnmc;
+    }
+    else
+    {
+      m_theta.fill(NA_REAL);
+      m_lp.fill(R_NegInf);
+      m_ll.fill(R_NegInf);
+
+      m_theta.slice(0)   = theta.slice(pnmc - 1);
+      m_lp.col(0)        = lp.col(pnmc - 1);
+      m_ll.col(0)        = ll.col(pnmc - 1);
+      m_start_R = 1;
+    }
+    ////////////////////////////////////////////////////
+    m_nsamp   = 1 + (nmc - m_start_R) * thin;
+    m_nmc     = nmc;
+
+    m_store_i  = m_start_R-1;
+    m_usetheta = m_theta.slice(m_store_i);   // npar x nchain;
+    m_uselp    = m_lp.col(m_store_i);        // nchains x 1
+    m_usell    = m_ll.col(m_store_i);        // nchains x 1
+  }
 
   ~Theta()
   {
@@ -282,6 +329,68 @@ public:
     m_usehll  = m_hll.col(m_store_i);      // nchains x 1
   }
 
+  Phi(S4 & samples,
+      unsigned int nmc,
+      unsigned int nchain,
+      unsigned int npar,
+      unsigned int nsub,
+      unsigned int thin,
+      bool add,
+      Prior * p, Prior * lp, Prior * sp) :
+    m_nsub(nsub), m_npar(npar), m_nchain(nchain), m_thin(thin), m_p(p),
+    m_lp(lp), m_sp(sp)
+    // Restart
+  {
+    using namespace arma;
+
+    // List hyper  = samples.attr("hyper");
+    // List phi    = samples.slot("phi_loc");
+
+    mat hlp   = samples.slot("summed_log_prior");
+    mat hll   = samples.slot("log_likelihoods");
+    cube phi0 = samples.slot("phi_loc");
+    cube phi1 = samples.slot("phi_sca");;
+
+    unsigned int pnmc = samples.slot("nmc");
+
+    if (add) {nmc += pnmc;}
+
+    m_phi0 = resize(phi0, npar, nchain, nmc);
+    m_phi1 = resize(phi1, npar, nchain, nmc);
+    m_hlp  = resize(hlp, nchain, nmc);
+    m_hll  = resize(hll, nchain, nmc);
+
+    if (add)
+    {
+      m_phi0.slices(pnmc, nmc - 1).fill(NA_REAL);
+      m_phi1.slices(pnmc, nmc - 1).fill(NA_REAL);
+      m_hlp.cols(pnmc, nmc - 1).fill(R_NegInf);
+      m_hll.cols(pnmc, nmc - 1).fill(R_NegInf);
+      m_start_R = pnmc;
+    }
+    else
+    {
+      m_phi0.fill(NA_REAL);
+      m_phi1.fill(NA_REAL);
+      m_hlp.fill(R_NegInf);
+      m_hll.fill(R_NegInf);
+
+      m_phi0.slice(0) = phi0.slice (pnmc - 1);
+      m_phi1.slice(0) = phi1.slice (pnmc - 1);
+      m_hlp.col(0)    = hlp.col    (pnmc - 1);
+      m_hll.col(0)    = hll.col    (pnmc - 1);
+      m_start_R = 1;
+    }
+    ////////////////////////////////////////////////////
+    m_nsamp   = 1 + (nmc - m_start_R) * thin;
+    m_nmc     = nmc;
+
+    m_store_i = m_start_R-1;
+    m_usephi0 = m_phi0.slice(m_store_i);   // npar x nchain;
+    m_usephi1 = m_phi1.slice(m_store_i);   // npar x nchain;
+    m_usehlp  = m_hlp.col(m_store_i);      // nchains x 1
+    m_usehll  = m_hll.col(m_store_i);      // nchains x 1
+  }
 
   ~Phi()
   {

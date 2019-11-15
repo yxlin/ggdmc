@@ -30,6 +30,7 @@ public:
   arma::uvec m_d, m_lg;
 
   Prior (List & pprior);
+  Prior (S4 & pprior);
 
   ~Prior();
 

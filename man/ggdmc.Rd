@@ -4,12 +4,16 @@
 \name{ggdmc}
 \alias{ggdmc}
 \alias{ggdmc-package}
-\title{Bayeisan computation of response time models}
+\title{Cognitive Multilevel Models}
 \description{
-\pkg{ggdmc} uses the population-based Markov chain Monte Carlo to
-conduct Bayesian computation on cognitive models.
+\pkg{ggdmc} provides tools for conducting Bayesian inference in cognitive
+models.
 }
 \references{
+Lin, Y.-S. & Strickland, L., (2019). Evidence accumulation models with R: A
+practical guide to hierarchical Bayesian methods.
+\emph{The Quantitative Method in Psychology}. \cr
+
 Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M. &
 Matzke, D., (2018). Dynamic model of choice.
 \emph{Behavior Research Methods}.

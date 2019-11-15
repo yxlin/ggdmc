@@ -13,12 +13,16 @@ dvonmises(x, mu, kappa)
 pvonmises(q, mu, kappa, tol = 1e-20)
 }
 \arguments{
-\item{n}{number of observations. Must be a scalar.}
+\item{n}{number of observations}
 
 \item{mu}{mean direction of the distribution. Must be a scalar.}
 
 \item{kappa}{concentration parameter. A positive value
 for the concentration parameter of the distribution. Must be a scalar.}
+
+\item{x, q}{x and q are the quantiles. These must be one a scalar.}
+
+\item{tol}{the tolerance imprecision for von Mist distribution function.}
 }
 \value{
 a column vector

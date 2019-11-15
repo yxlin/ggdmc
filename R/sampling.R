@@ -1,78 +1,35 @@
 ### Sampling -------------------------------------------------------------------
-run_one <- function (data, prior, nchain, nmc, thin, report, rp, gammamult,
-                     pm0, pm1, block)
-{
-  out <- init_new(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
-                  pm1, block)
-  pnames <- GetPNames(attr(out$data, "model"))
-  dimnames(out$theta) <- list(pnames, NULL, NULL)
-  return(out)
-}
-
-
-run_hier <- function (prior, lprior, sprior, data, nchain, nmc, thin, report,
-                      rp, gammamult, pm0, pm1, block)
-{
-  out <- init_newhier(prior, lprior, sprior, data, nchain, nmc, thin, report,
-                       rp, gammamult, pm0, pm1, block)
-
-  pnames <- GetPNames(attr(out[[1]]$data, "model"))
-  phi1_tmp <- attr(out, "hyper")$phi[[1]]
-  phi2_tmp <- attr(out, "hyper")$phi[[2]]
-  dimnames(phi1_tmp) <- list(pnames, NULL, NULL)
-  dimnames(phi2_tmp) <- list(pnames, NULL, NULL)
-  attr(out, "hyper")$phi[[1]] <- phi1_tmp
-  attr(out, "hyper")$phi[[2]] <- phi2_tmp
-
-  for(i in 1:length(out))
-  {
-    dimnames(out[[i]]$theta) <- list(pnames, NULL, NULL)
-    class(out[[i]]) <- c("model", "list")
-  }
-
-  names(out) <- names(data)
-
-  return(out)
-}
-
 
 ##' @importFrom parallel parLapply
 ##' @importFrom parallel makeCluster
 ##' @importFrom parallel mclapply
 ##' @importFrom parallel stopCluster
-run_many <- function(data, prior, nchain, nmc, thin, report, rp, gammamult,
+run_many <- function(dmi, prior, nchain, nmc, thin, report, rp, gammamult,
                      pm0, pm1, block, ncore)
 {
 
   if (get_os() == "windows" & ncore > 1)
   {
     cl  <- parallel::makeCluster(ncore)
-    message("Run subjects in parallel")
-    out <- parallel::parLapply(cl = cl, X = data,
+    message("fits multi-participant in parallel")
+    out <- parallel::parLapply(cl = cl, X = dmi,
                                init_new, prior, nchain, nmc, thin, report,
                                rp, gammamult, pm0, pm1, block)
     parallel::stopCluster(cl)
   }
   else if (ncore > 1)
   {
-    message("Run subjects in parallel")
-    out <- parallel::mclapply(data, init_new, prior, nchain, nmc, thin, report,
-                              rp, gammamult, pm0, pm1, block,
+    message("fits multi-participant in parallel")
+    out <- parallel::mclapply(dmi, init_new, prior, nchain, nmc, thin,
+                                    report, rp, gammamult, pm0, pm1, block,
                               mc.cores=getOption("mc.cores", ncore))
   }
   else
   {
-    message("Run subjects with lapply")
-    out <- lapply(data, init_new, prior, nchain, nmc, thin, report, rp,
+    message("fits multi-participant with lapply")
+    out <- lapply(dmi, init_new, prior, nchain, nmc, thin, report, rp,
                   gammamult, pm0, pm1, block)
   }
-
-  for(i in 1:length(out))
-  {
-    dimnames(out[[i]]$theta) <- list(out[[i]]$p.names, NULL, NULL)
-    class(out[[i]]) <- c("model", "list")
-  }
-
 
   return(out)
 }
@@ -84,11 +41,11 @@ run_many <- function(data, prior, nchain, nmc, thin, report, rp, gammamult,
 rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                        block, add, ncore)
 {
+  message("Fit multi-participant")
 
   if (get_os() == "windows" & ncore > 1)
   {
     cl  <- parallel::makeCluster(ncore)
-    message("Run subjects in parallel")
     out <- parallel::parLapply(cl = cl, X = samples,
                                init_old, nmc, thin, report, rp,
                                gammamult, pm0, pm1, block, add)
@@ -96,22 +53,14 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
   }
   else if (ncore > 1)
   {
-    message("Run subjects in parallel")
     out <- parallel::mclapply(samples, init_old, nmc, thin, report, rp,
                               gammamult, pm0, pm1, block, add,
                               mc.cores=getOption("mc.cores", ncore))
   }
   else
   {
-    message("Run subjects with lapply")
     out <- lapply(samples, init_old, nmc, thin, report, rp,
                   gammamult, pm0, pm1, block, add)
-  }
-
-  for(i in 1:length(out))
-  {
-    dimnames(out[[i]]$theta) <- list(out[[i]]$p.names, NULL, NULL)
-    class(out[[i]]) <- c("model", "list")
   }
 
   return(out)
@@ -126,7 +75,7 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
 ##' They wouold be less efficient to find the target parameter space, if been
 ##' used alone.
 ##'
-##' @param data data model instance(s)
+##' @param dmi a data model instance or a list of data model instances
 ##' @param samples posterior samples.
 ##' @param prior prior objects.  For hierarchical model, this must be a
 ##' list with three sets of prior distributions. Each is respectively named,
@@ -146,47 +95,49 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
 ##' @param add Boolean whether to add new samples
 ##'
 ##' @export
-StartNewsamples <- function(data, prior=NULL, nmc=2e2, thin=1, nchain=NULL,
+##' @importFrom methods slot
+##' @importFrom methods missingArg
+StartNewsamples <- function(dmi, prior, nmc=2e2, thin=1, nchain=NULL,
                             report=1e2, rp=.001, gammamult=2.38, pm0=.05,
                             pm1=.05, block=TRUE, ncore=1)
 {
-  if ( !is.null(prior) &&
+  if ( !missingArg(prior) &&
        all(c("pprior", "location", "scale") %in% names(prior)) &&
        length(prior) == 3 )
   {
-    nchain <- CheckHyperDMI(data, prior, nchain)
-    checklba(data[[1]])
+    nchain <- CheckHyperDMI(dmi, prior, nchain)
+    tmp0   <- sapply(dmi, checklba)
 
     message("Hierarchical model: ", appendLF = FALSE)
     t0 <- Sys.time()
-    out <- run_hier(prior[[1]], prior[[2]], prior[[3]], data, nchain, nmc, thin,
-                    report, rp, gammamult, pm0, pm1, block)
+    out <- init_newhier(prior[[1]], prior[[2]], prior[[3]], dmi, nchain, nmc,
+                        thin, report, rp, gammamult, pm0, pm1, block)
     t1 <- Sys.time()
-  }
-  else if ( is.data.frame(data) )
-  {
-    nchain <- CheckDMI(data, prior, nchain)
-    checklba(data)
+  } else if ( class(dmi) == "list" ) {
+    nchain <- sapply(dmi, CheckDMI, prior=prior, nchain=nchain)
+    nchain <- unique(nchain)
+    tmp0   <- sapply(dmi, checklba)
 
-    message("Non-hierarchical model: ", appendLF = FALSE)
+    message("Fixed-effect model ", appendLF=FALSE)
     t0 <- Sys.time()
-    out <- run_one(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
-                   pm1, block)
-    t1 <- Sys.time()
-  }
-  else
-  {
-    for (i in 1:length(data)) nchain <- CheckDMI(data[[i]], prior, nchain)
-    checklba(data[[1]])
-
-    message("Non-hierarchical model with many subjects")
-    t0 <- Sys.time()
-    out <- run_many(data, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
+    out <- run_many(dmi, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
                     pm1, block, ncore)
     t1 <- Sys.time()
+
+  } else if (class(dmi) == "dmi") {
+    nchain <- CheckDMI(dmi, prior, nchain)
+    if(is.null(nchain)) nchain <- 3*slot(prior, "npar")
+    checklba(dmi)
+
+    message("Fixed-effect model (ncore has no effect): ", appendLF = FALSE)
+    t0 <- Sys.time()
+    out <- init_new(dmi, prior, nchain, nmc, thin, report, rp, gammamult, pm0,
+                    pm1, block)
+    t1 <- Sys.time()
+  } else {
+    stop("Class undefined")
   }
 
-  class(out) <- c("model", "list")
   proc_time <- difftime(t1, t0, units = "secs")[[1]]
   message("Processing time: ", round(proc_time, 2), " secs.")
 
@@ -199,49 +150,32 @@ run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
                  gammamult=2.38, pm0=0, pm1=0, block=TRUE, ncore=1,
                  add=FALSE)
 {
-  hyper <- attr(samples, "hyper")
 
-  if ( !is.null(hyper) )
+  if ( class(samples) == "hyper" )
   {
     t0 <- Sys.time()
     out <- init_oldhier(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                         block, add)
     t1 <- Sys.time()
 
-    pnames   <- GetPNames(attr(out[[1]]$data, "model"))
-    phi1_tmp <- attr(out, "hyper")$phi[[1]]
-    phi2_tmp <- attr(out, "hyper")$phi[[2]]
-    dimnames(phi1_tmp) <- list(pnames, NULL, NULL)
-    dimnames(phi2_tmp) <- list(pnames, NULL, NULL)
-    attr(out, "hyper")$phi[[1]] <- phi1_tmp
-    attr(out, "hyper")$phi[[2]] <- phi2_tmp
-
-    for(i in 1:length(out))
-    {
-      dimnames(out[[i]]$theta) <- list(pnames, NULL, NULL)
-      class(out[[i]]) <- c("model", "list")
-    }
-
-    names(out) <- names(samples)
   }
-  else if (any(names(samples) == "theta"))
-  {
-    t0 <- Sys.time()
-    out <- init_old(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
-                    block, add)
-    t1 <- Sys.time()
-    pnames <- GetPNames(attr(out$data, "model"))
-    dimnames(out$theta) <- list(pnames, NULL, NULL)
-  }
-  else
+  else if ( is.list(samples) )
   {
     t0 <- Sys.time()
     out <- rerun_many(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                       block, add, ncore)
     t1 <- Sys.time()
+    names(out) <- names(samples)
+
+  }
+  else
+  {
+    t0 <- Sys.time()
+    out <- init_old(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
+                    block, add)
+    t1 <- Sys.time()
   }
 
-  class(out) <- c("model", "list")
   proc_time <- difftime(t1, t0, units = "secs")[[1]]
   message("Processing time: ", round(proc_time, 2), " secs.")
 
@@ -249,47 +183,53 @@ run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
 }
 
 ## Utilities ------------------------------------------------------------------
-CheckDMI <- function(data = NULL, prior = NULL, nchain = NULL)
+CheckDMI <- function(d = NULL, prior = NULL, nchain=NULL)
 {
-  if (is.null(data))        stop("No data model instance")
-  if (!is.data.frame(data)) stop("Data must be a data frame")
+  # data <- dmi
+  # prior <- p.prior
+  if (is.null(d)) stop("No data model instance")
+  if (!is.data.frame(d@data)) stop("Data must be a data frame")
 
-  model <- attr(data, "model")
-  npar  <- length(GetPNames(model))
-  if (is.null(nchain)) nchain <- 3*npar
+  model  <- d@model
+  priors <- prior@priors
+  npar   <- model@npar
 
-  if (is.null(model)) stop("Must specify a model")
-  if (is.null(prior)) stop("Must specify prior distributions")
-  if (length(prior) != npar)
+  if (is.null(model))  stop("Must specify a model")
+  if (is.null(priors)) stop("Must specify prior distributions")
+  if (prior@npar != npar)
   {
-    message("Must names pprior, location and scale priors")
     stop("data prior incompatible with model")
   }
+
+  if (is.null(nchain)) nchain <- 3*npar
   return(nchain)
 }
 
-CheckHyperDMI <- function(data = NULL, prior = NULL, nchain = NULL)
+##' @importFrom methods missingArg
+##' @importFrom methods slot
+CheckHyperDMI <- function(data, prior = NULL, nchain = NULL)
 {
   ## data
-  if (is.null(data)) stop("No data")
-  if (!is.list(data)) stop ("data must be a list")
+  if (missingArg(data)) stop("No data-model instance")
   if (is.data.frame(data)) stop("data must not be a data.frame")
 
   ## Prior
   for (i in 1:3) if (is.null(prior[[i]])) stop("No prior distribution")
-  if ( length(prior[[1]]) < length(prior[[2]]) )
+  if ( prior[[1]]@npar < prior[[2]]@npar )
     stop("Location and scale priors differ in the numbers of parameters")
 
-  model1 <- attr(data[[1]], "model")
-  pnames <- GetPNames(model1)
-  isppriorok <- pnames %in% names(prior[[1]])
-  islpriorok <- pnames %in% names(prior[[2]])
-  isspriorok <- pnames %in% names(prior[[3]])
+  model1 <- data[[1]]@model
+  pnames <- model1@pnames
+
+  isppriorok <- pnames %in% prior[[1]]@pnames
+  islpriorok <- pnames %in% prior[[2]]@pnames
+  isspriorok <- pnames %in% prior[[3]]@pnames
+
   if (!all(isppriorok))  {
     cat("Here is the parameter in your model\n")
     print(pnames)
     cat("Here is the parameter in your data prior\n")
-    print(names(prior[[1]]))
+    print(slot(prior[[1]], "pnames"))
     stop("data prior incompatible with model")
   }
   if (!all(islpriorok)) stop("location prior incompatible with model")
@@ -298,7 +238,7 @@ CheckHyperDMI <- function(data = NULL, prior = NULL, nchain = NULL)
   ## nchain
   if (is.null(nchain)) {
     nchain <- 3*length(pnames)
-    message("Use default ", nchain, " chains")
+    message("Use ", nchain, " chains")
   }
 
   return(nchain)

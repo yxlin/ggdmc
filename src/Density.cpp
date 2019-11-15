@@ -28,6 +28,9 @@ using namespace Rcpp;
 //' @param pvector a parameter vector
 //' @param data data model instance
 //' @param min_lik minimal likelihood.
+//' @param precision a tuning parameter for the precision of DDM likelihood.
+//' The larger the value is, the more precise the likelihood is and the slower
+//' the computation would be.
 //' @return a vector
 //' @references Voss, A., Rothermund, K., & Voss, J. (2004).  Interpreting the
 //' parameters of the diffusion model: An empirical validation.
@@ -66,12 +69,12 @@ using namespace Rcpp;
 //'
 //' @export
 // [[Rcpp::export]]
-std::vector<double> likelihood (arma::vec pvector, List data,
-                                double min_lik=1e-10)
+std::vector<double> likelihood (arma::vec pvector, S4 data,
+                                double min_lik=1e-10, double precision=3.0)
 // used only by R
 {
   Design     * obj0 = new Design(data);
-  Likelihood * obj1 = new Likelihood(data, obj0);
+  Likelihood * obj1 = new Likelihood(data, obj0, precision);
   arma::vec tmp = obj1->likelihood(pvector);
 
   std::vector<double> out(obj0->m_nRT);
@@ -130,3 +133,70 @@ arma::vec ac_(arma::vec x, unsigned int nlag) {
   return out;
 }
 
+// [[Rcpp::export]]
+arma::cube trial_loglik(S4 samples, unsigned int thin_pointwise)
+{
+  S4 dmi = samples.slot("dmi");
+  unsigned int nobs, n, j;
+  arma::vec tmp, nmc_thin;
+
+  unsigned int nchain = samples.slot("nchain");
+  unsigned int pnmc   = samples.slot("nmc");
+  arma::cube theta    = samples.slot("theta"); // npar x nchain x nmc
+  Design * d0 = new Design (dmi);
+  nobs        = d0->m_nRT;;
+  nmc_thin = arma::regspace(thin_pointwise, thin_pointwise, pnmc) - 1;
+  n        = nmc_thin.n_elem;
+
+  arma::cube out(nobs, nchain, n); out.fill(R_NegInf);
+
+  Rcout << "Processing chains: ";
+  for (size_t k=0; k<nchain; k++)
+  {
+    for (size_t i=0; i<n; i++)
+    { // sample at certain regular iterations to calculate likelihoods
+      j    = nmc_thin[i];
+      tmp  = likelihood(theta.slice(j).col(k), dmi);
+      out.slice(i).col(k) = arma::log(tmp);
+    }
+    Rcout << ".";
+  }
+
+  Rcout << "\n";
+  delete d0;
+  return out;
+}
+
+// List trial_loglik_hier(List samples, unsigned int thin_pointwise)
+// {
+//   List samples_in(clone(samples));
+//
+//   List hyper  = samples_in.attr("hyper");
+//   List pprior = hyper ["pp.prior"];
+//   List lprior = pprior["location"];
+//   List sprior = pprior["scale"];
+//
+//   List subject0 = samples_in[0];
+//   List prior    = subject0["p.prior"];
+//
+//   unsigned int npar   = prior.size();
+//   unsigned int nsub   = samples.size();
+//   unsigned int nchain = hyper["n.chains"];
+//
+//   std::vector<Design     *> ds(nsub);
+//   std::vector<Likelihood *> ls(nsub);
+//
+//   for (size_t i = 0; i < nsub; i++)
+//   {
+//     List subjecti = samples_in[i];
+//     List datai    = subjecti["data"];  // Must cast out first
+//
+//     ds[i] = new Design (datai);
+//     ls[i] = new Likelihood (datai, ds[i], 3.0); // diff. RTs, Rs for diff. subjs
+//   }
+//
+//
+//   Rcout << "Start sampling: ";
+//
+//
+// }

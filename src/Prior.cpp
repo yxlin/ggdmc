@@ -45,7 +45,36 @@ Prior::Prior (List & pprior)
   m_u  = u;
   m_lg = lg;
 }
+Prior::Prior (S4 & pprior)
+{
+  using namespace arma;
 
+  std::vector<std::string> pnames = pprior.slot("pnames");
+  Rcpp::List priors               = pprior.slot("priors");
+
+  m_npar = pnames.size();
+
+  vec p0(m_npar), p1(m_npar), l(m_npar), u(m_npar);
+  uvec d(m_npar), lg(m_npar);
+
+  for (size_t i = 0; i < m_npar; i++) {
+    List a_list = priors[pnames[i]];
+    unsigned int a_dist = a_list.attr("dist");
+
+    d[i]  = a_dist;
+    p0[i] = a_list[0];
+    p1[i] = a_list[1];
+    l[i]  = a_list[2];
+    u[i]  = a_list[3];
+    lg[i] = a_list[4];
+  }
+  m_d  = d;
+  m_p0 = p0;
+  m_p1 = p1;
+  m_l  = l;
+  m_u  = u;
+  m_lg = lg;
+}
 Prior::~Prior()
 {
   // Rcout << "Prior destructor\n";
@@ -225,23 +254,21 @@ void Prior::print(std::string str) const
 }
 
 // [[Rcpp::export]]
-NumericMatrix rprior_mat(List prior, unsigned int n) {
+NumericMatrix rprior_mat(S4 prior, unsigned int n) {
 
+  // Use only by R side in prior.R, GetParameterMatrix, simulate_many
   if (n < 1) stop("n must be greater or equal to 1");
 
   Prior * obj = new Prior(prior);
-  CharacterVector pnames = prior.attr("names");
-  unsigned int npar = pnames.size();
+  CharacterVector pnames = prior.slot("pnames");
+  unsigned int npar      = prior.slot("npar");
+  arma::vec tmp;
 
   NumericMatrix out(n, npar);
   for (size_t i=0; i<n; i++)
   {
-    arma::vec tmp = obj->rprior();
-
-    for (size_t j=0; j<npar; j++)
-    {
-      out(i,j) = tmp[j];
-    }
+    tmp = obj->rprior();
+    for (size_t j=0; j<npar; j++) out(i,j) = tmp[j];
   }
 
   Rcpp::colnames(out) = pnames;

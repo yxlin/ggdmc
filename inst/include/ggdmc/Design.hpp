@@ -102,39 +102,8 @@ public:
 
   }
 
-  Design(std::vector<std::string> & pnames,
-         std::vector<std::string> & parnames,
-         std::vector<std::string> & dim0,
-         std::vector<std::string> & dim1,
-         std::vector<std::string> & dim2,
-         std::vector<double> & allpar,
-         arma::ucube & model) : m_model(model)
-  // p_df constructor
-  {
-    m_nc  = dim0.size();  // number of condition, eg s1.r1 etc.
-    m_np  = dim1.size();  // number of parameter x condition, eg v.f1, v.f2
-    m_nr  = dim2.size();  // number of accumualtor/response, eg r1, r2
-    m_nParameter = parnames.size();
-    m_npar       = pnames.size();
-
-    m_allpar     = new double[allpar.size()];
-    m_pnames     = new std::string[m_npar];
-    m_parameters = new std::string[m_nParameter];
-    m_dim0       = new std::string[m_nc];
-    m_dim1       = new std::string[m_np];
-    m_dim2       = new std::string[m_nr];
-
-    std::copy(pnames.begin(), pnames.end(), m_pnames);
-    std::copy(parnames.begin(), parnames.end(), m_parameters);
-    std::copy(dim0.begin(), dim0.end(), m_dim0);
-    std::copy(dim1.begin(), dim1.end(), m_dim1);
-    std::copy(dim2.begin(), dim2.end(), m_dim2);
-    std::copy(allpar.begin(), allpar.end(), m_allpar);
-
-  }
-
-  Design(List & dmi, bool debug)
-  // Run & likelihood constructor for cddm
+  Design(S4 & dmi)
+  // Run & likelihood constructor
   {
     using namespace arma;
     using namespace std;
@@ -143,19 +112,21 @@ public:
     // first, so the messy syntax.
     // List dmi = samples["data"];  // data model instance
 
-    NumericVector modelAttr  = dmi.attr("model");
-    vector<bool> ise         = dmi.attr("cell.empty"); // nc
-    List cidx                = dmi.attr("cell.index"); // nc elements
-    ucube tmp_model          = dmi.attr("model");
-    arma::vec RT             = dmi["RT"];
-    arma::vec A              = dmi["A"];
+    S4 model           = dmi.slot("model");
+    List data          = dmi.slot("data");
+    vector<bool> ise   = dmi.slot("cell.empty"); // nc
+    List cidx          = dmi.slot("cell.index"); // nc elements
 
-    List modelDim            = modelAttr.attr("dimnames");
-    NumericVector pvector    = modelAttr.attr("p.vector"); // Carry NA values
-    vector<string> parnames  = modelAttr.attr("par.names");
-    vector<double> tmp_allpar= modelAttr.attr("all.par"); // with conditoin complications
-    vector<bool> mc          = modelAttr.attr("match.cell");
-    vector<string> pnames    = pvector.attr("names");
+    arma::vec RT       = data["RT"];
+
+    ucube tmp_model          = model.slot("model");
+    List modelDim            = model.slot("dimnames");
+    NumericVector pvector    = model.slot("p.vector"); // Carry NA values
+    vector<string> parnames  = model.slot("par.names");
+    vector<double> tmp_allpar= model.slot("all.par"); // with conditoin complications
+    vector<bool> mc          = model.slot("match.cell");
+
+    vector<string> pnames    = model.slot("pnames");
     // nc = dim0.size() ;  // number of condition, eg s1.r1 etc.
     // np = dim1.size() ;  // number of parameter x condition, eg v.f1, v.f2
     // nr = dim2.size() ;  // number of accumualtor/response, eg r1, r2
@@ -163,9 +134,16 @@ public:
     vector<string> dim1 = modelDim[1];
     vector<string> dim2 = modelDim[2];
 
-    // 1. Get RTs (& response angles etc.)
+    // 1. Get RTs
     m_RT = RT;
-    m_A  = A;
+    std::string type = model.slot("type");
+
+    // Two dependednt variables
+    if (type == "cddm")
+    {
+      arma::vec A = data["A"];
+      m_A = A;
+    }
 
     // 2. Get the sizes of all design-related variables
     m_nc          = dim0.size();
@@ -207,6 +185,37 @@ public:
 
     m_is_this_cell = tmp_cidx;
     m_model = tmp_model;
+
+  }
+
+  Design(std::vector<std::string> & pnames,
+         std::vector<std::string> & parnames,
+         std::vector<std::string> & dim0,
+         std::vector<std::string> & dim1,
+         std::vector<std::string> & dim2,
+         std::vector<double> & allpar,
+         arma::ucube & model) : m_model(model)
+  // p_df constructor
+  {
+    m_nc  = dim0.size();  // number of condition, eg s1.r1 etc.
+    m_np  = dim1.size();  // number of parameter x condition, eg v.f1, v.f2
+    m_nr  = dim2.size();  // number of accumualtor/response, eg r1, r2
+    m_nParameter = parnames.size();
+    m_npar       = pnames.size();
+
+    m_allpar     = new double[allpar.size()];
+    m_pnames     = new std::string[m_npar];
+    m_parameters = new std::string[m_nParameter];
+    m_dim0       = new std::string[m_nc];
+    m_dim1       = new std::string[m_np];
+    m_dim2       = new std::string[m_nr];
+
+    std::copy(pnames.begin(), pnames.end(), m_pnames);
+    std::copy(parnames.begin(), parnames.end(), m_parameters);
+    std::copy(dim0.begin(), dim0.end(), m_dim0);
+    std::copy(dim1.begin(), dim1.end(), m_dim1);
+    std::copy(dim2.begin(), dim2.end(), m_dim2);
+    std::copy(allpar.begin(), allpar.end(), m_allpar);
 
   }
 

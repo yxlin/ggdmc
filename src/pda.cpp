@@ -17,7 +17,6 @@
 
 using namespace Rcpp;
 
-//' @export
 // [[Rcpp::export]]
 arma::vec spdf(arma::vec x, arma::vec RT, int n, double h_in,
                bool debug) {

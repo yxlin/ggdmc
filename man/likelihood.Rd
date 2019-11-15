@@ -4,7 +4,7 @@
 \alias{likelihood}
 \title{Calculate log likelihoods}
 \usage{
-likelihood(pvector, data, min_lik = 1e-10)
+likelihood(pvector, data, min_lik = 1e-10, precision = 3)
 }
 \arguments{
 \item{pvector}{a parameter vector}
@@ -12,6 +12,10 @@ likelihood(pvector, data, min_lik = 1e-10)
 \item{data}{data model instance}
 
 \item{min_lik}{minimal likelihood.}
+
+\item{precision}{a tuning parameter for the precision of DDM likelihood.
+The larger the value is, the more precise the likelihood is and the slower
+the computation would be.}
 }
 \value{
 a vector

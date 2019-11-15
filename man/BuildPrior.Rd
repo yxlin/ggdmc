@@ -2,7 +2,7 @@
 % Please edit documentation in R/prior.R
 \name{BuildPrior}
 \alias{BuildPrior}
-\title{Specifying Parameter Prior Distributions}
+\title{Specifying Prior Distributions}
 \usage{
 BuildPrior(p1, p2, lower = rep(NA, length(p1)), upper = rep(NA,
   length(p1)), dists = rep("tnorm", length(p1)),
@@ -28,20 +28,63 @@ BuildPrior(p1, p2, lower = rep(NA, length(p1)), upper = rep(NA,
 a list of list
 }
 \description{
-\code{BuildPrior} sets up parameter prior distributions for each model
+\code{BuildPrior} sets up prior distributions for each model
 parameter. \code{p1} and \code{p2} refer to the first and second parameters
-a prior distribution.
+a prior distribution. \code{p1} must comes with parameter names.
 }
 \details{
 Four distribution types are implemented:
 \enumerate{
-\item Normal and truncated normal, where: p1 = mean, p2 = sd. It specifies
-a normal distribution when bounds are set -Inf and Inf,
-\item Beta, where: p1 = shape1 and p2 = shape2 (see \link{pbeta}). Note the
-      uniform distribution is a special case of the beta with p1 and
-      p2 = 1),
-\item Gamma, where p1 = shape and p2 = scale (see \link{pgamma}). Note p2 is
-      scale, not rate,
-\item Lognormal, where p1 = meanlog and p2 = sdlog (see \link{plnorm}).
+\item Normal and truncated normal distribution, where: p1 = mean, p2 = sd.
+      When the lower and upper are not provided, they are set to -Inf and
+      Inf, rendering a normal distribution. Type name is "tnorm".
+\item Beta distribution, where: p1 = shape1 and p2 = shape2 (see \link{pbeta}).
+      Note the uniform distribution is a special case of the beta with p1 = 1and
+      and p2 = 1. Type name is "beta".
+\item Gamma distribution, where p1 = shape and p2 = scale (see \link{pgamma}).
+      Note p2 is scale, not rate. Type name is "gamma".
+\item Log-normal, where p1 = meanlog and p2 = sdlog (see \link{plnorm}).
+\item Uniform distribution. The bounds are not c(0, 1). The option comes handy.
+      Type name is "unif".
 }
+}
+\examples{
+## Show using dbeta to visualise a uniform distribution with bound (0, 1)
+x <- seq(-.1, 1.1, .001)
+plot(x, dbeta(x, 1, 1), type="l", ylab="Density", xlab="x", lwd=2)
+
+## BuildPrior
+pop.mean  <- c(a=2,   v=4, z=0.5, t0=0.3)
+pop.scale <- c(a=0.5, v=.5, z=0.1, t0=0.05)
+
+pop.prior <- BuildPrior(
+  dists = rep("tnorm", 4),
+  p1    = pop.mean,
+  p2    = pop.scale,
+  lower = c(0,-5,  0, 0),
+  upper = c(5, 7,  1, 1))
+
+p.prior <- BuildPrior(
+  dists = rep("tnorm", 4),
+  p1    = pop.mean,
+  p2    = pop.scale*5,
+  lower = c(0,-5, 0, 0),
+  upper = c(5, 7, 1, 1))
+
+mu.prior <- BuildPrior(
+  dists = rep("tnorm", 4),
+  p1    = pop.mean,
+  p2    = pop.scale*5,
+  lower = c(0,-5,  0, 0),
+  upper = c(5, 7,  1, 1))
+
+sigma.prior <- BuildPrior(
+  dists = rep("beta", 4),
+  p1    = c(a=1, v=1, z=1, t0=1),
+  p2    = rep(1, 4),
+  upper = rep(1, 4))
+
+## Bind three priors together for hierarchical modelling
+priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
+
 }

@@ -33,7 +33,7 @@ model <- BuildModel(
   constants = c(st0 = 0, d = 0, sv = 0, sz = 0),  
   type      = "rd")   
 
-npar <- length(GetPNames(model))
+npar <- model@npar
 p.vector <- c(a=1, v=1.5, z=0.5, t0=.15)
 dat <- simulate(model, nsim = 50, ps = p.vector)
 dmi <- BuildDMI(dat, model)
@@ -55,7 +55,7 @@ plot(fit, den = TRUE)
 plot(fit, pll = FALSE)
 plot(fit, pll = FALSE, den = TRUE)
 
-(isconv <- gelman(fit))
+isconv <- gelman(fit)
 est    <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
 
 ```
@@ -73,7 +73,7 @@ model <- BuildModel(
   constants = c(st0 = 0, d = 0, sv = 0, sz = 0),
   type      = "rd")
 
-npar <- length(GetPNames(model))
+npar <- model@npar
 pop.mean  <- c(a = 2,   v = 4,  z = 0.5, t0 = 0.3)
 pop.scale <- c(a = 0.5, v = .5, z = 0.1, t0 = 0.05)
 pop.prior <- BuildPrior(
@@ -134,15 +134,11 @@ p0 <- plot(fit, hyper = TRUE)
 p0 <- plot(fit, hyper = TRUE, den = TRUE, pll=FALSE)
 
 ## Check model -----------
-res  <- hgelman(fit, verbose = TRUE)
+## hgelman function is deprecated 
+res  <- gelman(fit, verbose = TRUE)
 est0 <- summary(fit, recovery = TRUE, ps = ps, verbose = TRUE)
 est1 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.mean,  type = 1, verbose = TRUE)
 est2 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.scale, type = 2, verbose = TRUE)
-
-for(i in 1:length(fit))
-{
-  est <- summary(fit[[i]], recovery = TRUE, ps = ps[i,], verbose=TRUE)
-}
 
 ```
 

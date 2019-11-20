@@ -17,7 +17,7 @@
 
 using namespace Rcpp;
 
-//' The 2-dimension Diffusion Model
+//' Two-dimension Diffusion Model
 //'
 //' Density, random generation for the 2-D diffusion model.
 //'
@@ -171,38 +171,61 @@ Rcpp::List rcircle_process(arma::vec P, double tmax, double h)
 
 }
 
+//' One-dimension Diffusion decision process
+//'
+//' This function generates one 1-D diffusion process.
+//'
+//' The model has five parameters, v, a, z, t0, and s. tmax and h are
+//' tuning parameters for determining the set.
+//'
+//' @param P is a parameter vector, c(v, a, z, t0, s).
+//' The sequence must be followed. v is the drift rate
+//' a is decision threshold. t0 is the non-decision time.
+//' @param tmax maximum time allowed.
+//' @param kmax the tuning parameter for Bessel function. Mostly 50.
+//' @param h,sz sz is the number of time steps (h = tmax / sz). h is
+//' the size of one time step. We usually set h = 1e-4. That is .1 ms.
+//' So when tmax is 2 second and each time step is 0.1 ms, sz will be
+//' 2e4 steps.
+//' @return rcircle returns a n x 2 matrix. Each row is an [RT R] trial.
+//' dcircle returns a n vector.
+//' @examples
+//'
 //' @rdname dcircle
 //' @export
 // [[Rcpp::export]]
 Rcpp::List r1d(arma::vec P, double tmax, double h)
 {
   // P[0] = v; P[1] = a; P[2] = z; P[3] = t0; P[4] = s;
-  if ( h <= 0  ) Rcpp::stop("h must be greater than 0.");
-  if (tmax <= 0) Rcpp::stop("tmax must be greater than 0.");
-  if (tmax < 1 ) Rcpp::Rcout << "tmax less than 1.\n";
+  if ( h <= 0  )   Rcpp::stop("h must be greater than 0.");
+  if (tmax <= 0)   Rcpp::stop("tmax must be greater than 0.");
   if (P[2] > P[1]) Rcpp::stop("z > a");
-  if (P[3] < 0) Rcpp::stop("t0 > 0");
+  if (P[3] < 0)    Rcpp::stop("t0 > 0");
 
-  arma::vec T, sigma_wt, mut, out(2);
-  double Dt;
+  if (tmax < 1 )   Rcpp::Rcout << "tmax less than 1.\n";
+
+  arma::vec T, sigma_wt, mut, out(3);
+  double current_evidence;
 
   T = arma::regspace(0, h, tmax);   // h must > 0
-  unsigned int nmax=T.n_elem, i=1;
+  unsigned int nmax=T.n_elem, i=1;  // 20001
 
-  mut      = P[0]*arma::ones<arma::vec>(nmax);
-  sigma_wt = P[4]*arma::randn(nmax);
+  mut      = h * P[0]*arma::ones<arma::vec>(nmax);
+  sigma_wt = std::sqrt(h) * P[4]*arma::randn(nmax);
   arma::vec  Xt(nmax); Xt.fill(NA_REAL);
-  Xt(0) = P[2];
-  Dt    = Xt(0);
 
-  while (Dt < P[1] && Dt > 0 && i < nmax)
+  Xt(0) = P[2]; // starting evidence; Xt records the trace of the accumulator
+  current_evidence = Xt(0);
+
+  while (current_evidence < P[1] && current_evidence > 0 && i < nmax)
   {
-    Xt(i) = Xt(i-1) + mut(i)*h + sigma_wt(i)*std::sqrt(h);
-    Dt = Xt(i);
+    Xt(i) = Xt(i-1) + mut(i) + sigma_wt(i);
+    current_evidence = Xt(i);
     i++;
   }
-  out(0) = i * h + P[3];
-  out(1) = i > nmax; // auto-upcast
+  out(0) = i * h + P[3]; // DT + t0
+  out(1) = i > nmax; // auto-upcast; if suppass
+  out(2) = (current_evidence > P[1]) ? 0 : 1;
 
   return Rcpp::List::create(Rcpp::Named("T")  = T,
                             Rcpp::Named("out")= out,

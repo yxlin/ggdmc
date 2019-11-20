@@ -95,7 +95,7 @@ p.prior <- BuildPrior(
     lower = c(0,-5, 0, 0),
     upper = c(5, 7, 1, 1))
 
-plot(p.prior, ps = ps)  ## Check if all true pvectors in the range of prior
+plot(p.prior, ps = ps)  ## Check if all true values are in the range 
 
 ## Sampling separately
 fit0 <- StartNewsamples(dmi, p.prior, ncore = 4)

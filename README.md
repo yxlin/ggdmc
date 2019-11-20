@@ -165,8 +165,8 @@ For the details regarding PLBA types, please see
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
 
 ## Memory models
-11. 2-D/circular drift-diffusion model, type = "cddm"
-12. Prospective memory model, type = "norm" (see tutorial for more details)
+10. 2-D/circular drift-diffusion model, type = "cddm"
+11. Prospective memory model, type = "norm" (see tutorial for more details)
 
 
 ## Further information

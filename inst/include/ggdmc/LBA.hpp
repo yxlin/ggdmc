@@ -10,6 +10,7 @@ public:
 
   double *m_meanv_vec, *m_sdv_vec, *m_dt;
   unsigned int m_nmean_v, m_nrt;
+  double *m_A_vec, *m_b_vec, *m_t0_vec, *m_st0_vec;
 
   lba (double A, double b, double mean_v, double sd_v, double t0, double st0,
        bool posdrift, arma::vec & rt) :
@@ -38,6 +39,15 @@ public:
     if (m_st0 < 0) Rcpp::stop("st0 must be greater than 0.");
   }
   // rlba_norm. NOTE double * mean_v and double * sd_v
+
+  lba (double * A, double * b, double * mean_v, double * sd_v, double * t0,
+       double * st0, unsigned int & nmean_v, bool posdrift) :
+    m_A_vec(A), m_b_vec(b), m_meanv_vec(mean_v), m_sdv_vec(sd_v), m_t0_vec(t0),
+    m_st0_vec(st0), m_nmean_v(nmean_v), is_posv(posdrift)
+  {
+  }
+  // rlba_norm. vectorized
+
 
   ~lba() {};
 
@@ -120,6 +130,21 @@ public:
       output(i, 1) = 1 + tmp.index_min(); // plus 1 to fit R indexing
     }
   }
+  // TODO:: remove this function, after vectorized version (r_vec) test is OK
+
+  void r_vec (unsigned int & n, arma::mat & output)
+  {
+    // output n x 2
+    arma::vec tmp(m_nmean_v);
+
+    for (size_t i=0; i<n; i++)
+    {
+      rt_vec(tmp);
+      output(i, 0) = tmp.min();
+      output(i, 1) = 1 + tmp.index_min(); // plus 1 to fit R indexing
+    }
+  }
+
 
   void print(const std::string & x) const
   {
@@ -161,6 +186,19 @@ private:
 
     if ( output.has_inf() ) Rcpp::stop("Found infinite in lba class");
 
+  }
+
+  void rt_vec (arma::vec & output)
+  {
+    double lower;
+    for (size_t i=0; i<m_nmean_v; i++)
+    {
+      lower = is_posv ? 0 : R_NegInf;
+      tnorm * obj = new tnorm(m_meanv_vec[i], m_sdv_vec[i], lower, R_PosInf);
+      output[i] = m_t0_vec[i] + (m_b_vec[i] - m_A_vec[i] * R::runif(0, 1)) / obj->r();
+      delete obj;
+    }
+    if ( output.has_inf() ) Rcpp::stop("Found infinite in rt_vec class");
   }
 
 };

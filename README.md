@@ -184,7 +184,7 @@ are designed to for doing this operations.
 
 ```
 DMC2ggdmc <- function(x) {
-## x is an object of posterior samples from individual subject fit
+  ## x is an object of posterior samples from individual subject fit
   x$theta <- aperm(x$theta, c(2, 1, 3))
   x$summed_log_prior <- t(x$summed_log_prior)
   x$log_likelihoods <- t(x$log_likelihoods)
@@ -192,6 +192,7 @@ DMC2ggdmc <- function(x) {
   return(x)
 }
 ggdmc2DMC <- function(x) {
+  ## Should change $ to @ when operate output from ggdmc's run function
   x$theta <- aperm(x$theta, c(2, 1, 3))
   x$summed_log_prior <- t(x$summed_log_prior)
   x$log_likelihoods <- t(x$log_likelihoods)
@@ -204,10 +205,11 @@ matrix dimension, because Dstats.dmc calculates the means of the theta/phi array
 across column, $$apply(samples$theta,2,mean)$$. _ggdmc_ provides DIC function, 
 which uses a back-end function, **deviance_model** to attain the same opeation
 
-The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) illustrates 
-an example for doing the back-and-forth operation.
+The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
+illustrates an example for doing the back-and-forth operation.
 
-Note that S4 uses @ operator to extract its components (i.e., slot).
+Note that now we S4, so please use "@" operator to extract object components 
+(i.e., slot). 
 
 ## Prerequisites
  - R (>= 3.3.0)
@@ -222,7 +224,7 @@ Note that S4 uses @ operator to extract its components (i.e., slot).
 
 ## Installation
 
-We now use S4 class in version 2.7.5. The new design creates a more 
+We now use S4 class in version 2.7.5. The new design enables a more 
 user-friendly interface of help pages.
 
 From CRAN (0.2.6.0): 

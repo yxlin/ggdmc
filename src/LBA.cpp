@@ -122,20 +122,36 @@ arma::mat rlba_norm(unsigned int n, arma::vec A, arma::vec b,
 
   double * mv  = new double[nmean_v];
   double * sdv = new double[nmean_v];
+
+  double * A_vec   = new double[nmean_v];
+  double * b_vec   = new double[nmean_v];
+  double * t0_vec  = new double[nmean_v];
+  double * st0_vec = new double[nmean_v];
   for(size_t i=0; i<nmean_v; i++)
   {
     mv[i]  = mean_v[i];
     sdv[i] = sd_v[i];
+
+    A_vec[i]  = A[i];
+    b_vec[i]  = b[i];
+    t0_vec[i] = t0[i];
+    st0_vec[i] = st0[i];
   }
 
-  lba * obj = new lba(A[0], b[0], mv, sdv, t0[0], st0[0], nmean_v, posdrift);
+  // lba * obj = new lba(A[0], b[0], mv, sdv, t0[0], st0[0], nmean_v, posdrift);
+  lba * obj = new lba(A_vec, b_vec, mv, sdv, t0_vec, st0_vec, nmean_v, posdrift);
 
   arma::mat out(n, 2);
-  obj->r(n, out);
+  obj->r_vec(n, out);
 
   delete obj;
   delete [] sdv;
   delete [] mv;
+
+  delete [] A_vec;
+  delete [] b_vec;
+  delete [] t0_vec;
+  delete [] st0_vec;
 
   return out;
 }

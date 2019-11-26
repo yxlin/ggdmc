@@ -1,7 +1,7 @@
 Package: ggdmc
 Type: Package
 Title: Cognitive Models
-Version: 0.2.7.6
+Version: 0.2.7.7
 Date: 2019-11-15
 Author: Yi-Shin Lin [aut, cre], Andrew Heathcote [aut]
 Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>

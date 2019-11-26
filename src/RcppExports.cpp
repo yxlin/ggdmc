@@ -169,20 +169,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// prd
-std::vector<double> prd(std::vector<double> rts, std::vector<double> params, double precision, unsigned int b);
-RcppExport SEXP _ggdmc_prd(SEXP rtsSEXP, SEXP paramsSEXP, SEXP precisionSEXP, SEXP bSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<double> >::type rts(rtsSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type params(paramsSEXP);
-    Rcpp::traits::input_parameter< double >::type precision(precisionSEXP);
-    Rcpp::traits::input_parameter< unsigned int >::type b(bSEXP);
-    rcpp_result_gen = Rcpp::wrap(prd(rts, params, precision, b));
-    return rcpp_result_gen;
-END_RCPP
-}
 // init_new
 S4 init_new(S4 dmi, S4 prior, unsigned int nchain, unsigned int nmc, unsigned int thin, unsigned int report, double rp, double gammamult, double pm, double pm_old, bool block);
 RcppExport SEXP _ggdmc_init_new(SEXP dmiSEXP, SEXP priorSEXP, SEXP nchainSEXP, SEXP nmcSEXP, SEXP thinSEXP, SEXP reportSEXP, SEXP rpSEXP, SEXP gammamultSEXP, SEXP pmSEXP, SEXP pm_oldSEXP, SEXP blockSEXP) {
@@ -437,7 +423,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_trial_loglik", (DL_FUNC) &_ggdmc_trial_loglik, 2},
     {"_ggdmc_r_fastdm", (DL_FUNC) &_ggdmc_r_fastdm, 4},
     {"_ggdmc_p_fastdm", (DL_FUNC) &_ggdmc_p_fastdm, 5},
-    {"_ggdmc_prd", (DL_FUNC) &_ggdmc_prd, 4},
     {"_ggdmc_init_new", (DL_FUNC) &_ggdmc_init_new, 11},
     {"_ggdmc_init_old", (DL_FUNC) &_ggdmc_init_old, 10},
     {"_ggdmc_init_newhier", (DL_FUNC) &_ggdmc_init_newhier, 13},

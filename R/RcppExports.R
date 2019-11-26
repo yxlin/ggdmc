@@ -152,10 +152,6 @@ p_fastdm <- function(rts, params, precision = 3, boundary = 2L, stop_on_error = 
     .Call('_ggdmc_p_fastdm', PACKAGE = 'ggdmc', rts, params, precision, boundary, stop_on_error)
 }
 
-prd <- function(rts, params, precision = 3, b = 2L) {
-    .Call('_ggdmc_prd', PACKAGE = 'ggdmc', rts, params, precision, b)
-}
-
 init_new <- function(dmi, prior, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block) {
     .Call('_ggdmc_init_new', PACKAGE = 'ggdmc', dmi, prior, nchain, nmc, thin, report, rp, gammamult, pm, pm_old, block)
 }

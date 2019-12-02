@@ -98,7 +98,6 @@ grepl_dot <- function(pattern, x) {
 ##'   responses = paste0('theta_', letters[1:4]),
 ##'   type      = "cddm")
 ##' @importFrom utils glob2rx
-##' @importFrom methods new
 ##' @export
 BuildModel <- function(
   p.map,                          # list factors and constants for parameters
@@ -314,8 +313,6 @@ BuildModel <- function(
 ##' @param model a model object
 ##' @return a data model instance
 ##' @export
-##' @importFrom methods slot
-##' @importFrom methods new
 BuildDMI <- function(x, model) {
   res <- check_BuildDMI(x, model)
   multimodel <- res$issm
@@ -457,7 +454,6 @@ make_level_array <- function(x = NA) {
 ##' ##    A b  t0 mean_v sd_v st0
 ##' ## 0.75 1 0.2    2.5    1   0
 ##' ## 0.75 1 0.2    1.5    1   0
-##' @importFrom methods slot
 ##' @export
 TableParameters <- function (p.vector, cell, model, n1order)
 {
@@ -788,7 +784,6 @@ flipz <- function(responses, match.map, type, level_array)
   return(list(is.r1, bound))
 }
 
-##' @importFrom methods slot
 check_BuildDMI <- function(data, model) {
   message1 <- "Model list is to match multiple subjects - models. No s column was found in data frame"
   message2 <- "Mostl list must be same length as the number of subjects"
@@ -893,7 +888,6 @@ check_cell <- function(cell, model) {
 
 
 ######### Simulation checks -----------------------------------------------------
-##' @importFrom methods slot
 createfacsdf <- function(model) {
 
   m    <- slot(model, "model")

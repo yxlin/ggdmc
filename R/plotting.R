@@ -1,6 +1,5 @@
 ### One Subject  ---------------------------------------------
 ##' @import ggplot2
-##' @importFrom methods slot
 preplot_one <- function(x, start, end, pll) {
 
   # pll <- F
@@ -47,7 +46,6 @@ preplot_one <- function(x, start, end, pll) {
 }
 
 ##' @import ggplot2
-##' @importFrom methods slot
 plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
   chains, ...) {
 
@@ -125,7 +123,6 @@ plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
 
 ### Many Subjects  ---------------------------------------------
 ##' @import ggplot2
-##' @importFrom methods slot
 plot_many <- function(x, start, end, pll, save, den, subchain, nsubchain,
   chains, ...) {
 
@@ -305,7 +302,6 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
 
 
 ### Prior  ---------------------------------------------
-##' @importFrom methods slot
 plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
                        trans = NA, save = FALSE, ... ) {
 
@@ -494,7 +490,6 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
 ##' p0 <- autocorr(fit0_correct, subchain=1:3, pll=TRUE)
 ##' }
 ##' @export
-##' @importFrom methods slot
 autocorr <- function(x, start = 1, end = NA, nLags = 50, pll = TRUE,
                      subchain = FALSE)
 {

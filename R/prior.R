@@ -155,7 +155,6 @@ dunif_ <- function(x, p1, p2, lower, upper, lg = FALSE) {
 ##' priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
 ##'
 ##' @export
-##' @importFrom methods new
 BuildPrior <- function(p1, p2,
                        lower   = rep(NA, length(p1)),
                        upper   = rep(NA, length(p1)),

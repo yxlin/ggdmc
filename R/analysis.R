@@ -1,5 +1,4 @@
 ### MCMC -------------------------------------------------------
-##' @importFrom methods slot
 extractPhi <- function(x, start, end, subchain) {
 
   thin   <- x@thin
@@ -58,7 +57,6 @@ extractPhi <- function(x, start, end, subchain) {
 
 ##' @importFrom stats var
 ##' @importFrom matrixStats rowMeans2
-##' @importFrom methods slot
 getW <- function (x) {
   theta  <- slot(x, "theta")
   nchain <- slot(x, "nchain")
@@ -72,7 +70,6 @@ getW <- function (x) {
 }
 
 ##' @importFrom matrixStats rowMeans2
-##' @importFrom methods slot
 get_xbar <- function (x) {
   theta  <- slot(x, "theta")
   nchain <- slot(x, "nchain")
@@ -140,7 +137,6 @@ safespec0 <- function(x) {
   result
 }
 
-##' @importFrom methods new
 summary_hyper <- function(object, start, end, type, prob, digits, verbose)
 {
   # x <- fit
@@ -171,7 +167,6 @@ summary_hyper <- function(object, start, end, type, prob, digits, verbose)
   return(out)
 }
 
-##' @importFrom methods slot
 summary_one <- function(x, start, end, prob) {
   # x <- fit0
 
@@ -319,7 +314,6 @@ check_nonna <- function(x, type) {
   return(list(theta, newnpar, pnames))
 }
 
-##' @importFrom methods new
 summary_recoverhyper <- function(object, start, end, ps, type, digits, prob,
   verbose) {
   # object <- fit

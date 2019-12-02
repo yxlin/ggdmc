@@ -149,7 +149,6 @@ get_os <- function()
 
 
 
-##' @importFrom methods slot
 checklba <- function(x)
 {
   model <- slot(x, "model")

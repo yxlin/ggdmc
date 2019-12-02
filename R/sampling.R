@@ -95,8 +95,6 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
 ##' @param add Boolean whether to add new samples
 ##'
 ##' @export
-##' @importFrom methods slot
-##' @importFrom methods missingArg
 StartNewsamples <- function(dmi, prior, nmc=2e2, thin=1, nchain=NULL,
                             report=1e2, rp=.001, gammamult=2.38, pm0=.05,
                             pm1=.05, block=TRUE, ncore=1)
@@ -205,8 +203,6 @@ CheckDMI <- function(d = NULL, prior = NULL, nchain=NULL)
   return(nchain)
 }
 
-##' @importFrom methods missingArg
-##' @importFrom methods slot
 CheckHyperDMI <- function(data, prior = NULL, nchain = NULL)
 {
   ## data

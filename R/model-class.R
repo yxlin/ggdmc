@@ -85,7 +85,6 @@ setClass("prior",
 ##' @return a string vector
 ##' @export
 ##' @docType methods
-##' @importFrom methods slot
 ##' @rdname names-methods
 setMethod("names", "prior", function (x) {
   slot(x, "pnames")
@@ -325,7 +324,6 @@ setGeneric("PickStuck", function(x, ... ) {
 ### PickStuck  ----------------
 ##' @importFrom matrixStats rowMeans2
 ##' @importFrom stats median
-##' @importFrom methods slot
 ##' @rdname PickStuck-methods
 setMethod("PickStuck", "posterior", function (x, cut = 10, start = 1, end = NA,
                                               verbose = FALSE, digits = 2)
@@ -354,8 +352,7 @@ setMethod("PickStuck", "posterior", function (x, cut = 10, start = 1, end = NA,
 })
 
 ##' @rdname PickStuck-methods
-setMethod(##' @importFrom methods slot
-"PickStuck", "list", function (x, cut = 10, start = 1,
+setMethod("PickStuck", "list", function (x, cut = 10, start = 1,
                                          end = NA, verbose = FALSE, digits = 2)
 {
   sam1 <- x[[1]]
@@ -551,7 +548,6 @@ setMethod("isflat", "list", function(x, p1 = 1/3, p2 = 1/3, cut = 0.25,
 
 ##' @importFrom stats IQR
 ##' @importFrom stats median
-##' @importFrom methods slot
 isflat_location <- function(x, p1, p2, cut, verbose, digits)
 {
   # cut <- .25
@@ -601,7 +597,6 @@ isflat_location <- function(x, p1, p2, cut, verbose, digits)
 }
 
 ##' @importFrom stats IQR
-##' @importFrom methods slot
 isflat_scale <- function(x, p1 = 1/3, p2 = 1/3, cut = 0.25,
                          verbose = FALSE, digits=2, location_info)
 {
@@ -686,7 +681,6 @@ setGeneric("gelman", function(x, ... ) {
   return(NULL)
 })
 
-##' @importFrom methods slot
 ##' @rdname gelman-methods
 setMethod("gelman", "posterior", function (x, start = 1,
                                            end = NA, conf = 0.95,
@@ -838,7 +832,6 @@ gelman_hyper <- function(x, start, end, conf, multivariate, subchain) {
 }
 
 ##' @importFrom stats qf
-##' @importFrom methods slot
 gelman_diag <- function(x, iter, conf, multivariate) {
 
   # iter <- start:end
@@ -884,8 +877,6 @@ gelman_diag <- function(x, iter, conf, multivariate) {
   return(list(psrf = psrf, mpsrf = mpsrf))
 }
 
-##' @importFrom methods slot
-##' @importFrom methods slot<-
 sample_subchains <- function(x, subchain) {
   if ( any(x@nchain < subchain) ) stop("Chains not in the range.")
 
@@ -912,7 +903,6 @@ setGeneric("ismixed", function(x, ...){
   return(NULL)
 })
 
-##' @importFrom methods slot
 ##' @rdname PickStuck-methods
 setMethod("ismixed", "posterior",  function(x, cut = 1.10, verbose = FALSE)
 {
@@ -1031,7 +1021,6 @@ setMethod("effectiveSize", "hyper",  function(x, hyper = TRUE, start=1, end=NA,
 ##' @importFrom matrixStats rowSds
 ##' @importFrom matrixStats rowMaxs
 ##' @importFrom matrixStats rowMins
-##' @importFrom methods slot
 ##' @rdname effectiveSize-methods
 setMethod("effectiveSize", "list", function(x, start=1, end=NA, subchain=NA,
                                             digits=2, verbose=FALSE)
@@ -1062,7 +1051,6 @@ setMethod("effectiveSize", "list", function(x, start=1, end=NA, subchain=NA,
 
 ##' @importFrom matrixStats colVars
 ##' @importFrom matrixStats colSums2
-##' @importFrom methods slot
 ##' @rdname effectiveSize-methods
 setMethod("effectiveSize", "posterior", function(x, start=1, end=NA,
                                                  subchain=NA, digits=2,
@@ -1408,7 +1396,6 @@ setMethod("print", "model", function (x, ps = NULL, ...) {
 
 } )
 
-##' @importFrom methods slot
 ##' @rdname print-methods
 setMethod("print", "prior", function (x, ...) {
 
@@ -1746,7 +1733,6 @@ GetNsim <- function (ncell, n, ns)
 ##' ## 2 1 1 0.5 0.2  1 0.15
 ##'
 ##' @export
-##' @importFrom methods missingArg
 GetParameterMatrix <- function(object, nsub, prior, ps, seed = NULL)
 {
   ## Used in simulate_one and simulate_many
@@ -1837,7 +1823,6 @@ GetParameterMatrix <- function(object, nsub, prior, ps, seed = NULL)
 ##' @export
 ##' @docType methods
 ##' @rdname simulate-methods
-##' @importFrom methods missingArg
 setMethod("simulate", "model", function(object, nsim = 1, seed = NULL,
                                         nsub, prior = NA, ps = NA)
 {
@@ -1859,11 +1844,6 @@ setMethod("simulate", "model", function(object, nsim = 1, seed = NULL,
 
 simulate_one <- function(model, n, ps, seed)
 {
-  # ggdmc:::simulate_one(modeli, n[1,], ps[1,], seed)
-  # model <- modeli
-  # n <- n[1,]
-  # ps <- ps[1,]
-
   if (check_pvec(ps, model)) stop("p.vector and model incompatible")
   resp <- model@responses
   type <- model@type
@@ -1876,11 +1856,11 @@ simulate_one <- function(model, n, ps, seed)
   dfnames <- names(dat)
   reserved_names <- c("RT", "R")
   if (type == "cddm") reserved_names <- c("R", "RT", "A")
-  # i <- 1
   for (i in 1:nrow(facs))
   {
     ## simulate use n1.order == FALSE for LBA
     pmat <- TableParameters(ps, i, model, FALSE)
+    if (nvec[i] == 0) next
     rown <- row1 + nvec[i] - 1
     dat[row1:rown, reserved_names] <- random(type, pmat, nvec[i], seed)
     row1 <- rown+1

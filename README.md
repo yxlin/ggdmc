@@ -1,5 +1,7 @@
 # Modelling Cognitive Processes
 
+This is the readme for the branch of PM model.
+
 _ggdmc_ is an R package for modelling cognitive processes. Although its focus
 is on the challenging hierarchical Bayesian models, fitting them with Bayesian
 MCMC. It can also fit cognitive models with the conventional methods, such as

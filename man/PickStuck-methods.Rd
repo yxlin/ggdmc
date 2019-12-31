@@ -164,21 +164,27 @@ fit0 <- StartNewsamples(dmi, priors)
 fit  <- run(fit0)
 
 PickStuck(fit, hyper=TRUE)
-PickStuck(fit[[1]])
+PickStuck(fit@individuals[[1]])
 PickStuck(fit)
 
 tmp <- PickStuck(fit, hyper=TRUE, verbose=T)
-tmp <- PickStuck(fit[[1]], verbose=T)
+tmp <- PickStuck(fit@individuals[[1]], verbose=T)
 tmp <- PickStuck(fit, verbose=T)
-isstuck(fit0[[1]])
-isstuck(fit[[1]])
+isstuck(fit0@individuals[[1]])
+isstuck(fit@individuals[[1]])
 isstuck(fit, hyper = TRUE)
 
-tmp <- isflat(fit[[1]])
-tmp <- isflat(fit[[1]], verbose = TRUE)
+tmp <- isflat(fit@individuals[[1]])
+tmp <- isflat(fit@individuals[[1]], verbose = TRUE)
 
-tmp <- isflat(fit[[1]], cut_scale = .25)
-tmp <- isflat(fit[[1]], cut_scale = .25, verbose = TRUE)
+tmp <- isflat(fit@individuals[[1]], cut_scale = .25)
+tmp <- isflat(fit@individuals[[1]], cut_scale = .25, verbose = TRUE)
 
+## Test unstick
+fit0 <- StartNewsamples(dmi, priors, nmc=50)
+fit  <- run(fit0, nmc=200)
+bad <- PickStuck(fit@individuals[[1]], verbose=T)
+chain_removed <- unstick_one(fit@individuals[[1]], bad)
+plot(tmp)
 }
 }

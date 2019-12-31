@@ -146,7 +146,7 @@ StartNewsamples <- function(dmi, prior, nmc=2e2, thin=1, nchain=NULL,
 ##' @export
 run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
                  gammamult=2.38, pm0=0, pm1=0, block=TRUE, ncore=1,
-                 add=FALSE)
+                 add=FALSE, prior= NULL)
 {
 
   if ( class(samples) == "hyper" )
@@ -157,14 +157,23 @@ run <-  function(samples, nmc=5e2, thin=1, report=1e2, rp=.001,
     t1 <- Sys.time()
 
   }
-  else if ( is.list(samples) )
+  else if ( is.list(samples) & is.null(prior))
   {
+
     t0 <- Sys.time()
     out <- rerun_many(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
                       block, add, ncore)
     t1 <- Sys.time()
     names(out) <- names(samples)
 
+  }
+  else if (is.list(samples) & !is.null(prior))
+  {
+    t0 <- Sys.time()
+    out <- init_oldhier_from_fixed_model(samples, prior[[1]], prior[[2]], nmc,
+                                         thin, report, rp, gammamult,
+                                         pm0, pm1, block, add)
+    t1 <- Sys.time()
   }
   else
   {

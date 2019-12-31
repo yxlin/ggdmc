@@ -37,12 +37,12 @@ effectiveSize(x, ...)
 \item{verbose}{printing more information}
 }
 \description{
-Posterior sample size adjusted for autocorrelation. The function is based on
-the effectiveSize function in \code{coda} package.
+Posterior sample size adjusted for autocorrelation. The function is based
+on the effectiveSize function in \code{coda} package.
 }
 \details{
-hyper argument does not work for list class (i.e., posterior samples from
-a fixed-effect model fit).
+\code{hyper} argument does not work for list class (i.e., posterior
+samples from a fixed-effect model fit).
 }
 \examples{
 #################################40

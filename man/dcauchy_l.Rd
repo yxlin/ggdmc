@@ -4,7 +4,7 @@
 \alias{dcauchy_l}
 \title{A modified dcauchy functions}
 \usage{
-dcauchy_l(x, p1, p2, lg = FALSE)
+dcauchy_l(x, p1, p2, lower, upper, lg = FALSE)
 }
 \arguments{
 \item{x}{quantile}
@@ -12,6 +12,10 @@ dcauchy_l(x, p1, p2, lg = FALSE)
 \item{p1}{location parameter}
 
 \item{p2}{scale parameter}
+
+\item{lower}{lower bound}
+
+\item{upper}{upper bound}
 
 \item{lg}{log density?}
 }

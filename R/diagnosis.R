@@ -1,30 +1,20 @@
-
-
-
-
-
-
-
 ##' Unstick posterios samples (One subject)
 ##'
 ##' @param x posterior samples
 ##' @param bad a numeric vector, indicating which chains to remove
 ##' @export
 unstick_one <- function(x, bad) {
-  # cat("unstick_one")
 
-  nchain <- x$n.chains
   if (length(bad) > 0)
   {
-    if (!all(bad %in% 1:nchain))
-      stop(paste("Index of bad chains must be in 1 to ", nchain))
+    if (!all(bad %in% 1:x@nchain))
+      stop(paste("Index of bad chains must be in 1 to ", x@nchain))
 
-    x$theta            <- x$theta[,-bad,]
-    x$summed_log_prior <- x$summed_log_prior[-bad,]
-    x$log_likelihoods  <- x$log_likelihoods[-bad,]
-    x$n.chains         <- x$n.chains - length(bad)
+    x@theta            <- x@theta[,-bad,]
+    x@summed_log_prior <- x@summed_log_prior[-bad,]
+    x@log_likelihoods  <- x@log_likelihoods[-bad,]
+    x@nchain           <- x@nchain - length(bad)
   }
-
   return(x)
 }
 

@@ -2,10 +2,7 @@
 ##' @import ggplot2
 preplot_one <- function(x, start, end, pll) {
 
-  # pll <- F
-  # start <- 499
-
-  if ( is.na(end) ) end <- slot(x, "nmc") ## This is neceaary, bcuz of plot_many
+  if ( is.na(end) ) end <- slot(x, "nmc") ## This is neceary, bcuz of plot_many
   nchain <- slot(x, "nchain")
   if (nchain == 1) stop ("MCMC needs multiple chains to check convergence")
   iter <- start:end
@@ -90,36 +87,6 @@ plot_one <- function(x, start, end, pll, save, den, subchain, nsubchain,
   }
   if (save) { return(DT) } else { return(f1) }
 }
-
-# autocor <- function(x, start = 1, end = NA, nLags = 50, nsubchain = NULL,
-#                     base_size = 14)
-# {
-#
-#   if (x$n.chains == 1) stop ("MCMC needs multiple chains to check convergence")
-#   if (is.null(x$theta)) stop("Use hyper mcmc_list")
-#   if ( is.na(end) ) end <- x$nmc
-#   if ( end <= start ) stop("End must be greater than start")
-#   if (!is.null(nsubchain)) idx <- sample(1:x$n.chains, nsubchain) else idx <- 1:x$n.chains
-#
-#   d <- ConvertChains(x, start, end, FALSE)
-#   DT <- d[, .SD[, .(Lag = 1:nLags,
-#                     Autocorrelation = ac_(value, nLags))],
-#           .(Parameter, Chain)]
-#
-#   p0 <- ggplot(DT[Chain %in% idx],
-#                aes(x = Lag, y = Autocorrelation, colour = Chain, fill = Chain)) +
-#     geom_bar(stat = "identity", position = "identity") +
-#     ylim(-1, 1) +
-#     scale_fill_discrete(name = "Chain") +
-#     scale_colour_discrete(name = "Chain") +
-#     facet_grid(Parameter ~ Chain) +
-#     theme_minimal(base_size = base_size) +
-#     theme(legend.position = "none") +
-#     theme(axis.text.x  = element_blank())
-#   print(p0)
-#   return(invisible(p0))
-# }
-
 
 ### Many Subjects  ---------------------------------------------
 ##' @import ggplot2
@@ -252,7 +219,6 @@ preplot_phi <- function(x, start = 1, end = NA, pll = TRUE, ...) {
   return(DT)
 }
 
-
 ##' @import ggplot2
 plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
   chains, ...) {
@@ -266,17 +232,13 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
     DT <- DT[ DT$Chain %in% chains, ]
   }
 
-
   if (pll) {
-    # DT$Parameter <- "lp"
-    ## Output 1
     f1 <- ggplot(DT) +
       geom_line(aes_string(x = "Iteration", y = "value", color = "Chain")) +
       ylab("Posterior log-likelihood") +
       theme_bw(base_size = 14) +
       theme(legend.position = "none")
     print(f1)
-
   } else if (den) {
 
     f1 <- ggplot(DT, aes_string(x = "value", colour = "Chain", fill = "Chain")) +
@@ -287,7 +249,6 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
       xlab("") + ylab("Density") + theme(legend.position="none") +
       geom_rug(alpha = 0.1)
     print(f1)
-
   } else {
     f1 <- ggplot(DT, aes_string(x = "Iteration", y = "value", colour = "Chain")) +
       geom_line(alpha = 0.7) +
@@ -300,7 +261,6 @@ plot_phi <- function(x, start, end, pll, save, den, subchain, nsubchain,
   if (save) { return(DT) } else { return(f1) }
 }
 
-
 ### Prior  ---------------------------------------------
 plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
                        trans = NA, save = FALSE, ... ) {
@@ -310,7 +270,8 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
 
   ### Check 1 ###
   if (is.numeric(i)) i <- pnames[i]
-  if (any(is.na(trans))) trans <- ifelse(natural, attr(priors[[i]], "untrans"), "identity")
+  if (any(is.na(trans))) trans <- ifelse(natural, attr(priors[[i]], "untrans"),
+                                         "identity")
   if ( !(i %in% pnames) ) stop("Parameter not in prior")
 
   ## Finish checks. Calculate the data frame
@@ -322,34 +283,33 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
     disttype <- NA
   } else {
     disttype <- switch(dist, "tnorm", "beta_lu", "gamma_l", "lnorm_l",
-                       "unif_", "constant", "tnorm2")
+                       "unif_", "constant", "tnorm2", "cauchy_l")
   }
 
-  ## Do an educated guess for xlim
-  ## xlim can be a scalar or vector. test if any of its elements is NA. If it
+  ## << xlim can be a scalar or vector >>
+  ## 1. Test if any of its elements is NA. If it has NAs, we make an educated
+  ## guess of what xlim should be.
+  ## 2. Use switch to decide which distribution:
+  ## tnorm, beta, gamma, lnorm, unif, constant and cauchy.
   if ( any(is.na(xlim)) ) {
-    ## does contain NAs, we set a xlim for the user
-    ## check what distribution the user wants to as her prior distribution
-    ## 4 options: tnorm (default), beta_lu, gamma_l, and lnorm_l
-    ## Basically, we use parameter 1 and 2 to do some (random?) arithmetic
-    ## and pick (1) the bigger and smaller number (tnorm); (2) use lower and
-    ## upper directly (beta_lu); (3) use lower and a different arithmetic
-    ## (gamma_l); (4) use lower and another different arithmetic (lnorm_l)
     x <- switch(disttype,
-                ## Now we get xlim. Then we want to set all the x points for
-                ##  plotting. By default we plot 100 point (n.point = 1e2)
                 tnorm    = {
-                     xlim <- c(pmax(p$lower, p[[1]] - 3*p[[2]]),
-                       pmin(p$upper, p[[1]] + 3*p[[2]]))
-                     seq(xlim[1], xlim[2], length.out = npoint)
+                  lb   <- pmax(p$lower, p[[1]] - 3*p[[2]])
+                  ub   <- pmin(p$upper, p[[1]] + 3*p[[2]])
+                  xlim <- c(lb, ub)
+                  seq(xlim[1], xlim[2], length.out = npoint)
                 },
                 beta_lu  = {
-                     xlim <- c(p$lower, p$upper)
-                     seq(xlim[1], xlim[2], length.out = npoint)
+                  lb <- p$lower
+                  ub <- p$upper
+                  xlim <- c(lb, ub)
+                  seq(xlim[1], xlim[2], length.out = npoint)
                 },
                 gamma_l  = {
-                     xlim <- c(p$lower, p[[1]]*p[[2]] + 3*sqrt(p[[1]])*p[[2]])
-                     seq(xlim[1], xlim[2], length.out = npoint)
+                  lb <- p$lower
+                  ub <- p[[1]]*p[[2]] + 3*sqrt(p[[1]])*p[[2]]
+                  xlim <- c(lb, ub)
+                  seq(xlim[1], xlim[2], length.out = npoint)
                 },
                 lnorm_l  = {
                      xlim <- c(p$lower, exp(p[[1]]+2*p[[2]]))
@@ -370,8 +330,12 @@ plot_prior <- function(i, prior, xlim = NA, natural = TRUE, npoint = 100,
                             pmin(p$upper, p[[1]] + 3 * sd))
                   seq(xlim[1], xlim[2], length.out = npoint)
                 },
-                {
-                     c(-1, 1)
+                cauchy_l  = {
+                  cat("Cauchy is under construction\n")
+                  lb   <- pmax(p$lower, p[[1]] - 3*p[[2]])
+                  ub   <- pmin(p$upper, p[[1]] + 3*p[[2]])
+                  xlim <- c(lb, ub)
+                  seq(xlim[1], xlim[2], length.out = npoint)
                 }
     )
   } else {
@@ -573,9 +537,7 @@ autocorr <- function(x, start = 1, end = NA, nLags = 50, pll = TRUE,
 ##'            lower = c(0,-5, -5, 0, 0, 0, 0),
 ##'            upper = c(5, 7,  7, 1, 2, 1, 1))
 ##' plot(p.prior)
-setGeneric("plot", function(x, y = NULL, ...) {
-  standardGeneric("plot")
-})
+setGeneric("plot", function(x, y = NULL, ...) { standardGeneric("plot") })
 
 ##' @import ggplot2
 ##' @importFrom data.table data.table melt.data.table

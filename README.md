@@ -174,13 +174,13 @@ One aim in designing _ggdmc_ is to read objects from DMC, so they share some
 similarities.  They have however some differences. For example, in the latest
 version of _ggdmc_, the dimension of theta and phi arrays are 
 'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. To reduce the 
-computation time for manipulating the matrices and arrays. we must make this 
+computation time for manipulating the matrices and arrays, we must make this 
 change. Similarly, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
 matrices are 'nchain x nmc'. DMC uses 'nmc x nchain'.  Remember to transpose
 them, if you want to operate objects back-and-forth. Currently, we use
 the R functions, 'aperm' and 't', to transpose matrices and arrays when we
 have to operate between DMC and _ggdmc_. The following two convenient functions
-are designed to for doing this operations. 
+are designed to for doing this operation. 
 
 ```
 DMC2ggdmc <- function(x) {
@@ -192,7 +192,8 @@ DMC2ggdmc <- function(x) {
   return(x)
 }
 ggdmc2DMC <- function(x) {
-  ## Should change $ to @ when operate output from ggdmc's run function
+  ## Should change $ to @ when operate output from ggdmc's run function,
+  ## because ggdmc now uses S4 class
   x$theta <- aperm(x$theta, c(2, 1, 3))
   x$summed_log_prior <- t(x$summed_log_prior)
   x$log_likelihoods <- t(x$log_likelihoods)
@@ -201,7 +202,7 @@ ggdmc2DMC <- function(x) {
 ```
 
 Note **Dstats.dmc** in DMC is also affected by the issue of different array and 
-matrix dimension, because Dstats.dmc calculates the means of the theta/phi array 
+matrix dimensions, because Dstats.dmc calculates the means of the theta/phi array 
 across column, $$apply(samples$theta,2,mean)$$. _ggdmc_ provides DIC function, 
 which uses a back-end function, **deviance_model** to attain the same opeation
 
@@ -232,9 +233,9 @@ From CRAN (0.2.6.0):
 
 From source: 
 
-> install.packages("ggdmc_0.2.7.5.tar.gz", repos = NULL, type="source")
+> install.packages("ggdmc_0.2.8.0.tar.gz", repos = NULL, type="source")
 
-From GitHub (you need _devtools_) (0.2.7.5):
+From GitHub (you need _devtools_) (0.2.8.0):
 
 > devtools::install_github("yxlin/ggdmc")
 
@@ -255,7 +256,7 @@ clang4-r is the most straightforward we found so far.
 However we have not looked into the source code of clang4-r. Use it at your
 own risk.~~
 
-A configure script now disables OpenMP, so macOS users can install without
+A configure script now disables OpenMP, so macOS users should be able to install without
 encountering the OpenMP problem. 
 
 ## Citation
@@ -266,8 +267,8 @@ The R documentation, tutorials, C++ codes, parallel computations, new
 genetic algorithm, R helper functions and R packaging are 
 developed by Yi-Shin Lin. A substantial part of R codes for handling 
 experimental designed are adapted from the DMC, developed by Andrew Heathcote 
-(Heathcote et al., 2018). You would find more different and intersting 
-cognitive models there. 
+(Heathcote et al., 2018). You would find other different and more interesting 
+cognitive models in DMC. 
 
 Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
 here.
@@ -285,7 +286,7 @@ Voss & Voss's fast-dm 30.2 and rtdists 0.9-0.
 https://github.com/olmjo/RcppTN,
 [Christopher Jackson's](chris.jackson@mrc-bsu.cam.ac.uk) R codes in msm package,
 and Robert's paper (1995, Statistics & Computing). 
-* Thanks to Matthew Gretton's consultation regarding the rtdists. 
+* Thanks to Matthew Gretton's consultation regarding the rtdists package. 
 * Thanks to Andrew Heathcote for lending me his MacBook Air. _ggdmc_ works on 
 OS X (macOS High Sierra Version 10.13.4) 
 * The PDF and random number generation of the 2-D diffusion/circular diffusion 

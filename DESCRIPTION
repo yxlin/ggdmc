@@ -1,8 +1,8 @@
 Package: ggdmc
 Type: Package
 Title: Cognitive Models
-Version: 0.2.7.8
-Date: 2019-11-15
+Version: 0.2.8.0
+Date: 2019-12-11
 Author: Yi-Shin Lin [aut, cre], Andrew Heathcote [aut]
 Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
 Description: The package provides tools to fit the LBA, DDM, PM and 2-D diffusion models, using the population-based Markov Chain Monte Carlo.
@@ -17,5 +17,4 @@ Suggests: testthat
 RoxygenNote: 6.1.1
 Encoding: UTF-8
 NeedsCompilation: yes
-Packaged: 2019-11-28 12:41:30 UTC; yslin
 Repository: CRAN

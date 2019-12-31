@@ -168,6 +168,14 @@ init_oldhier <- function(samples, nmc, thin, report, rp, gammamult, pm, pm_old, 
     .Call('_ggdmc_init_oldhier', PACKAGE = 'ggdmc', samples, nmc, thin, report, rp, gammamult, pm, pm_old, block, add)
 }
 
+init_oldhier_from_fixed_model <- function(samples, lprior, sprior, nmc, thin, report, rp, gammamult, pm, pm_old, block, add) {
+    .Call('_ggdmc_init_oldhier_from_fixed_model', PACKAGE = 'ggdmc', samples, lprior, sprior, nmc, thin, report, rp, gammamult, pm, pm_old, block, add)
+}
+
+timesTwo <- function(x) {
+    .Call('_ggdmc_timesTwo', PACKAGE = 'ggdmc', x)
+}
+
 #' Generate Random Deviates of the LBA Distribution
 #'
 #' \code{rlba_norm}, only slightly faster than \code{maker}, calls C++
@@ -196,8 +204,12 @@ test_sumlogprior <- function(pvec, prior) {
     .Call('_ggdmc_test_sumlogprior', PACKAGE = 'ggdmc', pvec, prior)
 }
 
-test_dprior <- function(pvec, prior) {
-    .Call('_ggdmc_test_dprior', PACKAGE = 'ggdmc', pvec, prior)
+test_dprior <- function(pvec, pprior) {
+    .Call('_ggdmc_test_dprior', PACKAGE = 'ggdmc', pvec, pprior)
+}
+
+test_dbvnorm <- function(x, y, sigma_x, sigma_y, rho, lg = FALSE) {
+    .Call('_ggdmc_test_dbvnorm', PACKAGE = 'ggdmc', x, y, sigma_x, sigma_y, rho, lg)
 }
 
 spdf <- function(x, RT, n, h_in, debug) {

@@ -9,6 +9,8 @@ src/*.dll
 src/Makevars
 config.*
 inst/include/RcppArmadilloConfigGenerated.h
+inst/extdata/*
+inst/docs/*
 .Rproj.user/*
 tests/*
 .Rbuildignore

@@ -150,8 +150,6 @@ const cheb_series _gsl_sf_bessel_amp_phase_bth1_cs = {
   12
 };
 
-
-
 class cddm
 {
   public:
@@ -518,8 +516,7 @@ class cddm
       }
       return out;
     }
-
-};
+  };
 
 arma::vec interp2(arma::vec DT_, arma::vec R_, arma::vec DT, arma::vec R,
                   arma::mat Gt, unsigned int sz, unsigned int nw);

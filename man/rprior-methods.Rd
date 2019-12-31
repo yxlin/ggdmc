@@ -4,7 +4,7 @@
 \name{rprior}
 \alias{rprior}
 \alias{rprior,prior-method}
-\title{Generate Random Numbers Based on Prior Distributions}
+\title{Generate Random Numbers}
 \usage{
 rprior(x, ...)
 

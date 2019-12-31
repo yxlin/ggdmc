@@ -21,7 +21,7 @@ tnorm::tnorm (double mu, double sig, double lower, double upper, bool lg) :
 // is tnorm(0, 1, 0, Inf).
 {
   // TODO: Reorganize this class to be in line with other classes.
-  // Bayesian optimization must allow bad values.
+  // Bayesian optimization must allow bad values!?
   // if (sig < 0.)
   // {
   //   Rcpp::Rcout << "Invalid sigma = " <<  sig << std::endl;

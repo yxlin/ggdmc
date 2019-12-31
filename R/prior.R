@@ -54,10 +54,12 @@ dlnorm_l <- function(x, p1, p2, lower, upper, lg = FALSE) {
 ##' @param x quantile
 ##' @param p1 location parameter
 ##' @param p2 scale parameter
+##' @param lower lower bound
+##' @param upper upper bound
 ##' @param lg log density?
 ##' @importFrom stats dcauchy
 ##' @export
-dcauchy_l <- function(x, p1, p2, lg = FALSE) {
+dcauchy_l <- function(x, p1, p2, lower, upper, lg = FALSE) {
   dcauchy(x, p1, p2, log = lg)
 }
 
@@ -98,7 +100,7 @@ dunif_ <- function(x, p1, p2, lower, upper, lg = FALSE) {
 ##'       When the lower and upper are not provided, they are set to -Inf and
 ##'       Inf, rendering a normal distribution. Type name is "tnorm".
 ##' \item Beta distribution, where: p1 = shape1 and p2 = shape2 (see \link{pbeta}).
-##'       Note the uniform distribution is a special case of the beta with p1 = 1and
+##'       Note the uniform distribution is a special case of the beta with p1 = 1
 ##'       and p2 = 1. Type name is "beta".
 ##' \item Gamma distribution, where p1 = shape and p2 = scale (see \link{pgamma}).
 ##'       Note p2 is scale, not rate. Type name is "gamma".
@@ -114,6 +116,7 @@ dunif_ <- function(x, p1, p2, lower, upper, lg = FALSE) {
 ##' @param dists a vector of character string specifying a distribution.
 ##' @param untrans whether to do log transformation. Default is not
 ##' @param types available distribution types
+##' @param lg logical; if TRUE, probabilities p are given as log(p)
 ##' @return a list of list
 ##' @examples
 ##' ## Show using dbeta to visualise a uniform distribution with bound (0, 1)
@@ -161,7 +164,8 @@ BuildPrior <- function(p1, p2,
                        dists   = rep("tnorm", length(p1)),
                        untrans = rep("identity", length(p1)),
                        types   = c("tnorm", "beta", "gamma", "lnorm", "unif",
-                                   "constant", "tnorm2", NA))
+                                   "constant", "tnorm2", "cauchy", NA),
+                       lg      = TRUE)
 {
   npar <- length(p1)
   if (length(p2) == 1) { p2 <- rep(p2, npar) }
@@ -232,7 +236,15 @@ BuildPrior <- function(p1, p2,
                          attr(p, "dist") <- 7  ## "tnorm2"
                          p
                        },
-
+                       cauchy = {
+                         if (is.na(lower[i])) lower[i] <- -Inf
+                         if (is.na(upper[i])) upper[i] <- Inf
+                         p <- c(p1[i], p2[i], lower[i], upper[i])
+                         names(p) <- c("p1", "p2", "lower", "upper")
+                         p <- as.list(p)
+                         attr(p, "dist") <- 8  ## "cauchy_l"
+                         p
+                       },
                        {
                          p <- c(p1[i], p2[i], -Inf, Inf)
                          names(p) <- c("p1", "p2", "lower", "upper")
@@ -241,7 +253,7 @@ BuildPrior <- function(p1, p2,
                          p
                        }
     )
-    out[[i]]$lg <- TRUE
+    out[[i]]$lg <- lg
 
     if (!name.untrans) {
       attr(out[[i]], "untrans") <- untrans[i]
@@ -253,7 +265,6 @@ BuildPrior <- function(p1, p2,
       }
     }
   }
-
 
   out <- new("prior",
              npar = npar,
@@ -267,7 +278,8 @@ BuildPrior_string <- function(p1, p2,
                            upper   = rep(NA, length(p1)),
                            dists   = rep("tnorm", length(p1)),
                            untrans = rep("identity", length(p1)),
-                           types   = c("tnorm", "beta", "gamma", "lnorm", "unif", "constant", "empty"))
+                           types   = c("tnorm", "beta", "gamma", "lnorm",
+                                       "unif", "constant", "empty"))
 {
   np1 <- length(p1)
   if (length(p2) == 1) p2 <- rep(p2, np1)

@@ -14,8 +14,15 @@
 //    with this program; if not, write to the Free Software Foundation, Inc.,
 //    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <ggdmc.hpp>
+#include <gsl/gsl_randist.h>
 
 using namespace Rcpp;
+
+void set_seed(unsigned int seed) {
+  Environment base_env("package:base");
+  Function set_seed_r = base_env["set.seed"];
+  set_seed_r(seed);
+}
 
 Prior::Prior (List & pprior)
 {
@@ -121,7 +128,7 @@ void Prior::dprior(double * pvector, double * out)
       x = ( !R_FINITE(l) ) ? pvector[i] : pvector[i] - l;
       out[i] = R::dlnorm(x, m_p0[i], m_p1[i], m_lg[i]);
 
-    } else if ( m_d[i] == 5 ) {
+    } else if ( m_d[i] == UNIF_ ) {
 
       out[i] = R::dunif(pvector[i], m_p0[i], m_p1[i], m_lg[i]);
 
@@ -137,8 +144,12 @@ void Prior::dprior(double * pvector, double * out)
       out[i] = obj->d2(pvector[i]);
       delete obj;
 
+    } else if (m_d[i] == CAUCHY_L ) {
+      // Rcpp::Rcout << "The Cauchy Density\n";
+      out[i] = R::dcauchy(pvector[i], m_p0[i], m_p1[i], m_lg[i]);
+
     } else {
-      Rcpp::Rcout << "Distribution type undefined" << "\n";
+      Rcpp::Rcout << "Distribution type undefined \n";
       out[i] = m_lg[i] ? R_NegInf : 0;
     }
   }
@@ -161,7 +172,7 @@ arma::vec Prior::dprior(arma::vec pvector)
 
     if ( !R_FINITE(tmp[i]) )
     {
-      out[i] = m_lg[i] ? -23.02585 : 1e-10; // critical to hierarchical
+      out[i] = m_lg[i] ? -23.02585 : 1e-10; // critical to hierarchical?
     }
     else
     {
@@ -176,8 +187,8 @@ arma::vec Prior::dprior(arma::vec pvector)
 
 }
 
+// Used in ininitlise.cpp & prior.R
 arma::vec Prior::rprior()
-// Used by ininitlise & R's rprior
 {
   // replace DMC modified r-function; used in initialise.cpp internally
   double l, u;
@@ -188,7 +199,7 @@ arma::vec Prior::rprior()
     if ( ISNAN(m_d[i]) ) {
       out[i] = NA_REAL;
 
-    } else if ( m_d[i] == 1 ) {         // tnorm
+    } else if ( m_d[i] == TNORM ) {
       l = ISNAN(m_l[i]) ? R_NegInf : m_l[i];
       u = ISNAN(m_u[i]) ? R_PosInf : m_u[i];
 
@@ -196,26 +207,26 @@ arma::vec Prior::rprior()
       out[i] = obj->r();
       delete obj;
 
-    } else if ( m_d[i] == 2 ) {  // beta_ul
+    } else if ( m_d[i] == BETA_LU ) {
       l = ISNAN(m_l[i]) ? 0 : m_l[i];
       u = ISNAN(m_u[i]) ? 1 : m_u[i];
       out[i] = l + R::rbeta(m_p0[i], m_p1[i]) * (u - l);
 
-
-    } else if ( m_d[i] == 3 ) {  // gamma_l
+    } else if ( m_d[i] == GAMMA_L ) {
       l = ISNAN(m_l[i]) ? 0 : m_l[i];
       out[i] = R::rgamma(m_p0[i], m_p1[i]) + l;
 
-    } else if ( m_d[i] == 4 ) {  // lnorm_l
+    } else if ( m_d[i] == LNORM_L ) {
       l = ISNAN(m_l[i]) ? 0 : m_l[i];
       out[i] = R::rlnorm(m_p0[i], m_p1[i]) + l;
 
-    } else if ( m_d[i] == 5 ) {
+    } else if ( m_d[i] == UNIF_ ) {
       out[i] = R::runif(m_p0[i], m_p1[i]);
-    } else if ( m_d[i] == 6 ){  // constant
+
+    } else if ( m_d[i] == CONSTANT ){  // constant
       out[i] = m_p0[i];
 
-    } else if ( m_d[i] == 7 ) { // tnorm2
+    } else if ( m_d[i] == TNORM_TAU ) { // tnorm2
 
       Rcout << "Distribution type not supported\n";
 
@@ -223,7 +234,11 @@ arma::vec Prior::rprior()
       // u = ISNAN(upper[i]) ? R_PosInf : upper[i];
       // out[i] = rtn_scalar2(p1[i], p2[i], l, u);
 
-    } else {
+    } else if ( m_d[i] == CAUCHY_L ) {
+      // Lower bound is not implemented.
+      out[i] = R::rcauchy(m_p0[i], m_p1[i]);
+
+    }else {
       Rcout << "Distribution type not supported\n";
       out[i] = NA_REAL;
     }
@@ -286,10 +301,34 @@ double test_sumlogprior(arma::vec pvec, List prior)
 }
 
 // [[Rcpp::export]]
-arma::vec test_dprior(arma::vec pvec, List prior)
+Rcpp::NumericVector test_dprior(arma::vec pvec, S4 pprior)
 {
-  Prior      * p0 = new Prior (prior);
-  arma::vec out = p0->dprior(pvec);
+  std::vector<std::string> pnames = pprior.slot("pnames");
+  Rcpp::List priors               = pprior.slot("priors");
+
+  Prior * p0 = new Prior (priors);
+  arma::vec tmp = p0->dprior(pvec);
   delete p0;
+
+  Rcpp::NumericVector out(tmp.size());
+  for (size_t i=0; i<tmp.size(); i++) out[i] = tmp[i];
+  out.attr("names") = pnames;
   return out;
 }
+
+// [[Rcpp::export]]
+double test_dbvnorm(double x, double y, double sigma_x,
+                                 double sigma_y, double rho, bool lg = false)
+{
+  double tmp = gsl_ran_bivariate_gaussian_pdf(x, y, sigma_x, sigma_y, rho);
+  double out = lg ? std::log(tmp) : tmp;
+  return out;
+}
+
+// arma::vec test_dprior(arma::vec pvec, List prior)
+// {
+//   Prior      * p0 = new Prior (prior);
+//   arma::vec out = p0->dprior(pvec);
+//   delete p0;
+//   return out;
+// }

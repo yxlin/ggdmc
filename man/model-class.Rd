@@ -3,16 +3,17 @@
 \docType{class}
 \name{model-class}
 \alias{model-class}
-\title{An S4 class to represent a process model.}
+\title{An S4 class of the process model.}
 \description{
-An S4 class to represent a process model.
+The class is to represent a process model, e.g., a DDM, a LBA model, a PM
+model, or a CDDM.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{model}}{A 3-D model array. Dimension one stores the combinations of the
-factor levels and response types, dimension two stores parameters, and
-dimension three stores response types.}
+factor levels and response types (when discrete), dimension two stores
+parameters, and dimension three stores response types.}
 
 \item{\code{all.par}}{all parameters}
 
@@ -33,11 +34,11 @@ positive}
 
 \item{\code{n1.order}}{node 1 ordering. This is only for the LBA model}
 
-\item{\code{match.cell}}{an indicator matrix recording whether a particular trial
+\item{\code{match.cell}}{an indicator matrix storing whether a particular trial
 matches a cell}
 
-\item{\code{match.map}}{a mapping mechanism for calculating a trial matches a
-positive boundary / accumulator or a negative boundary / accumulator.}
+\item{\code{match.map}}{a mapping mechanism for calculating whether a trial matches
+a positive boundary / accumulator or a negative boundary / accumulator.}
 
 \item{\code{dimnames}}{dimension names of the model array}
 

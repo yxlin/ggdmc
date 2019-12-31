@@ -7,7 +7,8 @@
 BuildPrior(p1, p2, lower = rep(NA, length(p1)), upper = rep(NA,
   length(p1)), dists = rep("tnorm", length(p1)),
   untrans = rep("identity", length(p1)), types = c("tnorm", "beta",
-  "gamma", "lnorm", "unif", "constant", "tnorm2", NA))
+  "gamma", "lnorm", "unif", "constant", "tnorm2", "cauchy", NA),
+  lg = TRUE)
 }
 \arguments{
 \item{p1}{the first parameter of a distribution}
@@ -23,6 +24,8 @@ BuildPrior(p1, p2, lower = rep(NA, length(p1)), upper = rep(NA,
 \item{untrans}{whether to do log transformation. Default is not}
 
 \item{types}{available distribution types}
+
+\item{lg}{logical; if TRUE, probabilities p are given as log(p)}
 }
 \value{
 a list of list
@@ -39,7 +42,7 @@ Four distribution types are implemented:
       When the lower and upper are not provided, they are set to -Inf and
       Inf, rendering a normal distribution. Type name is "tnorm".
 \item Beta distribution, where: p1 = shape1 and p2 = shape2 (see \link{pbeta}).
-      Note the uniform distribution is a special case of the beta with p1 = 1and
+      Note the uniform distribution is a special case of the beta with p1 = 1
       and p2 = 1. Type name is "beta".
 \item Gamma distribution, where p1 = shape and p2 = scale (see \link{pgamma}).
       Note p2 is scale, not rate. Type name is "gamma".

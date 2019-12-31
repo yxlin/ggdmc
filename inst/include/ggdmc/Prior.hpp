@@ -10,7 +10,7 @@ class Prior
 private:
 
   enum DistributionType { DEFAULT, TNORM, BETA_LU, GAMMA_L, LNORM_L, UNIF_,
-                          CONSTANT, TNORM_TAU };
+                          CONSTANT, TNORM_TAU, CAUCHY_L };
 
   DistributionType resolve_option(double type)
   {
@@ -21,6 +21,7 @@ private:
     if (type == 5)  return UNIF_;
     if (type == 6)  return CONSTANT;
     if (type == 7)  return TNORM_TAU;
+    if (type == 8)  return CAUCHY_L;
     return DEFAULT;  // 0
   }
 

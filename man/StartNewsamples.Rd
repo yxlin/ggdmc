@@ -11,7 +11,7 @@ StartNewsamples(dmi, prior, nmc = 200, thin = 1, nchain = NULL,
 
 run(samples, nmc = 500, thin = 1, report = 100, rp = 0.001,
   gammamult = 2.38, pm0 = 0, pm1 = 0, block = TRUE, ncore = 1,
-  add = FALSE)
+  add = FALSE, prior = NULL)
 }
 \arguments{
 \item{dmi}{a data model instance or a list of data model instances}

@@ -1,9 +1,12 @@
 ### Model ------------------------------------------------------------
-##' An S4 class to represent a process model.
+##' An S4 class of the process model.
+##'
+##' The class is to represent a process model, e.g., a DDM, a LBA model, a PM
+##' model, or a CDDM.
 ##'
 ##' @slot model A 3-D model array. Dimension one stores the combinations of the
-##' factor levels and response types, dimension two stores parameters, and
-##' dimension three stores response types.
+##' factor levels and response types (when discrete), dimension two stores
+##' parameters, and dimension three stores response types.
 ##' @slot all.par all parameters
 ##' @slot p.vector parameter vector, excluding constant parameters
 ##' @slot par.names parameter names / labels
@@ -14,49 +17,49 @@
 ##' @slot posdrift a Boolean switch indicating whether drift rates must be
 ##' positive
 ##' @slot n1.order node 1 ordering. This is only for the LBA model
-##' @slot match.cell an indicator matrix recording whether a particular trial
+##' @slot match.cell an indicator matrix storing whether a particular trial
 ##' matches a cell
-##' @slot match.map a mapping mechanism for calculating a trial matches a
-##' positive boundary / accumulator or a negative boundary / accumulator.
+##' @slot match.map a mapping mechanism for calculating whether a trial matches
+##' a positive boundary / accumulator or a negative boundary / accumulator.
 ##' @slot dimnames dimension names of the model array
 ##' @slot pnames parameter names
 ##' @slot npar number of parameters
 ##' @export
-setClass("model",
-         slots = c(
+setClass("model", slots = c(
              model = "array",
-             all.par = "numeric",
-             p.vector = "numeric",
-             par.names = "character",
-             type = "character",
-             factors  = "list",
-             responses = "character",
-             constants = "numeric",
-             posdrift = "logical",
-             n1.order = "matrix",
+             all.par    = "numeric",
+             p.vector   = "numeric",
+             par.names  = "character",
+             type       = "character",
+             factors    = "list",
+             responses  = "character",
+             constants  = "numeric",
+             posdrift   = "logical",
+             n1.order   = "matrix",
              match.cell = "logical",
-             match.map = "list",
-             dimnames  = "list",
-             pnames    = "character",
-             npar      = "numeric"))
+             match.map  = "list",
+             dimnames   = "list",
+             pnames     = "character",
+             npar       = "numeric"))
 
 ### Data-model Instance  ------------------------------------------------------
-##' An S4 class to represent a data-model instance.
+##' An S4 class of the Data-model Instance
+##'
+##' The class is to represent a data-model instance, which joins a model object
+##' with a data frame. The process of BuildDMI also generates cell.index and
+##' cell.empty.
 ##'
 ##' @slot data A data frame storing the would-be fit data set
-##' @slot model A model object with a 3-D model array.  The array dimension one
-##' stores the combinations of the factor levels and response types, dimension
-##' two stores parameters, and
-##' dimension three stores response types.
+##' @slot model A 3-D model array.  Dimension one stores the combinations
+##' of the factor levels and response types, dimension two stores parameters,
+##' and dimension three stores response types.
 ##' @slot cell.index A ncell-element list. Each element represents one cell.
-##' Each list element stores \code{nobs} Boolean indicators, showing whether a
+##' Each element stores \code{nobs} Boolean indicators, showing whether a
 ##' particular observation belongs to this cell.
 ##' @slot cell.empty A ncell-element logical vector, indicating whether this
 ##' cell has no observation.
-##' positive boundary / accumulator or a negative boundary / accumulator.
 ##' @export
-setClass("dmi",
-         slots = c(
+setClass("dmi", slots = c(
            data       = "data.frame",
            model      = "model",
            cell.index = "list",
@@ -71,14 +74,15 @@ setClass("dmi",
 ##' bound, lower bound, log indicator (0=FALSE, 1=TRUE), distribution type and
 ##' transform information.
 ##' @export
-setClass("prior",
-         slots = c(npar = "numeric",
-                   pnames = "character",
-                   priors = "list"))
+setClass("prior", slots =  c(
+  npar   = "numeric",
+  pnames = "character",
+  priors = "list"))
 
-##' The Parameter Names of a Prior Object
+##' The Parameter Names in a Prior Object
 ##'
-##' Extract parameter names from a prior object.
+##' Extract parameter names from a prior object. This function extends the
+##' \code{names} funciton in the \code{base} package.
 ##'
 ##' @param x a prior object.
 ##'
@@ -86,11 +90,9 @@ setClass("prior",
 ##' @export
 ##' @docType methods
 ##' @rdname names-methods
-setMethod("names", "prior", function (x) {
-  slot(x, "pnames")
-})
+setMethod("names", "prior", function (x) { slot(x, "pnames") })
 
-##' Generate Random Numbers Based on Prior Distributions
+##' Generate Random Numbers
 ##'
 ##' Random number generation based on a prior object
 ##'
@@ -296,22 +298,29 @@ setClass("hyper",
 ##' fit  <- run(fit0)
 ##'
 ##' PickStuck(fit, hyper=TRUE)
-##' PickStuck(fit[[1]])
+##' PickStuck(fit@individuals[[1]])
 ##' PickStuck(fit)
 ##'
 ##' tmp <- PickStuck(fit, hyper=TRUE, verbose=T)
-##' tmp <- PickStuck(fit[[1]], verbose=T)
+##' tmp <- PickStuck(fit@individuals[[1]], verbose=T)
 ##' tmp <- PickStuck(fit, verbose=T)
-##' isstuck(fit0[[1]])
-##' isstuck(fit[[1]])
+##' isstuck(fit0@individuals[[1]])
+##' isstuck(fit@individuals[[1]])
 ##' isstuck(fit, hyper = TRUE)
 ##'
-##' tmp <- isflat(fit[[1]])
-##' tmp <- isflat(fit[[1]], verbose = TRUE)
+##' tmp <- isflat(fit@individuals[[1]])
+##' tmp <- isflat(fit@individuals[[1]], verbose = TRUE)
 ##'
-##' tmp <- isflat(fit[[1]], cut_scale = .25)
-##' tmp <- isflat(fit[[1]], cut_scale = .25, verbose = TRUE)
+##' tmp <- isflat(fit@individuals[[1]], cut_scale = .25)
+##' tmp <- isflat(fit@individuals[[1]], cut_scale = .25, verbose = TRUE)
 ##'
+##' ## Test unstick
+##' fit0 <- StartNewsamples(dmi, priors, nmc=50)
+##' fit  <- run(fit0, nmc=200)
+##' bad <- PickStuck(fit@individuals[[1]], verbose=T)
+##' chain_removed <- unstick_one(fit@individuals[[1]], bad)
+## 'plot(fit@individuals[[1]])
+##' plot(tmp)
 ##' }
 ##' @docType methods
 ##' @rdname PickStuck-methods
@@ -707,7 +716,8 @@ setMethod("gelman", "posterior", function (x, start = 1,
   psrf <- gelman_diag(x, iter = start:end, conf, multivariate)
 
   if (verbose) {
-    cat("Multivariate psrf: ", round(psrf$psrf, digits))
+    cat("Multivariate psrf: \n")
+    print(round(psrf$psrf, digits))
   }
   return(psrf)
 })
@@ -928,11 +938,11 @@ setMethod("ismixed", "posterior",  function(x, cut = 1.10, verbose = FALSE)
 ### Effective Size  -----------------------------
 ##' Effective Sample Size
 ##'
-##' Posterior sample size adjusted for autocorrelation. The function is based on
-##' the effectiveSize function in \code{coda} package.
+##' Posterior sample size adjusted for autocorrelation. The function is based
+##' on the effectiveSize function in \code{coda} package.
 ##'
-##' hyper argument does not work for list class (i.e., posterior samples from
-##' a fixed-effect model fit).
+##' \code{hyper} argument does not work for list class (i.e., posterior
+##' samples from a fixed-effect model fit).
 ##'
 ##' @param x posterior samples
 ##' @param hyper a Boolean switch to calculate phi
@@ -988,9 +998,9 @@ setGeneric("effectiveSize", function(x, ...)
 ##' @importFrom matrixStats colVars
 ##' @importFrom matrixStats colSums2
 ##' @rdname effectiveSize-methods
-setMethod("effectiveSize", "hyper",  function(x, hyper = TRUE, start=1, end=NA,
-                                              subchain=NA, digits = 2,
-                                              verbose = FALSE) {
+setMethod("effectiveSize", "hyper",
+          function(x, hyper = TRUE, start=1, end=NA, subchain=NA, digits = 2,
+                   verbose = FALSE) {
 
   if (hyper) {
     if (is.na(end)) end <- x@nmc
@@ -1022,8 +1032,8 @@ setMethod("effectiveSize", "hyper",  function(x, hyper = TRUE, start=1, end=NA,
 ##' @importFrom matrixStats rowMaxs
 ##' @importFrom matrixStats rowMins
 ##' @rdname effectiveSize-methods
-setMethod("effectiveSize", "list", function(x, start=1, end=NA, subchain=NA,
-                                            digits=2, verbose=FALSE)
+setMethod("effectiveSize", "list",
+          function(x, start=1, end=NA, subchain=NA, digits=2, verbose=FALSE)
 {
   # x <- fit
   # end <- NA
@@ -1052,9 +1062,8 @@ setMethod("effectiveSize", "list", function(x, start=1, end=NA, subchain=NA,
 ##' @importFrom matrixStats colVars
 ##' @importFrom matrixStats colSums2
 ##' @rdname effectiveSize-methods
-setMethod("effectiveSize", "posterior", function(x, start=1, end=NA,
-                                                 subchain=NA, digits=2,
-                                                 verbose=FALSE)
+setMethod("effectiveSize", "posterior",
+          function(x, start=1, end=NA, subchain=NA, digits=2, verbose=FALSE)
 {
   if (is.na(end)) end <- slot(x, "nmc")
   iter   <- start:end
@@ -1069,7 +1078,7 @@ setMethod("effectiveSize", "posterior", function(x, start=1, end=NA,
   v <- lapply(1:nchain, function(k){
     spec <- spectrum0_ar( t(theta[,k,iter]) )$spec
     ans  <- niter * matrixStats::colVars( t(theta[,k,iter]) ) / spec
-    ans
+    ans ## This mini function returns this
   })
 
   out <- matrixStats::colSums2( do.call("rbind", v) )
@@ -1301,7 +1310,7 @@ setMethod("logLik", "hyper", function(object, start = 1, end = NA)
   return(out)
 })
 
-### Printing ------------------------------------------------------------
+### Print ------------------------------------------------------------
 ##' ggdmc Printing Methods
 ##'
 ##' The function is an extension of the print function in \code{base} pacakge.
@@ -1406,7 +1415,17 @@ setMethod("print", "prior", function (x, ...) {
   bucket  <- matrix(numeric(npar*ncol), npar);
 
   for(i in 1:npar) {
-    add1    <- attr(obj[[i]], "dist");
+    add1 <- attr(obj[[i]], "dist");
+    add1 <- ifelse(add1 == 1, "tnorm",
+    ifelse(add1 == 2, "beta",
+    ifelse(add1 == 3, "gamma",
+    ifelse(add1 == 4, "lnorm",
+    ifelse(add1 == 5, "unif",
+    ifelse(add1 == 6, "constant",
+    ifelse(add1 == 7, "tnorm2",
+    ifelse(add1 == 8, "cauchy", NA))))))))
+
+
     add2    <- attr(obj[[i]], "untrans");
     if (is.na(add1)) {
       tmp <- unlist(obj[[i]])
@@ -1422,6 +1441,7 @@ setMethod("print", "prior", function (x, ...) {
     }
     bucket[i,] <- rowObj
   }
+
 
   out <- data.frame(bucket)
   names(out) <- c("p1", "p2", "lower", "upper", "lg", "dist", "untrans")
@@ -1459,14 +1479,73 @@ setMethod("print", "prior", function (x, ...) {
 ##' @rdname summary-methods
 ##' @examples
 ##' \dontrun{
-##' est1 <- summary(hsam[[1]], FALSE)
-##' est2 <- summary(hsam[[1]], FALSE, 1, 100)
+##' model <- BuildModel(
+##'      p.map    = list(a = "1", v = "F", z = "1", d = "1", sz = "1", sv = "1",
+##'                 t0 = "1", st0 = "1"),
+##'     match.map = list(M = list(s1 = "r1", s2 = "r2")),
+##'     factors   = list(S = c("s1", "s2"), F = c("f1", "f2")),
+##'     constants = c(st0 = 0, d = 0),
+##'     responses = c("r1", "r2"),
+##'     type      = "rd")
+##' npar <- model@npar
 ##'
-##' est3 <- summary(hsam)
-##' est4 <- summary(hsam, verbose = TRUE)
-##' est5 <- summary(hsam, verbose = FALSE)
+##' ## Population distribution
+##' pop.mean  <- c(a=2,   v.f1=4,  v.f2=3,  z=0.5, sz=0.3, sv=1,  t0=0.3)
+##' pop.scale <- c(a=0.5, v.f1=.5, v.f2=.5, z=0.1, sz=0.1, sv=.3, t0=0.05)
+##' pop.prior <- BuildPrior(
+##'   dists = rep("tnorm", npar),
+##'   p1    = pop.mean,
+##'   p2    = pop.scale,
+##'   lower = c(0,-5, -5, 0, 0, 0, 0),
+##'   upper = c(5, 7,  7, 1, 2, 1, 1))
 ##'
-##' hest1 <- summary(hsam, TRUE)
+##' ## Simulate some data
+##' dat <- simulate(model, nsub = 30, nsim = 30, prior = pop.prior)
+##' dmi <- BuildDMI(dat, model)
+##' ps <- attr(dat, "parameters")
+##'
+##' p.prior <- BuildPrior(
+##'   dists = rep("tnorm", npar),
+##'   p1    = pop.mean,
+##'   p2    = pop.scale*5,
+##'   lower = c(0,-5, -5, 0, 0, 0, 0),
+##'   upper = c(5, 7,  7, 1, 2, 1, 1))
+##'
+##' mu.prior <- ggdmc::BuildPrior(
+##'   dists = rep("tnorm", npar),
+##'   p1    = pop.mean,
+##'   p2    = pop.scale*5,
+##'   lower = c(0,-5, -5, 0, 0, 0, 0),
+##'   upper = c(5, 7,  7, 1, 2, 1, 1)
+##' )
+##' sigma.prior <- BuildPrior(
+##'   dists = rep("beta", npar),
+##'   p1    = c(a=1, v.f1=1,v.f2 = 1, z=1, sz=1, sv=1, t0=1),
+##'   p2    = rep(1, npar),
+##'   upper = rep(2, npar))
+##'
+##' priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
+##'
+##' ## Sampling
+##' ## Processing time: 394.37 secs.
+##' fit0 <- StartNewsamples(dmi, priors, thin = 2)
+##' fit  <- run(fit0)
+##' fit  <- run(fit, 1e2, add=TRUE)
+##'
+##' ## By default the type = 1 for location parameters
+##' ## When recovery = TRUE, one must enter the true parameter to ps
+##' est0 <- summary(fit, recovery = TRUE, ps = pop.mean, verbose = TRUE)
+##' ## Explicitly enter type = 1
+##' est0 <- summary(fit, recovery = TRUE, ps = pop.mean,  type=1, verbose = TRUE)
+##' est0 <- summary(fit, recovery = TRUE, ps = pop.scale, type=2, verbose = TRUE)
+##'
+##' ## When recovery = FALSE (default), the function return parameter estimates
+##' est0 <- summary(fit, verbose = TRUE, type=1)
+##' est0 <- summary(fit, verbose = TRUE, type=2)
+##'
+##' ## To estimate individual participants, one must enter hyper = FALSE for a
+##' ## hierarchical model fit
+##' est0 <- summary(fit, hyper=FALSE, verbose = TRUE)
 ##' }
 setGeneric("summary", function(object, ...) {
   standardGeneric("summary")

@@ -59,6 +59,7 @@ public:
     m_gamma = tmp_gamma;
 
     m_chains = linspace<uvec>(0, m_nchain - 1, m_nchain);
+    // m_chains = randperm(m_nchain);
     m_ga = m_gammamult / std::sqrt(4.0*m_npar);
 
   }
@@ -71,6 +72,8 @@ public:
   void crossover(unsigned int i, Phi * phi, std::vector<Theta *> & ts)
   // crossover update one parameter at a time
   {
+
+    // m_chains = arma::randperm(m_nchain);
 
     for (size_t j = 0; j < m_nchain; j++)
     {
@@ -114,6 +117,8 @@ public:
 
   void crossover(unsigned int i, Theta * t)
   {
+
+    // m_chains = arma::randperm(m_nchain);
 
     for (size_t j = 0; j < m_nchain; j++)
     {
@@ -383,6 +388,5 @@ public:
 
 
 };
-
 
 #endif

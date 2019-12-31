@@ -3,7 +3,7 @@
 \docType{methods}
 \name{names,prior-method}
 \alias{names,prior-method}
-\title{The Parameter Names of a Prior Object}
+\title{The Parameter Names in a Prior Object}
 \usage{
 \S4method{names}{prior}(x)
 }
@@ -14,5 +14,6 @@
 a string vector
 }
 \description{
-Extract parameter names from a prior object.
+Extract parameter names from a prior object. This function extends the
+\code{names} funciton in the \code{base} package.
 }

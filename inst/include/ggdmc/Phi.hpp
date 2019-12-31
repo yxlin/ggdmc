@@ -114,7 +114,7 @@ public:
 
   Theta(S4 & samples, unsigned int nmc, unsigned int thin, Prior * p,
         Likelihood * l, bool add) : m_thin(thin), m_p(p), m_l(l)
-    // Restart S4
+  // Restart S4
   {
     using namespace arma;
 

@@ -55,13 +55,72 @@ will be fixed at the default values.
 }
 \examples{
 \dontrun{
-est1 <- summary(hsam[[1]], FALSE)
-est2 <- summary(hsam[[1]], FALSE, 1, 100)
+model <- BuildModel(
+     p.map    = list(a = "1", v = "F", z = "1", d = "1", sz = "1", sv = "1",
+                t0 = "1", st0 = "1"),
+    match.map = list(M = list(s1 = "r1", s2 = "r2")),
+    factors   = list(S = c("s1", "s2"), F = c("f1", "f2")),
+    constants = c(st0 = 0, d = 0),
+    responses = c("r1", "r2"),
+    type      = "rd")
+npar <- model@npar
 
-est3 <- summary(hsam)
-est4 <- summary(hsam, verbose = TRUE)
-est5 <- summary(hsam, verbose = FALSE)
+## Population distribution
+pop.mean  <- c(a=2,   v.f1=4,  v.f2=3,  z=0.5, sz=0.3, sv=1,  t0=0.3)
+pop.scale <- c(a=0.5, v.f1=.5, v.f2=.5, z=0.1, sz=0.1, sv=.3, t0=0.05)
+pop.prior <- BuildPrior(
+  dists = rep("tnorm", npar),
+  p1    = pop.mean,
+  p2    = pop.scale,
+  lower = c(0,-5, -5, 0, 0, 0, 0),
+  upper = c(5, 7,  7, 1, 2, 1, 1))
 
-hest1 <- summary(hsam, TRUE)
+## Simulate some data
+dat <- simulate(model, nsub = 30, nsim = 30, prior = pop.prior)
+dmi <- BuildDMI(dat, model)
+ps <- attr(dat, "parameters")
+
+p.prior <- BuildPrior(
+  dists = rep("tnorm", npar),
+  p1    = pop.mean,
+  p2    = pop.scale*5,
+  lower = c(0,-5, -5, 0, 0, 0, 0),
+  upper = c(5, 7,  7, 1, 2, 1, 1))
+
+mu.prior <- ggdmc::BuildPrior(
+  dists = rep("tnorm", npar),
+  p1    = pop.mean,
+  p2    = pop.scale*5,
+  lower = c(0,-5, -5, 0, 0, 0, 0),
+  upper = c(5, 7,  7, 1, 2, 1, 1)
+)
+sigma.prior <- BuildPrior(
+  dists = rep("beta", npar),
+  p1    = c(a=1, v.f1=1,v.f2 = 1, z=1, sz=1, sv=1, t0=1),
+  p2    = rep(1, npar),
+  upper = rep(2, npar))
+
+priors <- list(pprior=p.prior, location=mu.prior, scale=sigma.prior)
+
+## Sampling
+## Processing time: 394.37 secs.
+fit0 <- StartNewsamples(dmi, priors, thin = 2)
+fit  <- run(fit0)
+fit  <- run(fit, 1e2, add=TRUE)
+
+## By default the type = 1 for location parameters
+## When recovery = TRUE, one must enter the true parameter to ps
+est0 <- summary(fit, recovery = TRUE, ps = pop.mean, verbose = TRUE)
+## Explicitly enter type = 1
+est0 <- summary(fit, recovery = TRUE, ps = pop.mean,  type=1, verbose = TRUE)
+est0 <- summary(fit, recovery = TRUE, ps = pop.scale, type=2, verbose = TRUE)
+
+## When recovery = FALSE (default), the function return parameter estimates
+est0 <- summary(fit, verbose = TRUE, type=1)
+est0 <- summary(fit, verbose = TRUE, type=2)
+
+## To estimate individual participants, one must enter hyper = FALSE for a
+## hierarchical model fit
+est0 <- summary(fit, hyper=FALSE, verbose = TRUE)
 }
 }

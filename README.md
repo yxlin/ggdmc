@@ -209,8 +209,8 @@ which uses a back-end function, **deviance_model** to attain the same opeation
 The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
 illustrates an example for doing the back-and-forth operation.
 
-Note that now we S4, so please use "@" operator to extract object components 
-(i.e., slot). 
+Note that we start to use S4 after version 2.7.5, so switch to use "@" operator 
+to extract object components (i.e., slot). 
 
 ## Prerequisites
  - R (>= 3.3.0)

@@ -181,14 +181,13 @@ Rcpp::List rcircle_process(arma::vec P, double tmax, double h)
 //' @param P is a parameter vector, c(v, a, z, t0, s).
 //' The sequence must be followed. v is the drift rate
 //' a is decision threshold. t0 is the non-decision time.
-//' @param tmax maximum time allowed.
+//' @param tmax maximum time allowed. This define the range of the time domain.
 //' @param kmax the tuning parameter for Bessel function. Mostly 50.
 //' @param h,sz sz is the number of time steps (h = tmax / sz). h is
 //' the size of one time step. We usually set h = 1e-4. That is .1 ms.
 //' So when tmax is 2 second and each time step is 0.1 ms, sz will be
 //' 2e4 steps.
-//' @return rcircle returns a n x 2 matrix. Each row is an [RT R] trial.
-//' dcircle returns a n vector.
+//' @return r1d return a list.
 //' @examples
 //'
 //' @rdname dcircle
@@ -224,13 +223,12 @@ Rcpp::List r1d(arma::vec P, double tmax, double h)
     i++;
   }
   out(0) = i * h + P[3]; // DT + t0
-  out(1) = i > nmax; // auto-upcast; if suppass
+  out(1) = i > nmax;     // auto-upcast; if suppass
   out(2) = (current_evidence > P[1]) ? 0 : 1;
 
   return Rcpp::List::create(Rcpp::Named("T")  = T,
                             Rcpp::Named("out")= out,
                             Rcpp::Named("Xt") = Xt);
-
 }
 
 arma::vec interp2(arma::vec DT_, arma::vec R_, arma::vec DT, arma::vec R,
@@ -333,12 +331,12 @@ arma::vec interp2(arma::vec DT_, arma::vec R_, arma::vec DT, arma::vec R,
   return out;
 }
 
-double test_gsl(double s, arma::vec P, double tmax, double h,
-                unsigned int nw)
-{
-  cddm * obj = new cddm(P[0], P[1], P[2], P[3], P[4], P[5], tmax, h, nw);
-  // double out = obj->gsl_sf_bessel_zero_J0(s);
-  double out = obj->gsl_sf_bessel_J1(s);
-  delete obj;
-  return out;
-}
+// double test_gsl(double s, arma::vec P, double tmax, double h,
+//                 unsigned int nw)
+// {
+//   cddm * obj = new cddm(P[0], P[1], P[2], P[3], P[4], P[5], tmax, h, nw);
+//   // double out = obj->gsl_sf_bessel_zero_J0(s);
+//   double out = obj->gsl_sf_bessel_J1(s);
+//   delete obj;
+//   return out;
+// }

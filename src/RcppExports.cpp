@@ -304,6 +304,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_g_plus
+std::vector<double> test_g_plus(std::vector<double> t, std::vector<double> parameters);
+RcppExport SEXP _ggdmc_test_g_plus(SEXP tSEXP, SEXP parametersSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<double> >::type t(tSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type parameters(parametersSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_g_plus(t, parameters));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rprior_mat
 NumericMatrix rprior_mat(S4 prior, unsigned int n);
 RcppExport SEXP _ggdmc_rprior_mat(SEXP priorSEXP, SEXP nSEXP) {
@@ -337,22 +349,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type pvec(pvecSEXP);
     Rcpp::traits::input_parameter< S4 >::type pprior(ppriorSEXP);
     rcpp_result_gen = Rcpp::wrap(test_dprior(pvec, pprior));
-    return rcpp_result_gen;
-END_RCPP
-}
-// test_dbvnorm
-double test_dbvnorm(double x, double y, double sigma_x, double sigma_y, double rho, bool lg);
-RcppExport SEXP _ggdmc_test_dbvnorm(SEXP xSEXP, SEXP ySEXP, SEXP sigma_xSEXP, SEXP sigma_ySEXP, SEXP rhoSEXP, SEXP lgSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type sigma_x(sigma_xSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma_y(sigma_ySEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_dbvnorm(x, y, sigma_x, sigma_y, rho, lg));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -479,10 +475,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_init_oldhier_from_fixed_model", (DL_FUNC) &_ggdmc_init_oldhier_from_fixed_model, 12},
     {"_ggdmc_timesTwo", (DL_FUNC) &_ggdmc_timesTwo, 1},
     {"_ggdmc_rlba_norm", (DL_FUNC) &_ggdmc_rlba_norm, 8},
+    {"_ggdmc_test_g_plus", (DL_FUNC) &_ggdmc_test_g_plus, 2},
     {"_ggdmc_rprior_mat", (DL_FUNC) &_ggdmc_rprior_mat, 2},
     {"_ggdmc_test_sumlogprior", (DL_FUNC) &_ggdmc_test_sumlogprior, 2},
     {"_ggdmc_test_dprior", (DL_FUNC) &_ggdmc_test_dprior, 2},
-    {"_ggdmc_test_dbvnorm", (DL_FUNC) &_ggdmc_test_dbvnorm, 6},
     {"_ggdmc_spdf", (DL_FUNC) &_ggdmc_spdf, 5},
     {"_ggdmc_dtnorm", (DL_FUNC) &_ggdmc_dtnorm, 6},
     {"_ggdmc_rtnorm", (DL_FUNC) &_ggdmc_rtnorm, 5},

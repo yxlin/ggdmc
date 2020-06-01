@@ -216,7 +216,7 @@ public:
         pmat = arma::trans(pmat);
 
         // PM model
-        if (pmat.n_cols == 7) { pmat = pmat.rows(0, pmat(1,6)-1); }
+        if (pmat.n_cols == 7) { pmat = pmat.rows(0, pmat(0, 6)-1); }
 
         RTIdx = arma::find(m_d->m_is_this_cell.col(i) == 1);
         out(RTIdx) = n1PDFfixedt0(m_d->m_RT(RTIdx), pmat.col(0), pmat.col(1),

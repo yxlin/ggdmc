@@ -46,7 +46,7 @@ Mostly .1 ms.}
 The sequence must be followed. v is the drift rate
 a is decision threshold. t0 is the non-decision time.}
 
-\item{tmax}{maximum time allowed.}
+\item{tmax}{maximum time allowed. This define the range of the time domain.}
 
 \item{kmax}{the tuning parameter for Bessel function. Mostly 50.}
 
@@ -59,8 +59,7 @@ So when tmax is 2 second and each time step is 0.1 ms, sz will be
 rcircle returns a n x 2 matrix. Each row is an [RT R] trial.
 dcircle returns a n vector.
 
-rcircle returns a n x 2 matrix. Each row is an [RT R] trial.
-dcircle returns a n vector.
+r1d return a list.
 }
 \description{
 Density, random generation for the 2-D diffusion model.

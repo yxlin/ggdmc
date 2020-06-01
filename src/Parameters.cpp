@@ -311,3 +311,25 @@ double g_plus(double t, Parameters *params)
   params_.v = - params->v;
   return integral_t0_g_minus (t - params_.t0 + 0.5*params_.d, &params_);
 }
+
+//' @export
+// [[Rcpp::export]]
+std::vector<double> test_g_plus(std::vector<double> t,
+                                std::vector<double> parameters)
+{
+  // The user must have the knowledge about how to arrange
+  // std::vector<double> parameters (see Parameter class)
+  // double t: RT
+  // std::vector<double> parameters: diffusion model parameters
+  unsigned int npara = parameters.size();
+  unsigned int nt    = t.size();
+  double * para = new double[npara];
+
+  for (size_t i = 0; i < npara; i++) para[i] = parameters[i];
+  Parameters * params = new Parameters(para, 3);
+
+  std::vector<double> out(nt);
+  for (size_t j = 0; j < nt; j++) out[j] = g_plus(t[j], params);
+
+  return out;
+}

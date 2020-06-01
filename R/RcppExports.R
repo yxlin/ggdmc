@@ -61,14 +61,13 @@ rcircle_process <- function(P, tmax, h) {
 #' @param P is a parameter vector, c(v, a, z, t0, s).
 #' The sequence must be followed. v is the drift rate
 #' a is decision threshold. t0 is the non-decision time.
-#' @param tmax maximum time allowed.
+#' @param tmax maximum time allowed. This define the range of the time domain.
 #' @param kmax the tuning parameter for Bessel function. Mostly 50.
 #' @param h,sz sz is the number of time steps (h = tmax / sz). h is
 #' the size of one time step. We usually set h = 1e-4. That is .1 ms.
 #' So when tmax is 2 second and each time step is 0.1 ms, sz will be
 #' 2e4 steps.
-#' @return rcircle returns a n x 2 matrix. Each row is an [RT R] trial.
-#' dcircle returns a n vector.
+#' @return r1d return a list.
 #' @examples
 #'
 #' @rdname dcircle
@@ -196,6 +195,11 @@ rlba_norm <- function(n, A, b, mean_v, sd_v, t0, st0, posdrift) {
     .Call('_ggdmc_rlba_norm', PACKAGE = 'ggdmc', n, A, b, mean_v, sd_v, t0, st0, posdrift)
 }
 
+#' @export
+test_g_plus <- function(t, parameters) {
+    .Call('_ggdmc_test_g_plus', PACKAGE = 'ggdmc', t, parameters)
+}
+
 rprior_mat <- function(prior, n) {
     .Call('_ggdmc_rprior_mat', PACKAGE = 'ggdmc', prior, n)
 }
@@ -206,10 +210,6 @@ test_sumlogprior <- function(pvec, prior) {
 
 test_dprior <- function(pvec, pprior) {
     .Call('_ggdmc_test_dprior', PACKAGE = 'ggdmc', pvec, pprior)
-}
-
-test_dbvnorm <- function(x, y, sigma_x, sigma_y, rho, lg = FALSE) {
-    .Call('_ggdmc_test_dbvnorm', PACKAGE = 'ggdmc', x, y, sigma_x, sigma_y, rho, lg)
 }
 
 spdf <- function(x, RT, n, h_in, debug) {

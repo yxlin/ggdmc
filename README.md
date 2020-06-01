@@ -239,6 +239,9 @@ From GitHub (you need _devtools_) (0.2.8.0):
 
 > devtools::install_github("yxlin/ggdmc")
 
+For Microsoft R users:
+
+As to 06-01-2020, because Microsoft R uses R version 3.5.3, the user who wishes deploys ggdmc on Microsoft R may encounter two challenges. First is RcppArmadillo on MRAN is behind the one on R CRAN. The RcppArmadillo on MRAN has yet introduced recent Armadillo functions, for instance randperm in C++. This can be resolved by installing RcppArmadillo directly from its source tarball, downloaded from CRAN. Secondly, the default installation process on Windows is to look for the package binary matching the R version on Windows machine. This may result in Microsoft R looks for a version of ggdmc matching R 3.5.3 and thereby, it cannot find one. This can be resolved similarly by installing from the source tarball. 
 
 For Mac Users:
 

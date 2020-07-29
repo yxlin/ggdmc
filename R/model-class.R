@@ -1559,8 +1559,9 @@ setMethod("summary", "posterior", function(object, start = 1,
 
   if (recovery)
   {
-    message("Recovery summarises only default quantiles: ", appendLF = FALSE)
-    prob <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+    message("Recovery summarises only default quantiles: ",
+            appendLF = FALSE)
+    prob <- c(0.025, 0.5, 0.975)
     cat(paste0(prob*100, "%"), "\n")
 
     if (any(is.na(ps))) stop("Some true values are NAs.")

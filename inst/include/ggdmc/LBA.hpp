@@ -7,10 +7,8 @@ class lba {
 public:
   double m_A, m_b, m_mean_v, m_sd_v, m_t0, m_st0; // LBA distribution.
   bool is_posv;
-
-  double *m_meanv_vec, *m_sdv_vec, *m_dt;
+  double *m_dt, *m_A_vec, *m_b_vec, *m_meanv_vec, *m_sdv_vec, *m_t0_vec, *m_st0_vec;
   unsigned int m_nmean_v, m_nrt;
-  double *m_A_vec, *m_b_vec, *m_t0_vec, *m_st0_vec;
 
   lba (double A, double b, double mean_v, double sd_v, double t0, double st0,
        bool posdrift, arma::vec & rt) :
@@ -19,15 +17,10 @@ public:
   {
     m_nrt = rt.size();
     m_dt  = new double[m_nrt];
-
-    for (size_t i = 0; i < m_nrt; i++)
-    {
-      m_dt[i] = rt[i] - m_t0;
-    }
+    for (size_t i = 0; i < m_nrt; i++) { m_dt[i] = rt[i] - m_t0; }
 
     denom = !is_posv ? 1.0 :
       R::fmax2(R::pnorm(m_mean_v/m_sd_v, 0, 1, 1, 0), 1e-10);
-
   };
   // pdf, cdf
 

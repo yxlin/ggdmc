@@ -208,10 +208,6 @@ test_dprior <- function(pvec, pprior) {
     .Call('_ggdmc_test_dprior', PACKAGE = 'ggdmc', pvec, pprior)
 }
 
-test_dbvnorm <- function(x, y, sigma_x, sigma_y, rho, lg = FALSE) {
-    .Call('_ggdmc_test_dbvnorm', PACKAGE = 'ggdmc', x, y, sigma_x, sigma_y, rho, lg)
-}
-
 spdf <- function(x, RT, n, h_in, debug) {
     .Call('_ggdmc_spdf', PACKAGE = 'ggdmc', x, RT, n, h_in, debug)
 }

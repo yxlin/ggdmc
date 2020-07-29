@@ -340,22 +340,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// test_dbvnorm
-double test_dbvnorm(double x, double y, double sigma_x, double sigma_y, double rho, bool lg);
-RcppExport SEXP _ggdmc_test_dbvnorm(SEXP xSEXP, SEXP ySEXP, SEXP sigma_xSEXP, SEXP sigma_ySEXP, SEXP rhoSEXP, SEXP lgSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type x(xSEXP);
-    Rcpp::traits::input_parameter< double >::type y(ySEXP);
-    Rcpp::traits::input_parameter< double >::type sigma_x(sigma_xSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma_y(sigma_ySEXP);
-    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< bool >::type lg(lgSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_dbvnorm(x, y, sigma_x, sigma_y, rho, lg));
-    return rcpp_result_gen;
-END_RCPP
-}
 // spdf
 arma::vec spdf(arma::vec x, arma::vec RT, int n, double h_in, bool debug);
 RcppExport SEXP _ggdmc_spdf(SEXP xSEXP, SEXP RTSEXP, SEXP nSEXP, SEXP h_inSEXP, SEXP debugSEXP) {
@@ -482,7 +466,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_rprior_mat", (DL_FUNC) &_ggdmc_rprior_mat, 2},
     {"_ggdmc_test_sumlogprior", (DL_FUNC) &_ggdmc_test_sumlogprior, 2},
     {"_ggdmc_test_dprior", (DL_FUNC) &_ggdmc_test_dprior, 2},
-    {"_ggdmc_test_dbvnorm", (DL_FUNC) &_ggdmc_test_dbvnorm, 6},
     {"_ggdmc_spdf", (DL_FUNC) &_ggdmc_spdf, 5},
     {"_ggdmc_dtnorm", (DL_FUNC) &_ggdmc_dtnorm, 6},
     {"_ggdmc_rtnorm", (DL_FUNC) &_ggdmc_rtnorm, 5},

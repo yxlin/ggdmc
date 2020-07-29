@@ -14,7 +14,7 @@
 //    with this program; if not, write to the Free Software Foundation, Inc.,
 //    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <ggdmc.hpp>
-#include <gsl/gsl_randist.h>
+// #include <gsl/gsl_randist.h>
 
 using namespace Rcpp;
 
@@ -316,14 +316,13 @@ Rcpp::NumericVector test_dprior(arma::vec pvec, S4 pprior)
   return out;
 }
 
-// [[Rcpp::export]]
-double test_dbvnorm(double x, double y, double sigma_x,
-                                 double sigma_y, double rho, bool lg = false)
-{
-  double tmp = gsl_ran_bivariate_gaussian_pdf(x, y, sigma_x, sigma_y, rho);
-  double out = lg ? std::log(tmp) : tmp;
-  return out;
-}
+// double test_dbvnorm(double x, double y, double sigma_x,
+//                                  double sigma_y, double rho, bool lg = false)
+// {
+//   double tmp = gsl_ran_bivariate_gaussian_pdf(x, y, sigma_x, sigma_y, rho);
+//   double out = lg ? std::log(tmp) : tmp;
+//   return out;
+// }
 
 // arma::vec test_dprior(arma::vec pvec, List prior)
 // {

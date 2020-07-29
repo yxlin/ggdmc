@@ -22,7 +22,7 @@ safeguard this, but they are far from bulletproof.
 
 ```
 ## Set up model ----
-## fixing sv & sz to 0, makes to set up a Wiener diffusion model
+## fixing sv & sz to 0 to set up a Wiener diffusion model
 require(ggdmc)
 model <- BuildModel(
   p.map     = list(a = "1", v="1", z="1", d="1", sz="1", sv="1", t0="1", 
@@ -33,7 +33,9 @@ model <- BuildModel(
   constants = c(st0 = 0, d = 0, sv = 0, sz = 0),  
   type      = "rd")   
 
-npar <- model@npar
+npar <- model@npar   ## Note this works for version > 0.2.7.5; 
+## npar <- length(GetPNames(model))   ## Use GetPNames instead in 0.2.6.0
+
 p.vector <- c(a=1, v=1.5, z=0.5, t0=.15)
 dat <- simulate(model, nsim = 50, ps = p.vector)
 dmi <- BuildDMI(dat, model)
@@ -180,7 +182,7 @@ matrices are 'nchain x nmc'. DMC uses 'nmc x nchain'.  Remember to transpose
 them, if you want to operate objects back-and-forth. Currently, we use
 the R functions, 'aperm' and 't', to transpose matrices and arrays when we
 have to operate between DMC and _ggdmc_. The following two convenient functions
-are designed to for doing this operation. 
+are designed for doing this operation. 
 
 ```
 DMC2ggdmc <- function(x) {
@@ -202,15 +204,21 @@ ggdmc2DMC <- function(x) {
 ```
 
 Note **Dstats.dmc** in DMC is also affected by the issue of different array and 
-matrix dimensions, because Dstats.dmc calculates the means of the theta/phi array 
-across column, $$apply(samples$theta,2,mean)$$. _ggdmc_ provides DIC function, 
-which uses a back-end function, **deviance_model** to attain the same opeation
+matrix dimensions, because Dstats.dmc calculates the means of the theta/phi  
+array across column, 
+
+```
+apply(samples$theta,2,mean)
+
+```
+_ggdmc_ provides DIC function, which uses a back-end function, 
+**deviance_model** to attain the same opeation
 
 The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
 illustrates an example for doing the back-and-forth operation.
 
-Note that we start to use S4 after version 2.7.5, so switch to use "@" operator 
-to extract object components (i.e., slot). 
+Note that we start to use S4 class after version 2.7.5, so switch to use "@" 
+operator to extract object components (i.e., slot). 
 
 ## Prerequisites
  - R (>= 3.3.0)
@@ -225,8 +233,8 @@ to extract object components (i.e., slot).
 
 ## Installation
 
-We now use S4 class in version 2.7.5. The new design enables a more 
-user-friendly interface of help pages.
+We now use S4 class after version 2.7.5. The new design enables a more 
+user-friendly interface in help pages.
 
 From CRAN (0.2.6.0): 
 > install.packages("ggdmc")
@@ -270,7 +278,7 @@ The R documentation, tutorials, C++ codes, parallel computations, new
 genetic algorithm, R helper functions and R packaging are 
 developed by Yi-Shin Lin. A substantial part of R codes for handling 
 experimental designed are adapted from the DMC, developed by Andrew Heathcote 
-(Heathcote et al., 2018). You would find other different and more interesting 
+(Heathcote et al., 2018). You could find different and more interesting 
 cognitive models in DMC. 
 
 Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
@@ -282,9 +290,9 @@ here.
 
 ## Acknowledgments
 
-* The PDF, CDF and random number generation of DDM are derived from 
+* The PDF, CDF and random number generation of DDM were derived from 
 Voss & Voss's fast-dm 30.2 and rtdists 0.9-0. 
-* Truncated normal functions are originally based on 
+* Truncated normal functions were originally based on 
 [Jonathan Olmsted's](mailto:jpolmsted@gmail.com) RcppTN 0.1-8 at
 https://github.com/olmjo/RcppTN,
 [Christopher Jackson's](chris.jackson@mrc-bsu.cam.ac.uk) R codes in msm package,
@@ -296,6 +304,6 @@ OS X (macOS High Sierra Version 10.13.4)
 model are based on Smith (2016).
 
 ## Reference
-* Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland. L. Gretton, M., & Matzke, D. (2018). Dynamic models of choice, Behavior Research Methods. https://doi.org/10.3758/s13428-018-1067-y
-* Lin, Y.-S and Strickland, L. (accepted). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
-* Smith, P. (2016). Diffusion Theory of Decision Making in Continuous Report, Psychological Review, 123(4), 425-451. http://dx.doi.org/10.1037/rev0000023
+* Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland. L. Gretton, M., & Matzke, D. (2018). Dynamic models of choice, _Behavior Research Methods_. https://doi.org/10.3758/s13428-018-1067-y
+* Lin, Y.-S. and Strickland, L. (2020). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. _The Quantitative Methods for Psychology_.
+* Smith, P. (2016). Diffusion Theory of Decision Making in Continuous Report, _Psychological Review_, 123(4), 425-451. http://dx.doi.org/10.1037/rev0000023

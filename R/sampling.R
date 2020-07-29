@@ -72,7 +72,7 @@ rerun_many <- function(samples, nmc, thin, report, rp, gammamult, pm0, pm1,
 ##' optimisation.  We use a specific type of pMCMC algorithm, the DE-MCMC. This
 ##' particular sampling method includes crossover and two different migration
 ##' operators. The migration operators are similar to random-walk algorithm.
-##' They wouold be less efficient to find the target parameter space, if been
+##' They would be less efficient to find the target parameter space, if been
 ##' used alone.
 ##'
 ##' @param dmi a data model instance or a list of data model instances

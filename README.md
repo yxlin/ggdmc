@@ -271,7 +271,7 @@ A configure script now disables OpenMP, so macOS users should be able to install
 encountering the OpenMP problem. 
 
 ## Citation
-Lin, Y.-S and Strickland, L. (accepted). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
+Lin, Y.-S and Strickland, L. (2020). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computations, new

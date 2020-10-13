@@ -217,7 +217,7 @@ _ggdmc_ provides DIC function, which uses a back-end function,
 The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
 illustrates an example for doing the back-and-forth operation.
 
-Note that we start to use S4 class after version 2.7.5, so switch to use "@" 
+Note that we start to use S4 class after version 0.2.7.5, so switch to use "@" 
 operator to extract object components (i.e., slot). 
 
 ## Prerequisites
@@ -233,7 +233,7 @@ operator to extract object components (i.e., slot).
 
 ## Installation
 
-We now use S4 class after version 2.7.5. The new design enables a more 
+We now use S4 class after version 0.2.7.5. The new design enables a more 
 user-friendly interface in help pages.
 
 From CRAN (0.2.6.0): 
@@ -243,7 +243,7 @@ From source:
 
 > install.packages("ggdmc_0.2.8.0.tar.gz", repos = NULL, type="source")
 
-From GitHub (you need _devtools_) (0.2.8.0):
+From GitHub (need _devtools_) (0.2.8.0):
 
 > devtools::install_github("yxlin/ggdmc")
 

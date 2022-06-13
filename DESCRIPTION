@@ -1,8 +1,8 @@
 Package: ggdmc
 Type: Package
 Title: Cognitive Models
-Version: 0.2.8.0
-Date: 2019-12-11
+Version: 0.2.8.1
+Date: 2022-06-13
 Author: Yi-Shin Lin [aut, cre], Andrew Heathcote [aut]
 Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
 Description: The package provides tools to fit the LBA, DDM, PM and 2-D diffusion models, using the population-based Markov Chain Monte Carlo.

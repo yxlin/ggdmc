@@ -17,9 +17,9 @@
 
 using namespace Rcpp;
 
-//' Calculate log likelihoods
+//' Calculate likelihoods
 //'
-//' These function calculate log likelihoods. \code{likelihood_rd} implements
+//' These function calculate likelihoods. \code{likelihood_rd} implements
 //' the equations in Voss, Rothermund, and Voss (2004). These equations
 //' calculate diffusion decision model (Ratcliff & Mckoon, 2008). Specifically,
 //' this function implements Voss, Rothermund, and Voss's (2004) equations A1

@@ -155,10 +155,10 @@ est2 <- summary(fit, hyper = TRUE, recovery = TRUE, ps = pop.scale, type = 2, ve
 6. The Piecewise LBA model 0; GPU-based PDA likelihoods; type = "plba0_gpu", 
 7. The Piecewise LBA model 1; GPU-based PDA likelihoods; type = "plba1_gpu", 
 8. The LBA model; GPU-based PDA likelihoods;, type = "norm_pda_gpu",
-9. The leaky, competing accumulator model.
+9. The leaky, competing accumulator model (Experimental!).
 
 4 to 8 are separated from the latest version of the package. For these 
-PDA-based models see my BRM paper and associated packages there. 
+PDA-based models see my BRM paper and associated packages there (osf project). 
 9 is in a separate module, which has yet incorporated. See the LCA 
 [tutorial](https://yxlin.github.io/cognitive-model/lca/) for its testing result,
 using MLE. 
@@ -166,18 +166,19 @@ using MLE.
 For the details regarding PLBA types, please see 
 [Holmes, Trueblood, and Heathcote (2016)](http://dx.doi.org/10.1016/j.cogpsych.2015.11.002)
 
-## Memory models
+## Experimental (untested) models 
 10. 2-D/circular drift-diffusion model, type = "cddm"
 11. Prospective memory model, type = "norm" (see tutorial for more details)
-
+12. Time-varying changes in other free parameters
 
 ## Further information
 One aim in designing _ggdmc_ is to read objects from DMC, so they share some 
-similarities.  They have however some differences. For example, in the latest
+similarities. They have however some differences. For example, in the latest
 version of _ggdmc_, the dimension of theta and phi arrays are 
 'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. To reduce the 
-computation time for manipulating the matrices and arrays, we must make this 
-change. Similarly, the dimension of the 'log_likelihoods' and 'summed_log_prior' 
+computation time for manipulating the matrices and arrays, we make this 
+change to accommodate the convention in Armadillo. Similarly, the dimension of 
+the 'log_likelihoods' and 'summed_log_prior' 
 matrices are 'nchain x nmc'. DMC uses 'nmc x nchain'.  Remember to transpose
 them, if you want to operate objects back-and-forth. Currently, we use
 the R functions, 'aperm' and 't', to transpose matrices and arrays when we
@@ -212,7 +213,7 @@ apply(samples$theta,2,mean)
 
 ```
 _ggdmc_ provides DIC function, which uses a back-end function, 
-**deviance_model** to attain the same opeation
+**deviance_model** to attain the same operation.
 
 The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
 illustrates an example for doing the back-and-forth operation.
@@ -249,7 +250,16 @@ From GitHub (need _devtools_) (0.2.8.0):
 
 For Microsoft R users:
 
-As to 06-01-2020, because Microsoft R uses R version 3.5.3, the user who wishes deploys ggdmc on Microsoft R may encounter two challenges. First is RcppArmadillo on MRAN is behind the one on R CRAN. The RcppArmadillo on MRAN has yet introduced recent Armadillo functions, for instance randperm in C++. This can be resolved by installing RcppArmadillo directly from its source tarball, downloaded from CRAN. Secondly, the default installation process on Windows is to look for the package binary matching the R version on Windows machine. This may result in Microsoft R looks for a version of ggdmc matching R 3.5.3 and thereby, it cannot find one. This can be resolved similarly by installing from the source tarball. 
+As to 06-01-2020, because Microsoft R uses R version 3.5.3, the user who wishes 
+deploys ggdmc on Microsoft R may encounter two challenges. First is 
+RcppArmadillo on MRAN is behind the one on R CRAN. The RcppArmadillo on MRAN 
+has yet introduced recent Armadillo functions, for instance randperm in C++. 
+This can be resolved by installing RcppArmadillo directly from its source 
+tarball, downloaded from CRAN. Secondly, the default installation process on 
+Windows is to look for the package binary matching the R version on Windows 
+machine. This may result in Microsoft R looks for a version of ggdmc matching 
+R 3.5.3 and thereby, it cannot find one. This can be resolved similarly by 
+installing from the source tarball. 
 
 For Mac Users:
 
@@ -267,11 +277,18 @@ clang4-r is the most straightforward we found so far.
 However we have not looked into the source code of clang4-r. Use it at your
 own risk.~~
 
-A configure script now disables OpenMP, so macOS users should be able to install without
-encountering the OpenMP problem. 
+The configure script now disables OpenMP, so macOS users should be able to 
+install without encountering the OpenMP problem. 
+
+
+FAQ:
+1. When the error message arise, "/usr/bin/ld: cannot find -lgsl" and/or 
+"/usr/bin/ld: cannot find -lgslcblas", installing libgsl-dev may resolve this 
+problem (Ubuntu).
 
 ## Citation
-Lin, Y.-S and Strickland, L. (2020). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
+Lin, Y.-S and Strickland, L. (2020). Evidence accumulation models with R: A 
+practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computations, new
@@ -283,6 +300,12 @@ cognitive models in DMC.
 
 Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
 here.
+
+## Correction
+The help page for the function, _likelihood_ in Density.cpp states that the 
+function return log-likelihood (v2.8.0). This is incorrect. An inspection of 
+the source code found that it returns likelihood, not log-likleihood. (13-06-2022). 
+Thanks for Nachshon Meiran points it out.
 
 ## License
 

@@ -302,9 +302,9 @@ Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue
 here.
 
 ## Correction
-The help page for the function, _likelihood_ in Density.cpp states that the 
-function return log-likelihood (v2.8.0). This is incorrect. An inspection of 
-the source code found that it returns likelihood, not log-likleihood. (13-06-2022). 
+The help page for the function, _likelihood_ in Density.cpp states that 
+it returns log-likelihood (v2.8.0). An inspection of 
+the source code found that it returns likelihood, not log-likleihood. (13-06-2022; v2.8.1). 
 Thanks for Nachshon Meiran points it out.
 
 ## License

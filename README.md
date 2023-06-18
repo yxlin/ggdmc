@@ -328,5 +328,5 @@ model is based on Smith (2016).
 
 ## Reference
 * Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland. L. Gretton, M., & Matzke, D. (2018). Dynamic models of choice, _Behavior Research Methods_. https://doi.org/10.3758/s13428-018-1067-y
-* Lin, Y.-S. and Strickland, L. (2020). [Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods](https://www.tascl.org/uploads/4/9/3/3/49339445/lin_strickland_2019.pdf). _The Quantitative Methods for Psychology_.
+* Lin, Y.-S. and Strickland, L. (2020). [Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods]([https://www.tascl.org/uploads/4/9/3/3/49339445/lin_strickland_2019.pdf](https://www.tqmp.org/RegularArticles/vol16-2/p133/p133.pdf)). _The Quantitative Methods for Psychology_.
 * Smith, P. (2016). Diffusion Theory of Decision Making in Continuous Report, _Psychological Review_, 123(4), 425-451. http://dx.doi.org/10.1037/rev0000023

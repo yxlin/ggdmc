@@ -241,8 +241,7 @@ From CRAN (0.2.6.0):
 > install.packages("ggdmc")
 
 From source: 
-
-> install.packages("<a id="raw-url" href="https://github.com/yxlin/repository/raw/master/docs/ggdmc_0.2.8.1.tar">ggdmc_0.2.8.1.tar.gz</a>", repos = NULL, type="source")
+> install.packages("<a id="raw-url" href="https://github.com/yxlin/tree/master/docs/ggdmc_0.2.8.1.tar">ggdmc_0.2.8.1.tar.gz</a>", repos = NULL, type="source")
 
 From GitHub (need _devtools_) (0.2.8.0):
 

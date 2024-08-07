@@ -198,9 +198,7 @@ ggdmc2DMC <- function(x) {
 }
 ```
 
-Note **Dstats.dmc** in DMC is also affected by the issue of the different array and 
-matrix dimensions because Dstats.dmc calculates the means of the theta/phi  
-array across the column. 
+Note **Dstats.dmc** in DMC is also affected by the issue of the different array and matrix dimensions because Dstats.dmc calculates the means of the theta/phi array across the column. 
 
 ```
 apply(samples$theta,2,mean)
@@ -214,7 +212,7 @@ note that DIC is generally not recommended for model comparison as of 2024. Inst
 stored in a model fit to calculate the Bayes factor for the same purpose.
 
 Starting from version 0.2.7.5, _ggdmc_ utilizes S4 classes. To extract object components (slots) after this version, 
-use the "@" operator instead of the previous syntax.**
+use the "@" operator instead of the previous syntax.
 
 ## Prerequisites
  - R (>= 3.3.0)
@@ -270,7 +268,7 @@ The configure script now disables OpenMP, so macOS users should be able to
 install without encountering the OpenMP problem. 
 
 
-FAQ:
+## FAQ
 1. How may I resolve the error, "/usr/bin/ld: cannot find -lgsl" and/or 
 "/usr/bin/ld: cannot find -lgslcblas"?
 

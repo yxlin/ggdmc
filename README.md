@@ -1,23 +1,21 @@
 # Modelling Cognitive Processes
 
-_ggdmc_ is an R package for modelling cognitive processes. Although its focus
-is on the challenging hierarchical Bayesian models, fitting them with Bayesian
-MCMC. It can also fit cognitive models with conventional methods, such as
-maximum likelihood estimation and least squares. The package uses the sampling
-method of population-based Markov chain Monte Carlo (pMCMC).
+_ggdmc_ is an R package for modelling cognitive processes. While its primary focus is on complex 
+hierarchical Bayesian models fitted using Bayesian MCMC, it also supports fitting cognitive models
+with traditional methods like maximum likelihood estimation and least squares. The package employs 
+population-based Markov chain Monte Carlo (pMCMC) for sampling.
 
 ## Getting Started
-This example demonstrates the Wiener diffusion model.  For other models, 
-see my [tutorials site](https://yxlin.github.io/). The naming of _R_ functions 
-in _ggdmc_ attempts to inform the user what the functions are for. For 
-example,  _BuildModel_ is to build a model object.  
+This example showcases the Wiener diffusion model. For exploring other models, visit my 
+[tutorials site](https://yxlin.github.io/). The naming convention for functions in _ggdmc_ 
+aims to be clear and informative. For instance, _BuildModel_ creates a model object.
 
-As the user is often reminded in using Bayesian tools, it is always a good 
-practice to check the result of a model fit. Note that the sequence of 
-parameters in a parameter vector (i.e., p.vector) must follow the sequence in 
-the _p.vector_ reported by _BuildModel_.  Some built-in checks will try to 
-safeguard this, but they are far from bulletproof. 
-
+As a common practice when using Bayesian tools, it's crucial to verify the results after 
+fitting a model. Remember, the order of parameters in your parameter vector
+(_p.vector_) must match the order reported by _BuildModel_ in _p.vector_. While some 
+built-in checks attempt to prevent mismatches, they aren't foolproof. It's always best 
+to double-check the order yourself.
+ 
 ## Fit a fixed-effect model to a participant
 
 ```
@@ -172,18 +170,14 @@ For the details regarding PLBA types, please see
 12. Time-varying changes in other free parameters
 
 ## Further information
-One aim in designing _ggdmc_ is to read objects from DMC, which share 
-similarities. They have, however, some differences. For example, in the latest
-version of _ggdmc_, the dimension of theta and phi arrays are 
-'npar x nchain x nmc'. DMC uses 'nchain x npar x nmc'. To reduce the 
-computation time for manipulating the matrices and arrays, we change this to accommodate the Armadillo convention
-change to accommodate the convention in Armadillo. Similarly, the dimension of 
-the 'log_likelihoods' and 'summed_log_prior' 
-matrices are 'nchain x nmc'. DMC uses 'nmc x nchain'.  Remember to transpose
-them if you want to operate objects back and forth. Currently, we use
-the R functions, 'aperm' and 't', to transpose matrices and arrays when operating
-have to operate between DMC and _ggdmc_. The following two convenient functions
-are designed for doing this operation. 
+A primary goal of _ggdmc_ is to be compatible with DMC objects, which share many similarities. However, 
+some structural differences exist. For instance, in the latest version of _ggdmc_, the dimensions of 
+theta and phi arrays are 'npar x nchain x nmc', while DMC uses 'nchain x npar x nmc'. To optimize 
+computational efficiency and align with Armadillo conventions, we adopted this format. Likewise, 
+the 'log_likelihoods' and 'summed_log_prior' matrices have dimensions 'nchain x nmc' in _ggdmc_, 
+compared to 'nmc x nchain' in DMC. When transferring data between the two packages, it's essential to 
+transpose these matrices or arrays using R's aperm or t functions. To streamline this process, we've 
+included two dedicated functions.
 
 ```
 DMC2ggdmc <- function(x) {
@@ -206,20 +200,21 @@ ggdmc2DMC <- function(x) {
 
 Note **Dstats.dmc** in DMC is also affected by the issue of the different array and 
 matrix dimensions because Dstats.dmc calculates the means of the theta/phi  
-array across the column, 
+array across the column. 
 
 ```
 apply(samples$theta,2,mean)
 
 ```
-_ggdmc_ provides DIC function, which uses a back-end function, 
-**deviance_model** to attain the same operation.
-
 The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
-illustrates an example of doing the back-and-forth operation.
+illustrates an example of doing the above-mentioned operation.
 
-Note that we start to use S4 class after version 0.2.7.5, so switch to use "@" 
-operator to extract object components (i.e., slot). 
+While _ggdmc_ provides a DIC function that relies on the internal **deviance_model** function, it's important to 
+note that DIC is generally not recommended for model comparison as of 2024. Instead, consider using the statistics 
+stored in a model fit to calculate the Bayes factor for the same purpose.
+
+Starting from version 0.2.7.5, _ggdmc_ utilizes S4 classes. To extract object components (slots) after this version, 
+use the "@" operator instead of the previous syntax.**
 
 ## Prerequisites
  - R (>= 3.3.0)
@@ -249,16 +244,11 @@ From GitHub (need _devtools_) (0.2.8.0):
 
 For Microsoft R users:
 
-As of 06-01-2020, because Microsoft R uses R version 3.5.3, the user who wishes 
-to deploy ggdmc on Microsoft R may encounter two challenges. First is 
-RcppArmadillo on MRAN is behind the one on R CRAN. The RcppArmadillo on MRAN 
-has yet to introduce recent Armadillo functions, for instance, randperm in C++. 
-This can be resolved by installing RcppArmadillo directly from its source 
-tarball, downloaded from CRAN. Secondly, the default installation process on 
-Windows is to look for the package binary matching the R version on a Windows 
-machine. This may result in Microsoft R looking for a version of ggdmc matching 
-R 3.5.3, and thereby, it cannot find one. This can be resolved similarly by 
-installing from the source tarball. 
+As of June 1, 2020, deploying ggdmc on Microsoft R, which uses R version 3.5.3, presents two primary challenges. First, the 
+RcppArmadillo package on MRAN lags behind the CRAN version, lacking essential Armadillo functions like `randperm`. To address 
+this, users should install RcppArmadillo directly from its source code on CRAN. Second, the default Windows installation process 
+seeks package binaries matching the local R version, potentially causing issues with ggdmc compatibility. Installing ggdmc from 
+its source tarball circumvents this problem.
 
 For Mac Users:
 
@@ -281,9 +271,11 @@ install without encountering the OpenMP problem.
 
 
 FAQ:
-1. When the error message arises, "/usr/bin/ld: cannot find -lgsl" and/or 
-"/usr/bin/ld: cannot find -lgslcblas", installing libgsl-dev may resolve this 
-problem (Ubuntu).
+1. How may I resolve the error, "/usr/bin/ld: cannot find -lgsl" and/or 
+"/usr/bin/ld: cannot find -lgslcblas"?
+
+installing libgsl-dev may resolve this problem (Ubuntu).
+
 
 ## Citation
 Lin, Y.-S and Strickland, L. (2020). Evidence accumulation models with R: A 

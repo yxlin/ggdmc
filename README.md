@@ -206,7 +206,7 @@ array across the column.
 apply(samples$theta,2,mean)
 
 ```
-The tutorial in [3-accumulator LBA model](https://yxlin.github.io/lba3) 
+The tutorial in [3-accumulator LBA model](https://yxlin.github.io/cognitive-model/lba3/) 
 illustrates an example of doing the above-mentioned operation.
 
 While _ggdmc_ provides a DIC function that relies on the internal **deviance_model** function, it's important to 

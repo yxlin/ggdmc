@@ -60,7 +60,7 @@ est    <- summary(fit, recovery = TRUE, ps = p.vector, verbose = TRUE)
 
 ```
 
-## How to fit fixed-effect and hierarchical model with multiple participants
+## Multilevel Modeling: Fixed and Random Effects for Multiple Participants
 
 ```
 require(ggdmc);
@@ -189,8 +189,8 @@ DMC2ggdmc <- function(x) {
   return(x)
 }
 ggdmc2DMC <- function(x) {
-  ## Should change $ to @ whenoperatinge output from ggdmc's run function,
-  ## because ggdmc now uses S4 class
+  ## Should change $ to @ when an object is generated from ggdmc's run function,
+  ## because ggdmc uses S4 class
   x$theta <- aperm(x$theta, c(2, 1, 3))
   x$summed_log_prior <- t(x$summed_log_prior)
   x$log_likelihoods <- t(x$log_likelihoods)
@@ -226,9 +226,8 @@ use the "@" operator instead of the previous syntax.
    may need a recent g++ compiler > 4.6~~
 
 ## Installation
-
 We now use S4 class after version 0.2.7.5. The new design enables a more 
-user-friendly interface in help pages.
+user-friendly interface.
 
 From CRAN (0.2.6.0): 
 > install.packages("ggdmc")
@@ -281,7 +280,7 @@ a practical guide to hierarchical Bayesian methods. The Quantitative Methods for
 
 ## Contributors
 The R documentation, tutorials, C++ codes, parallel computations, new
-genetic algorithm, R helper functions and R packaging are 
+genetic algorithm, R helper functions, and R packaging are 
 developed by Yi-Shin Lin. A substantial part of R codes for handling 
 experimental designs are adapted from the DMC, developed by Andrew Heathcote 
 (Heathcote et al., 2018). You could find different and more interesting 
@@ -302,7 +301,7 @@ Thanks for Nachshon Meiran pointing it out.
 
 ## Acknowledgments
 
-* The PDF, CDF and random number generation of DDM were derived from 
+* The PDF, CDF, and random number generation of DDM were derived from 
 Voss & Voss's fast-dm 30.2 and rtdists 0.9-0. 
 * Truncated normal functions were originally based on 
 [Jonathan Olmsted's](mailto:jpolmsted@gmail.com) RcppTN 0.1-8 at

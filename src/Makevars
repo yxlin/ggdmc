@@ -1,0 +1,14 @@
+# Modified (more portable):
+PKG_CPPFLAGS = 
+PKG_CXXFLAGS =
+
+PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"`
+
+# Enable Dependency Tracking
+# PKG_CXXFLAGS += -MMD -MP
+
+# Use precompiled headers (Optional)
+# PKG_CPPFLAGS = -Winvalid-pch -include precompiled.h
+
+# Enable parallel compilation
+MAKEFLAGS += -j$(nproc)

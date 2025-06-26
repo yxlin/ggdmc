@@ -1,0 +1,28 @@
+Package: ggdmc
+Type: Package
+Title: Differential Evolution Sampling for Choice Response Time Models
+Version: 0.2.8.9
+Date: 2025-06-26
+Authors@R: c(person(given = "Yi-Shin", family = "Lin", role = c("aut", "cre"), email = "yishinlin001@gmail.com"))
+Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
+Description: Using differential evolution MCMC sampling to fit the hierarchical Bayesian choice response time model. 
+License: GPL (>= 2)
+Imports: 
+    ggdmcPrior, 
+    ggdmcLikelihood,
+    Rcpp (>= 1.0.7),
+    methods,
+    data.table,
+    matrixStats,
+    lattice
+Depends: 
+    R (>= 3.5.0)
+LinkingTo: 
+    Rcpp (>= 1.0.7),
+    RcppArmadillo (>= 0.10.7.5.0),
+    ggdmcHeaders
+Suggests: 
+    testthat (>= 3.0.0)
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+NeedsCompilation: yes

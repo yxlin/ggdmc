@@ -2,34 +2,30 @@
 ggdmc provides tools to conduct Bayesian inference on a range of choice response time models.
 
 # Getting Started
-This is the main package for doing Bayesian inference on a range of choice response time models. 
+
+## Installation
+
+From CRAN:
+```
+install.packages("ggdmc")
+```
+
+## Examples
+This is the core package for doing Bayesian inference on a range of choice response time models. 
 The following example shows a complex LBA model design and its recovery study. 
 
 ```
-cat("\n\n-------------------- Generate BV data --------------------")
+cat("\n\n------------A LBA B x v model-------------")
 rm(list = ls())
 pkg <- c("lbaModel", "ggdmcPrior", "ggdmc")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
 
 cat("\nWorking directory: ", getwd(), "\n")
 wkdir <- "~/Documents/ggdmc/tests/testthat/Group1/data/"
+
 helper_path <- paste0(wkdir, "helpers.r")
 save_path <- paste0(wkdir, "lba_data6.rda")
 source(helper_path)
-
-
-hyper_model <- ggdmcModel::BuildModel(
-    p_map = list(A = "1", B = c("S", "COLOR"), t0 = "1", mean_v = c("NOISE", "M"), sd_v = "M", st0 = "1"),
-    match_map = list(M = list(left = "z_key", right = "x_key")),
-    factors = list(
-        S = c("left", "right"),
-        COLOR = c("red", "blue"),
-        NOISE = c("high", "moderate", "low")
-    ),
-    constants = c(st0 = 0, sd_v.false = 1),
-    accumulators = c("z_key", "x_key"),
-    type = "hyper", verbose = FALSE
-)
 
 
 model <- ggdmcModel::BuildModel(
@@ -102,8 +98,8 @@ sub_dmis <- ggdmcModel::BuildDMI(dat, model)
 pop_dmis <- ggdmcModel::BuildDMI(hdat, model)
 hyper_dmi <- ggdmcModel::BuildDMI(hdat, hyper_model)
 
-res <- zx_get_accuracy(dat)
-res <- zx_get_accuracy(hdat)
+<!-- res <- zx_get_accuracy(dat)
+res <- zx_get_accuracy(hdat) -->
 ps <- attr(hdat, "parameters")
 
 true_mean <- pop_mean[sort(names(pop_mean))]
@@ -126,11 +122,9 @@ p_prior <- ggdmcPrior::BuildPrior(
 
 sub_priors <- set_priors(p_prior = p_prior)
 
-nmc <- 1000
-thin <- 2
-sub_theta_input <- setThetaInput(nmc = nmc, pnames = model@pnames, thin = thin, report_length = 200)
 
-sub_samples <- initialise_theta(sub_theta_input, sub_priors, sub_dmis[[1]], seed = 483128, verbose = FALSE)
+sub_theta_input <- setThetaInput(pnames = model@pnames)
+sub_samples <- initialise_theta(sub_theta_input, sub_priors, sub_dmis[[1]])
 
 save(hdat, dat, p_vector, pop_mean, pop_scale, true_vector, ps,
     sub_dmis, pop_dmis, hyper_dmi, sub_priors, sub_samples, sub_theta_input,
@@ -172,9 +166,8 @@ s_prior <- ggdmcPrior::BuildPrior(
 
 pop_priors <- ggdmcPrior::set_priors(p_prior = model_likelihood, l_prior = l_prior, s_prior = s_prior)
 
-pop_theta_input <- ggdmc::setThetaInput(nmc = nmc, pnames = pop_priors@pnames, thin = thin, report_length = 200)
-
-pop_samples <- initialise_phi(pop_theta_input, pop_priors, pop_dmis, seed = 846671, verbose = FALSE)
+pop_theta_input <- ggdmc::setThetaInput(pnames = pop_priors@pnames)
+pop_samples <- initialise_phi(pop_theta_input, pop_priors, pop_dmis)
 
 
 save(hdat, dat, p_vector, pop_mean, pop_scale, true_vector, ps,
@@ -184,7 +177,7 @@ save(hdat, dat, p_vector, pop_mean, pop_scale, true_vector, ps,
     file = save_path
 )
 
-
+# Sampling
 fits0 <- StartSampling(pop_dmis, pop_priors, sub_migration_prob = 0.06, thin = 8L, seed = 9032)
 save(fits0, file = save_path)
 
@@ -213,21 +206,38 @@ est_theta <- compare_many(thetas, ps = ps)
 rhat <- gelman(phi)
 plot(phi, pll = F, den = T)
 
-DT1 <- ggdmc::prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[1]]$phi@nmc * 0.5)
-DT2 <- ggdmc::prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[2]]$phi@nmc * 0.5)
-DT3 <- ggdmc::prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[3]]$phi@nmc * 0.5)
+DT <- prepare_thetas_data(thetas, start = 5000)
+DT1 <- prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[1]]$phi@nmc * 0.5)
+DT2 <- prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[2]]$phi@nmc * 0.5)
+DT3 <- prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[3]]$phi@nmc * 0.5)
 
-DT <- ggdmc::prepare_thetas_data(thetas, start = 5000)
 p1 <- plot_thetas(DT)
-p1 <- plot_thetas(DT, start = 300, end = 400)
-p1 <- plot_thetas(DT, start = 300, end = 400, subjects = 5)
-p1 <- plot_thetas(DT, start = 300, end = 400, subjects = as.character(1:10))
-p1 <- plot_thetas(DT, start = 300, end = 400, max_subjects = 8)
+p1 <- plot_thetas(DT1, start = 300, end = 400)
+p1 <- plot_thetas(DT1, start = 300, end = 400, subjects = 5)
+p1 <- plot_thetas(DT1, start = 300, end = 400, subjects = as.character(1:10))
+p1 <- plot_thetas(DT1, start = 300, end = 400, max_subjects = 8)
 
 
 ```
 
-The second example shows a minimal DDM design and its recovery study. More variants will 
+
+# Prerequisites
+R (>= 3.3.0), Rcpp (>= 1.0.7), RcppArmadillo (>= 0.10.7.5.0), ggdmcHeaders, ggdmcPrior, ggdmcLikelihood, data.table, matrixStats,lattice.
+
+See DESCRIPTION for details
+
+
+## Citation
+Lin, Y.-S and Strickland, L. (2020). Evidence accumulation models with R: A 
+a practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
+
+## Contributors
+The early version of the ggdmc was developed from the Dynamic Model of Choice, (Heathcote et al., 2018). 
+
+Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue here.
+
+# More Examples
+The second example shows a minimal DDM design and its recovery study. More variants should
 be updated at the [tutorials site](https://yxlin.github.io/). 
 
 ```
@@ -288,9 +298,8 @@ pop_model <- setDDM(model, population_distribution = pop_dist)
 # The advantage of this is that the user can now set wide range of 
 # values for the z and sz. 
 #
-# In the old version, when the user enter the zr and szr that is
-# not within 0 and 1, the sampler will always return low
-# density.
+# In the old version, when the user enters the zr and szr that is
+# not within 0 and 1, the sampler will return low density.
 
 p_vector <- c(a = 1, sz = 0.25, t0 = 0.15, v = 2.5, z = .38)
 
@@ -386,7 +395,7 @@ s_prior <- ggdmcPrior::BuildPrior(
 pop_priors <- ggdmcPrior::set_priors(p_prior = model_likelihood, l_prior = l_prior, s_prior = s_prior)
 pop_theta_input <- ggdmc::setThetaInput(nmc = nmc, pnames = pop_priors@pnames)
 
-pop_samples <- ggdmc::initialise_phi(pop_theta_input, pop_priors, pop_dmis, seed = 846671, verbose = FALSE)
+pop_samples <- ggdmc::initialise_phi(pop_theta_input, pop_priors, pop_dmis, seed = 846671)
 
 save(hyper_model, model, hdat, dat, p_vector, pop_mean, pop_scale, true_vector, ps,
     sub_dmis, pop_dmis, hyper_dmi,
@@ -467,31 +476,10 @@ p1 <- plot_thetas(DT, start = 300, end = 400, max_subjects = 8)
 
 ```
 
-# Prerequisites
-R (>= 3.3.0), Rcpp (>= 1.0.7), RcppArmadillo (>= 0.10.7.5.0), ggdmcHeaders, ggdmcPrior, ggdmcLikelihood, data.table, matrixStats,lattice.
-
-See DESCRIPTION for details
-
-# Installation
-
-From CRAN:
-```
-install.packages("ggdmc")
-```
-
-
-## Citation
-Lin, Y.-S and Strickland, L. (2020). Evidence accumulation models with R: A 
-a practical guide to hierarchical Bayesian methods. The Quantitative Methods for Psychology.
-
-## Contributors
-The early version of the ggdmc was developed from the Dynamic Model of Choice, (Heathcote et al., 2018). 
-
-Please report bugs to [me](mailto:yishinlin001@gmail.com) or start an issue here.
-
 ## Acknowledgments
 * The early version of the PDF, CDF, and random number generation of DDM were derived from 
-Voss & Voss's fast-dm 30.2 and rtdists 0.9-0. They were updated in the latest version. to use model C++ syntax.
+Voss & Voss's fast-dm 30.2 and rtdists 0.9-0. They have been rewritten in the latest version. 
+
 * Truncated normal functions were originally based on 
 [Jonathan Olmsted's](mailto:jpolmsted@gmail.com) RcppTN 0.1-8 at
 https://github.com/olmjo/RcppTN,

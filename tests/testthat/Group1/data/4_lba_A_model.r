@@ -8,7 +8,7 @@ suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE
 cat("\nWorking directory: ", getwd(), "\n")
 wkdir <- "~/Documents/ggdmc/tests/testthat/Group1/data/"
 helper_path <- paste0(wkdir, "helpers.r")
-save_path <- paste0(wkdir, "ggdmc_data4.rda")
+save_path <- paste0(wkdir, "lba_data4.rda")
 source(helper_path)
 
 

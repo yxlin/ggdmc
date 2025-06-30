@@ -51,3 +51,5 @@ rsconnect/
 .clang-format
 .lintr
 .Rbuildignore
+.build.r
+tests/testthat/

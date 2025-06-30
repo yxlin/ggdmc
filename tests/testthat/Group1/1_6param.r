@@ -1,17 +1,14 @@
-q(save = "no")
+# q(save = "no")
 cat("\n\n-------------------- Run 6 parameters --------------------")
 rm(list = ls())
-pkg <- c("ggdmcDE", "ggdmcModel", "ggdmcPrior", "ggdmcPhi", "ggdmcLikelihood", "ggplot2")
+pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
 cat("\nWorking directory: ", getwd(), "\n")
 
-fn <- "tests/testthat/Group1/data/gdmc_data1.rda"
-# fn <- "data/gdmc_data1.RData"
+wkdir <- "~/Documents/ggdmc/tests/testthat/Group1/"
+fn <- paste0(wkdir, "data/lba_data1.rda")
 load(fn)
 
-# expected_values <- "tests/testthat/Group0/data/expected1.RData"
-# expected_values <- "data/expected1.RData"
-# load(expected_values)
 
 model <- ggdmcModel::BuildModel(
     p_map = list(A = "1", B = "1", mean_v = "M", sd_v = "M", st0 = "1", t0 = "1"),
@@ -36,52 +33,51 @@ p_prior <- ggdmcPrior::BuildPrior(
 )
 
 priors <- set_priors(p_prior = p_prior)
-nchain <- model@npar * 3
-theta_input <- setThetaInput(nmc = 500, nchain = model@npar * 3, pnames = model@pnames, thin = 4)
-samples0 <- ggdmcPhi::initialise_theta(theta_input, priors, dmis[[1]], seed = 846671, verbose = TRUE)
+# nchain <- model@npar * 3
+theta_input <- setThetaInput(nmc = 500, pnames = model@pnames, thin = 1)
+samples0 <- ggdmc::initialise_theta(theta_input, priors, dmis[[1]],
+    seed = 846671,
+    verbose = TRUE
+)
 
-de_input <- ggdmcDE::setDEInput(
+de_input <- ggdmc::setDEInput(
     sub_migration_prob = 0.05,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
-configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
+configs <- ggdmc::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
 
-# slotNames(cfg@theta_input)
-fit0 <- run_subject(config_r = cfg, dmi = dmis[[1]], samples = samples0, seed = 123, debug = FALSE)
 
-fit <- fit0
-gdmc:::plot(fit)
-gdmc:::plot(fit, start = 100)
+fit0 <- run_subject(config_r = cfg, dmi = dmis[[1]], samples = samples0)
 
-theta_input <- setThetaInput(nmc = 500, nchain = model@npar * 3, pnames = model@pnames, thin = 1)
-de_input <- ggdmcDE::setDEInput(
+
+theta_input <- setThetaInput(nmc = 500, pnames = model@pnames, thin = 1)
+de_input <- ggdmc::setDEInput(
     sub_migration_prob = 0.00,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
 configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
-fit1 <- run_subject(cfg, dmis[[1]], fit0, seed = 123)
+fit1 <- run_subject(cfg, dmis[[1]], fit0)
 
 nmc <- 1000
-theta_input <- setThetaInput(nmc = nmc, nchain = nchain, pnames = model@pnames, thin = 4)
+theta_input <- setThetaInput(nmc = nmc, pnames = model@pnames, thin = 4)
 de_input <- ggdmcDE::setDEInput(
     sub_migration_prob = 0.00,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
-# de_input@nparameter
-configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
+
+configs <- ggdmc::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
-fit2 <- run_subject(cfg, dmis[[1]], fit1, seed = 123)
+fit2 <- run_subject(cfg, dmis[[1]], fit1)
 
 
 fit <- fit2
-gdmc:::plot(fit)
-gdmc:::plot(fit, den = T, pll = F)
+plot(fit)
+plot(fit, den = T, pll = F)
 
-est0 <- gdmc:::summary(fit, recovery = TRUE, ps = p_vector, verbose = TRUE)
-# testthat::expect_true(all(samples0@theta[, , 1] == samples@theta[, , 1]))
-# testthat::expect_true(all(est0 == est))
+options(digits = 2)
+est0 <- compare(fit, ps = p_vector, verbose = TRUE)
 #  A      B mean_v.false mean_v.true sd_v.true      t0
 # True           0.7500 1.2500       1.5000      2.5000    0.1000  0.1500
 # 2.5% Estimate  0.5679 0.9448       1.3031      2.1957    0.0749  0.0050

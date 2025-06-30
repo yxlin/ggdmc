@@ -1,14 +1,14 @@
 # q(save = "no")
 cat("\n\n-------------------- Generate t0 data --------------------")
 rm(list = ls())
-pkg <- c("lbaModel", "ggdmcPrior", "ggdmcPhi")
+pkg <- c("lbaModel", "ggdmcPrior", "ggdmc")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
 
 
 cat("\nWorking directory: ", getwd(), "\n")
 wkdir <- "~/Documents/ggdmc/tests/testthat/Group1/data/"
 helper_path <- paste0(wkdir, "helpers.r")
-save_path <- paste0(wkdir, "ggdmc_data5.rda")
+save_path <- paste0(wkdir, "lba_data5.rda")
 source(helper_path)
 
 hyper_model <- ggdmcModel:::BuildModel(

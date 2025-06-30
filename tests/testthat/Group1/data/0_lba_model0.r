@@ -38,7 +38,6 @@ pop_dist <- ggdmcPrior::BuildPrior(
     dists = rep("tnorm", model@npar),
     log_p = rep(F, model@npar)
 )
-# ggdmcPrior::plot_prior(pop_dist)
 
 # ---------------------------------------
 sub_model <- setLBA(model)

@@ -4,7 +4,7 @@
 \alias{.gelman_diag}
 \title{Brook-Gelman diagnosis}
 \usage{
-.gelman_diag(x, start = 1, end = NA, conf = 0.95, digits = 2)
+.gelman_diag(x, start = 1, end = NA, conf = 0.95)
 }
 \arguments{
 \item{x}{A \code{posterior} object or list of posterior samples}
@@ -14,8 +14,6 @@
 \item{end}{Last iteration to use (NA for all)}
 
 \item{conf}{Confidence level for upper CI (default = 0.95)}
-
-\item{digits}{Number of digits to print (default = 2)}
 }
 \value{
 List with psrf and mpsrf

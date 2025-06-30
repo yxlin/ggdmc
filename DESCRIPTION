@@ -5,7 +5,7 @@ Version: 0.2.8.9
 Date: 2025-06-26
 Authors@R: c(person(given = "Yi-Shin", family = "Lin", role = c("aut", "cre"), email = "yishinlin001@gmail.com"))
 Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
-Description: Using differential evolution MCMC sampling to fit the hierarchical Bayesian choice response time model. 
+Description: Using differential evolution sampling to fit the hierarchical Bayesian choice response time model. 
 License: GPL (>= 2)
 Imports: 
     ggdmcPrior, 

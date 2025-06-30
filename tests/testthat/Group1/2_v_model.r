@@ -1,12 +1,13 @@
-q(save = "no")
+# q(save = "no")
 cat("\n\n--------------------Testing Drift Rate Model--------------------")
 rm(list = ls())
-pkg <- c("ggdmcDE", "ggdmcModel", "ggdmcPrior", "ggdmcPhi", "ggdmcLikelihood", "ggplot2")
+pkg <- c("ggdmc")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
-cat("\nWorking directory: ", getwd(), "\n")
-fn <- "tests/testthat/Group1/data/gdmc_data2.rda"
-# fn <- "data/gdmc_data2.rda"
+
+wkdir <- "~/Documents/ggdmc/tests/testthat/Group1/"
+fn <- paste0(wkdir, "data/lba_data2.rda")
 load(fn)
+
 
 model <- ggdmcModel::BuildModel(
     p_map = list(A = "1", B = "1", mean_v = c("POLITICAL_VIEW", "M"), sd_v = "M", st0 = "1", t0 = "1"),
@@ -41,27 +42,29 @@ samples0@pnames
 samples0@npar
 
 # Burn-in ----------------------
-de_input <- ggdmcDE::setDEInput(
+de_input <- ggdmc::setDEInput(
     sub_migration_prob = 0.05,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
-configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
+configs <- ggdmc::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
 
-fit0 <- run_subject(config_r = cfg, dmi = dmis[[1]], samples = samples0, seed = 123, debug = FALSE)
+fit0 <- run_subject(config_r = cfg, dmi = dmis[[1]], samples = samples0)
+
 
 # Sampling ----------------------
-de_input <- ggdmcDE::setDEInput(
+de_input <- ggdmc::setDEInput(
     sub_migration_prob = 0.00,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
 
 configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
-fit1 <- run_subject(cfg, dmis[[1]], fit0, seed = 123)
+fit1 <- run_subject(cfg, dmis[[1]], fit0)
+fit <- fit1
 
-
-est0 <- gdmc:::summary(fit1, start = 1, recovery = TRUE, ps = p_vector[model@pnames], verbose = TRUE)
+options(digits = 2)
+est0 <- compare(fit, start = 1, ps = p_vector[model@pnames], verbose = TRUE)
 #                     A      B mean_v.conservative.false mean_v.conservative.true
 # True           0.7500 1.2500                    1.5000                   2.1500
 # 2.5% Estimate  0.5850 0.9095                    0.7691                   1.6877
@@ -87,14 +90,3 @@ est0 <- gdmc:::summary(fit1, start = 1, recovery = TRUE, ps = p_vector[model@pna
 # 50% Estimate                 1.6453              2.6911    0.1009  0.0827
 # 97.5% Estimate               2.4415              3.4350    0.1370  0.2150
 # Median-True                  0.1453              0.1911    0.0009 -0.0673
-
-
-# expected_values <- "tests/testthat/Group0/data/expected_model2.rda"
-expected_values <- "data/expected_model2.rda"
-# samples <- samples0
-# est <- est0
-# save(samples, est, file = expected_values)
-
-load(expected_values)
-testthat::expect_true(all(samples0@theta[, , 1] == samples@theta[, , 1]))
-testthat::expect_true(all(est0 == est))

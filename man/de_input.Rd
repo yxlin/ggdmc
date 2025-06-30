@@ -31,13 +31,14 @@ setDEInput(
 
 \item{rp}{Random perturbation size for proposals}
 
-\item{is_hblocked}{Use block updating for hyperparameters?}
+\item{is_hblocked}{Whether to use block updating for hyperparameters.}
 
-\item{is_pblocked}{Use block updating for subject parameters?}
+\item{is_pblocked}{Whether to use block updating for subject parameters.}
 
 \item{nparameter}{Number of parameters in the model}
 
-\item{nchain}{Number of parallel chains}
+\item{nchain}{Number of DE-MC chains/chromosomes. (Note this is not the true 
+independent chain.)}
 
 \item{pop_debug}{Logical. If \code{TRUE}, enables verbose diagnostic
 output at the population level for debugging purposes (default = FALSE).}
@@ -63,9 +64,12 @@ The `de_input` class encapsulates key configuration parameters for DE-MCMC sampl
 \itemize{
   \item Chain migration probabilities control between-chain mixing
   \item Gamma precursor affects proposal jump sizes
-  \item Random perturbation (rp) maintains chain diversity
-  \item Block updating options can improve efficiency for correlated parameters
+  \item Random perturbation (rp) adds onto the parameter proposal 
+  \item Block updating options improve between chain-mixing for correlated parameters
 }
+The migration sampler compares the self likelihood against a (randomly selected) 
+neighbor chain's likelihood. Sometimes, it may trap a chain into a local minimal/maximum.
+Use it wisely.
 }
 \section{Slots}{
 
@@ -123,5 +127,4 @@ print(de_custom)
 }
 \seealso{
 \code{\link{StartSampling}} for functions using these configurations,
-\code{\link{setClass}} for S4 class definitions
 }

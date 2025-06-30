@@ -24,12 +24,12 @@ s (subject label)}
 
 \item{end}{Last iteration to include (default: NULL uses all samples)}
 
-\item{subchain}{Logical indicating whether to subset chains (default: FALSE)}
+\item{subchain}{Logical Whether to plot a subset of chains (default: FALSE)}
 
 \item{chains}{Numeric vector specifying which chains to include when subchain=TRUE
 (default: NA includes all chains)}
 
-\item{hide_legend}{Logical indicating whether to hide legend (default: TRUE)}
+\item{hide_legend}{Logical Whether to hide legend (default: TRUE)}
 
 \item{subjects}{Number of subjects to plot or vector of specific subjects:
 - NULL (default): plots all subjects, if less than 5. Plot the first 5, when
@@ -37,7 +37,12 @@ s (subject label)}
 - Integer N: randomly samples N subjects
 - Character vector: plots specified subjects}
 
-\item{seed}{Optional random seed for reproducible sampling (default: NULL)}
+\item{seed}{(Optional) random seed for reproducible sampling (default: NULL)}
+
+\item{max_subjects}{(Optional) The maximum number of subjects to plot. If the
+posterior object contains many subjects, setting this argument to at most 
+\code{max_subjects} (default: 50). Useful for avoiding overplotting with large 
+datasets.}
 }
 \value{
 Invisibly returns the lattice plot object. Primarily called for side effects.

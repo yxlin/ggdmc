@@ -4,8 +4,8 @@ rm(list = ls())
 cat("\nWorking directory: ", getwd(), "\n")
 pkg <- c("lbaModel", "ggdmcPrior", "ggdmc")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
-# helper_path <- "tests/testthat/Group1/data/helpers.r"
-# source(helper_path)
+
+
 save_path <- "~/Documents/ggdmc/tests/testthat/Group1/data/lba_data2.rda"
 helper_path <- "~/Documents/ggdmc/tests/testthat/Group1/data/helpers.r"
 source(helper_path)
@@ -107,7 +107,7 @@ sub_samples <- ggdmcPhi::initialise_theta(sub_theta_input, sub_priors, sub_dmis[
 
 
 save(hdat, dat, p_vector, pop_mean, pop_scale, true_vector, ps,
-    sub_dmis, pop_dmis, sub_priors, sub_samples, sub_theta_input,
+    sub_dmis, pop_dmis, hyper_dmi, sub_priors, sub_samples, sub_theta_input,
     file = save_path
 )
 
@@ -156,7 +156,7 @@ print(pop_theta_input)
 pop_samples <- ggdmc::initialise_phi(pop_theta_input, pop_priors, pop_dmis, seed = 846671, verbose = FALSE)
 
 save(hdat, dat, p_vector, pop_mean, pop_scale, true_vector, ps,
-    sub_dmis, pop_dmis, sub_priors, sub_samples, sub_theta_input,
+    sub_dmis, pop_dmis, hyper_dmi, sub_priors, sub_samples, sub_theta_input,
     pop_priors, pop_samples, pop_theta_input,
     file = save_path
 )

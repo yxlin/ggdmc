@@ -13,7 +13,7 @@ summary_many(objects, start = 1L, end = NULL, verbose = FALSE)
 
 \item{end}{Last iteration to include in summary (NULL for all)}
 
-\item{verbose}{Logical, whether to print summarised results. Default: FALSE}
+\item{verbose}{Logical Whether to print summarised results. Default: FALSE}
 }
 \value{
 Either a list of summary objects (if verbose=FALSE) or a matrix of 

@@ -42,7 +42,7 @@ The `config` class integrates all components needed for MCMC sampling:
 \itemize{
   \item **Prior distributions** (from ggdmcPrior)
   \item **Parameter specifications**
-  \item **DE-MCMC tuning parameters** (jump sizes: rp and gamma_precursor; 
+  \item **DE-MCMC tuning parameters** (jump sizes: \code{rp} and \code{gamma_precursor}; 
 migration probabilities, etc.)
   \item **Random number generation** with proper seed management
 }
@@ -91,21 +91,21 @@ The class includes these validity checks:
 \dontrun{
 # To create a configuration profile, we first set up a de_input
 
-de_input <- ggdmc::setDEInput(
+de_input <- setDEInput(
     sub_migration_prob = 0.00,
     nparameter = as.integer(sub_theta_input@nparameter),
     nchain = as.integer(sub_theta_input@nchain)
 )
 
 # Then a theta_input
-theta_input <- ggdmc::setThetaInput(nmc = 2, nchain = 3, pnames = model@pnames, thin = 1)
+theta_input <- setThetaInput(nmc = 2L, nchain = 3L, pnames = model@pnames, thin = 1)
 
 # Finally we can use set_configs to create  configuration profile
-configs <- ggdmc::set_configs(prior = sub_priors, theta_input = theta_input, 
+configs <- set_configs(prior = sub_priors, theta_input = theta_input, 
 de_input = de_input)
 
 # The default setting is to set up three configurations for three independent chains
-# You have to ensure that you have three different starting `samples`.
+# You should ensure that you have three different starting `samples`.
 cfg <- configs[[1]]
 }
 

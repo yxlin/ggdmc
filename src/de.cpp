@@ -219,9 +219,20 @@ void de_class::run_chains(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
                 break;
             }
         }
+
         if (!action_taken)
         {
-            crossover(t_ptr, p_ptr, l_ptr, debug);
+            if (m_is_pblocked)
+            {
+                for (size_t para_idx = 0; para_idx < m_nparameter; ++para_idx)
+                {
+                    crossover(t_ptr, p_ptr, l_ptr, debug, para_idx);
+                }
+            }
+            else
+            {
+                crossover(t_ptr, p_ptr, l_ptr, debug);
+            }
         }
 
         t_ptr->store(i);

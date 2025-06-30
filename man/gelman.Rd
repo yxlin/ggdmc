@@ -6,9 +6,9 @@
 \alias{gelman,posterior-method}
 \title{Brook-Gelman Diagnostic (R-hat)}
 \usage{
-gelman(x, start = 1, end = NA, conf = 0.95, digits = 2)
+gelman(x, start = 1, end = NA, conf = 0.95)
 
-\S4method{gelman}{posterior}(x, start = 1, end = NA, conf = 0.95, digits = 2)
+\S4method{gelman}{posterior}(x, start = 1, end = NA, conf = 0.95)
 }
 \arguments{
 \item{x}{A \code{posterior} object or list of posterior samples}
@@ -18,8 +18,6 @@ gelman(x, start = 1, end = NA, conf = 0.95, digits = 2)
 \item{end}{Last iteration to use (NA for all)}
 
 \item{conf}{Confidence level for upper CI (default = 0.95)}
-
-\item{digits}{Number of digits to print (default = 2)}
 }
 \value{
 A list containing psrf and mpsrf (if requested)

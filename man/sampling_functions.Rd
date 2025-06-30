@@ -60,12 +60,11 @@ StartSampling_subject(
   report_length = 100L,
   max_init_attempts = 1000L,
   is_print = TRUE,
-  pop_migration_prob = 0,
   sub_migration_prob = 0,
   gamma_precursor = 2.38,
   rp = 0.001,
-  is_hblocked = FALSE,
   is_pblocked = FALSE,
+  sub_debug = FALSE,
   ncore = 3L,
   seed = NULL
 )
@@ -77,12 +76,11 @@ RestartSampling_subject(
   report_length = 100L,
   max_init_attempts = 1000L,
   is_print = TRUE,
-  pop_migration_prob = 0,
   sub_migration_prob = 0,
   gamma_precursor = 2.38,
   rp = 0.001,
-  is_hblocked = FALSE,
   is_pblocked = FALSE,
+  sub_debug = FALSE,
   seed = NULL
 )
 
@@ -97,12 +95,11 @@ StartSampling_hyper(
   report_length = 100L,
   max_init_attempts = 1000L,
   is_print = TRUE,
-  pop_migration_prob = 0,
   sub_migration_prob = 0,
   gamma_precursor = 2.38,
   rp = 0.001,
-  is_hblocked = FALSE,
   is_pblocked = FALSE,
+  sub_debug = FALSE,
   ncore = 3L,
   seed = NULL
 )
@@ -115,12 +112,11 @@ RestartSampling_hyper(
   report_length = 100L,
   max_init_attempts = 1000L,
   is_print = TRUE,
-  pop_migration_prob = 0,
   sub_migration_prob = 0,
   gamma_precursor = 2.38,
   rp = 0.001,
-  is_hblocked = FALSE,
   is_pblocked = FALSE,
+  sub_debug = FALSE,
   seed = NULL
 )
 }
@@ -161,7 +157,8 @@ the big the proposal will jump (default = 0.001)}
 
 \item{is_hblocked}{Whether to use block updating for hyperparameters (default = FALSE)}
 
-\item{is_pblocked}{Whether to use block updating for subject parameters (default = FALSE)}
+\item{is_pblocked}{Whether to use block updating for participant/subject
+parameters (default = FALSE)}
 
 \item{pop_debug}{Logical. Whether to print population level debugging information.}
 

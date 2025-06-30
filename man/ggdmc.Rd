@@ -6,8 +6,8 @@
 \alias{ggdmc}
 \title{Choice Response Time Models}
 \description{
-\pkg{ggdmc} provides tools to conduct Bayesian inference on a
-range of choice response time models.
+Using differential evolution sampling to do Bayesian inference on
+a range of choice response time models.
 }
 \references{
 Lin, Y.-S. & Strickland, L., (2019). Evidence accumulation models with R: A

@@ -4,28 +4,23 @@ rm(list = ls())
 pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
 cat("\nWorking directory: ", getwd(), "\n")
-
-fn <- "~/Documents/ggdmc/tests/testthat/Group1/data/ggdmc_data4.rda"
+data_dir <- "~/Documents/ggdmc/tests/testthat/Group1/"
+fn <- paste0(data_dir, "data/lba_data4.rda")
 load(fn)
 
-model <- ggdmcModel::BuildModel(
-    p_map = list(B = "1", A = c("S", "政黨傾向"), mean_v = "M", sd_v = "M", st0 = "1", t0 = "1"),
-    match_map = list(M = list(紅 = "反應東", 黃 = "反應南", 藍 = "反應西", 綠 = "反應北")),
-    factors = list(S = c("紅", "黃", "藍", "綠"), 政黨傾向 = c("自由派", "保守派")),
-    constants = c(sd_v.false = 1, st0 = 0),
-    accumulators = c("反應東", "反應南", "反應西", "反應北"),
-    type = "lba"
-)
 
-fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors, sub_migration_prob = 0.06, thin = 8, seed = 9032)
-fits1 <- RestartSampling_subject(fits0, sub_migration_prob = 0.02, thin = 4, seed = 9032)
-fits2 <- RestartSampling_subject(fits1, sub_migration_prob = 0.00, thin = 32, seed = 9032)
+fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors, sub_migration_prob = 0.02, thin = 2, seed = 9032)
+fits1 <- RestartSampling_subject(fits0, sub_migration_prob = 0.02, thin = 2, seed = 9032)
 
-fits <- fits2
+
+fits <- fits1
 fit <- RebuildPosterior(fits)
+hat <- gelman(fit)
+
+cat("mpsrf = ", hat$mpsrf, "\n")
 
 options(digits = 2)
-est_phi <- compare(fit, ps = p_vector)
+est_theta <- compare(fit, ps = p_vector)
 
 #                 A.紅.保守派   A.紅.自由派  A.綠.保守派  A.綠.自由派   A.藍.保守派
 # True                1.2300      0.2500      1.8900      0.5500      1.6700

@@ -24,7 +24,7 @@ compare(
 
 \item{probability}{Vector of quantiles to compute (default: c(0.05, 0.5, 0.975))}
 
-\item{verbose}{Logical indicating whether to print results (default: TRUE)}
+\item{verbose}{Logical Whether to print results (default: TRUE)}
 }
 \value{
 A matrix with rows containing:
@@ -35,8 +35,8 @@ A matrix with rows containing:
 }
 }
 \description{
-Compares true parameters to posterior quantiles from a fitted model object,
-calculating estimation accuracy and bias.
+Compares true parameters to posterior quantiles from a fitted model object 
+and calculates estimation accuracy.
 }
 \details{
 This function:
@@ -58,12 +58,18 @@ model <- ggdmcModel::BuildModel(
     type = "lba"
 )
 
-fits0 <- ggdmcDE::StartSampling_subject(sub_dmis[[1]], sub_priors,
+fits0 <- ggdmc::StartSampling_subject(sub_dmis[[1]], sub_priors,
     sub_migration_prob = 0.00, thin = 1L, seed = 9032
 )
-fit0 <- ggdmcDE::RebuildPosterior(fits0)
+fit0 <- ggdmc::RebuildPosterior(fits0)
 options(digits = 2)
 est_phi <- compare(fit0, ps = p_vector)
 }
 
+}
+\seealso{
+\code{\link{compare_many}} for the function compare multiple posterior objects
+\code{\link{summary}} for the function summarises a posterior object used in the 
+situation of fitting empirical data
+\code{\link{summary_many}} for the function summarises multiple posterior objects
 }

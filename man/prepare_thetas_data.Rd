@@ -8,15 +8,16 @@ prepare_thetas_data(x, start = 1L, end = NULL, subchain = FALSE, chains = NA)
 }
 \arguments{
 \item{x}{A model object containing MCMC samples (requires slots: @theta, @pnames,
-@nchain, @nmc, and optionally @subchain_theta if subchain=TRUE)}
+@nchain, @nmc)}
 
 \item{start}{First iteration to include (default: 1)}
 
 \item{end}{Last iteration to include (default: NULL uses all available samples)}
 
-\item{subchain}{Logical indicating whether to extract subchain samples (default: FALSE)}
+\item{subchain}{Logical Whether to extract subchain samples (default: FALSE)}
 
-\item{chains}{Numeric vector specifying which chains to include (default: NA includes all chains)}
+\item{chains}{Numeric vector specifying which chains to include (default: NA 
+includes all chains)}
 }
 \value{
 A data.table in long format with columns:
@@ -28,7 +29,7 @@ A data.table in long format with columns:
 }
 }
 \description{
-Extracts and formats theta parameter samples from MCMC output for analysis or visualization,
+Extracts and formats parameter estimates from a MCMC output,
 with options for subchain extraction and chain selection.
 }
 \details{
@@ -39,9 +40,6 @@ This function provides flexible extraction of theta parameters:
   \item Supports iteration range selection
   \item Returns data in tidy format for easy plotting with ggplot2
 }
-
-When subchain=TRUE, the function will attempt to access @subchain_theta slot.
-If chains are specified, only those chains will be included in the output.
 }
 \examples{
 \dontrun{

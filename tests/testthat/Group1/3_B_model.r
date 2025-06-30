@@ -1,12 +1,13 @@
-q(save = "no")
+# q(save = "no")
 cat("\n\n--------------------Testing B Model--------------------")
 rm(list = ls())
-pkg <- c("ggdmcDE", "ggdmcModel", "ggdmcPrior", "ggdmcPhi", "ggdmcLikelihood", "ggplot2")
+pkg <- c("ggdmc")
+
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
 cat("\nWorking directory: ", getwd(), "\n")
 
-fn <- "tests/testthat/Group1/data/gdmc_data3.rda"
-# fn <- "data/gdmc_B_model.RData"
+wkdir <- "~/Documents/ggdmc/tests/testthat/Group1/"
+fn <- paste0(wkdir, "data/lba_data3.rda")
 load(fn)
 
 model <- ggdmcModel::BuildModel(
@@ -29,7 +30,7 @@ p_prior <- ggdmcPrior::BuildPrior(
     log_p = rep(TRUE, model@npar)
 )
 
-priors <- set_priors(p_prior = p_prior)
+priors <- ggdmcPrior::set_priors(p_prior = p_prior)
 nmc <- 500
 nchain <- model@npar * 3
 thin <- 4
@@ -38,25 +39,28 @@ samples0 <- initialise_theta(theta_input, priors, dmis[[1]], seed = 929726)
 
 
 # Burn-in ----------------------
-de_input <- ggdmcDE::setDEInput(
-    migration_prob_Hu = 0.05,
+de_input <- ggdmc::setDEInput(
+    sub_migration_prob = 0.05,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
-configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
+configs <- ggdmc::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
-fit0 <- run_subject(cfg, dmis[[1]], samples0, seed = 123)
+
+fit0 <- run_subject(config_r = cfg, dmi = dmis[[1]], samples = samples0)
 
 
 # Sampling ----------------------
-de_input <- ggdmcDE::setDEInput(
-    migration_prob_Hu = 0.00,
+de_input <- ggdmc::setDEInput(
+    sub_migration_prob = 0.00,
     nparameter = as.integer(theta_input@nparameter), nchain = as.integer(theta_input@nchain)
 )
-configs <- ggdmcDE::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
+configs <- ggdmc::set_configs(prior = priors, theta_input = theta_input, de_input = de_input)
 cfg <- configs[[1]]
-fit1 <- run_subject(cfg, dmis[[1]], fit0, seed = 123)
+fit1 <- run_subject(cfg, dmis[[1]], fit0)
+fit <- fit1
 
-est0 <- gdmc:::summary(fit1, start = 1, recovery = TRUE, ps = p_vector[model@pnames], verbose = TRUE)
+options(digits = 2)
+est0 <- compare(fit, start = 1, ps = p_vector[model@pnames], verbose = TRUE)
 #                      A    B.紅.保守派 B.紅.自由派   B.綠.保守派 B.綠.自由派
 # True            0.2500      2.4000      1.2000      4.2000      2.1000
 # 2.5% Estimate   0.0047      1.6774      0.6351      3.1318      1.4086

@@ -152,7 +152,8 @@ parallel_lapply <- function(
 #' @param rp Random perturbation factor to add noise to DE-MC proposal. The large the value,
 #' the big the proposal will jump (default = 0.001)
 #' @param is_hblocked Whether to use block updating for hyperparameters (default = FALSE)
-#' @param is_pblocked Whether to use block updating for subject parameters (default = FALSE)
+#' @param is_pblocked Whether to use block updating for participant/subject
+#' parameters (default = FALSE)
 #' @param ncore Number of CPU cores for parallel computation (default = 3)
 #' @param seed Random seed for reproducibility (default = NULL for random seed)
 #' @param pop_debug Logical. Whether to print population level debugging information.
@@ -447,10 +448,10 @@ StartSampling_subject <- function(
     nmc = 500L, nchain = NULL, thin = 1L,
     report_length = 100L, max_init_attempts = 1000L,
     is_print = TRUE,
-    pop_migration_prob = 0.00,
     sub_migration_prob = 0.00, gamma_precursor = 2.38,
     rp = 0.001,
-    is_hblocked = FALSE, is_pblocked = FALSE,
+    is_pblocked = FALSE,
+    sub_debug = FALSE,
     ncore = 3L, seed = NULL) {
     nparameter <- priors@nparameter
     pnames <- priors@pnames
@@ -463,11 +464,11 @@ StartSampling_subject <- function(
     )
 
     de_input <- setDEInput(
-        pop_migration_prob = pop_migration_prob,
         sub_migration_prob = sub_migration_prob,
         gamma_precursor = gamma_precursor, rp = rp,
-        is_hblocked = is_hblocked, is_pblocked = is_pblocked,
-        nparameter = as.integer(priors@nparameter), nchain = as.integer(nchain)
+        is_pblocked = is_pblocked,
+        nparameter = as.integer(priors@nparameter), nchain = as.integer(nchain),
+        sub_debug = sub_debug
     )
     config_list <- set_configs(
         prior = priors, theta_input = theta_input, de_input = de_input,
@@ -508,10 +509,10 @@ RestartSampling_subject <- function(
     nmc = 500L, thin = 1L,
     report_length = 100L, max_init_attempts = 1000L,
     is_print = TRUE,
-    pop_migration_prob = 0.00,
     sub_migration_prob = 0.00, gamma_precursor = 2.38,
     rp = 0.001,
-    is_hblocked = FALSE, is_pblocked = FALSE,
+    is_pblocked = FALSE,
+    sub_debug = FALSE,
     seed = NULL) {
     # Get the original configs and other attributes from the samples
 
@@ -528,12 +529,11 @@ RestartSampling_subject <- function(
         report_length = old_configs[[1]]@theta_input@report_length,
         max_init_attempts = old_configs[[1]]@theta_input@max_init_attempts,
         is_print = old_configs[[1]]@theta_input@is_print,
-        pop_migration_prob = old_configs[[1]]@de_input@pop_migration_prob,
         sub_migration_prob = old_configs[[1]]@de_input@sub_migration_prob,
         gamma_precursor = old_configs[[1]]@de_input@gamma_precursor,
         rp = old_configs[[1]]@de_input@rp,
-        is_hblocked = old_configs[[1]]@de_input@is_hblocked,
         is_pblocked = old_configs[[1]]@de_input@is_pblocked,
+        sub_debug = old_configs[[1]]@de_input@sub_debug,
         ncore = ncore
     )
 
@@ -544,12 +544,11 @@ RestartSampling_subject <- function(
         report_length = report_length,
         max_init_attempts = max_init_attempts,
         is_print = is_print,
-        pop_migration_prob = pop_migration_prob,
         sub_migration_prob = sub_migration_prob,
         gamma_precursor = gamma_precursor,
         rp = rp,
-        is_hblocked = is_hblocked,
         is_pblocked = is_pblocked,
+        sub_debug = sub_debug,
         ncore = ncore
     )
 
@@ -572,11 +571,11 @@ RestartSampling_subject <- function(
         )
 
         de_input <- setDEInput(
-            pop_migration_prob = pop_migration_prob,
             sub_migration_prob = sub_migration_prob,
-            gamma_precursor = gamma_precursor, rp = rp, is_hblocked = is_hblocked,
+            gamma_precursor = gamma_precursor, rp = rp,
             is_pblocked = is_pblocked,
-            nparameter = as.integer(nparameter), nchain = as.integer(nchain)
+            nparameter = as.integer(priors@nparameter), nchain = as.integer(nchain),
+            sub_debug = sub_debug
         )
 
         config_list <- set_configs(
@@ -617,9 +616,11 @@ StartSampling_hyper <- function(
     hyper_dmi, dmis, priors, samples_list = NULL,
     nmc = 500L, nchain = NULL, thin = 1L,
     report_length = 100L, max_init_attempts = 1000L,
-    is_print = TRUE, pop_migration_prob = 0.00,
+    is_print = TRUE,
     sub_migration_prob = 0.00, gamma_precursor = 2.38,
-    rp = 0.001, is_hblocked = FALSE, is_pblocked = FALSE,
+    rp = 0.001,
+    is_pblocked = FALSE,
+    sub_debug = FALSE,
     ncore = 3L, seed = NULL) {
     nparameter <- priors@nparameter # 10
     pnames <- priors@pnames
@@ -636,12 +637,11 @@ StartSampling_hyper <- function(
     )
 
     de_input <- setDEInput(
-        pop_migration_prob = pop_migration_prob,
         sub_migration_prob = sub_migration_prob,
-        gamma_precursor = gamma_precursor, rp = rp, is_hblocked = is_hblocked,
+        gamma_precursor = gamma_precursor, rp = rp,
         is_pblocked = is_pblocked,
-        # different nparameter
-        nparameter = as.integer(nparameter), nchain = as.integer(nchain)
+        nparameter = as.integer(nparameter), nchain = as.integer(nchain),
+        sub_debug = sub_debug
     )
     config_list <- set_configs(
         prior = priors, theta_input = theta_input, de_input = de_input,
@@ -649,7 +649,7 @@ StartSampling_hyper <- function(
     )
 
     if (is.null(samples_list)) {
-        message("Initialise ", ncore, " independent sets of new phi samples")
+        message("Initialise ", ncore, " independent sets of new samples")
         samples_list <- lapply(seq_len(ncore), function(i) {
             tmp_list <- initialise_phi(theta_input, priors, dmis, seed = config_list[[i]]@seed)
             tmp_list$phi
@@ -682,9 +682,12 @@ RestartSampling_hyper <- function(
     samples_list,
     nmc = 500L, nchain = NULL, thin = 1L,
     report_length = 100L, max_init_attempts = 1000L,
-    is_print = TRUE, pop_migration_prob = 0.00,
+    is_print = TRUE,
     sub_migration_prob = 0.00, gamma_precursor = 2.38,
-    rp = 0.001, is_hblocked = FALSE, is_pblocked = FALSE, seed = NULL) {
+    rp = 0.001,
+    is_pblocked = FALSE,
+    sub_debug = FALSE,
+    seed = NULL) {
     if (missing(samples_list)) {
         stop("Must provide a previously fitted samples")
     }
@@ -704,12 +707,11 @@ RestartSampling_hyper <- function(
         report_length = old_configs[[1]]@theta_input@report_length,
         max_init_attempts = old_configs[[1]]@theta_input@max_init_attempts,
         is_print = old_configs[[1]]@theta_input@is_print,
-        pop_migration_prob = old_configs[[1]]@de_input@pop_migration_prob,
         sub_migration_prob = old_configs[[1]]@de_input@sub_migration_prob,
         gamma_precursor = old_configs[[1]]@de_input@gamma_precursor,
         rp = old_configs[[1]]@de_input@rp,
-        is_hblocked = old_configs[[1]]@de_input@is_hblocked,
         is_pblocked = old_configs[[1]]@de_input@is_pblocked,
+        sub_debug = old_configs[[1]]@de_input@sub_debug,
         ncore = ncore
     )
 
@@ -725,11 +727,9 @@ RestartSampling_hyper <- function(
         report_length = report_length,
         max_init_attempts = max_init_attempts,
         is_print = is_print,
-        pop_migration_prob = pop_migration_prob,
         sub_migration_prob = sub_migration_prob,
         gamma_precursor = gamma_precursor,
         rp = rp,
-        is_hblocked = is_hblocked,
         is_pblocked = is_pblocked,
         ncore = ncore
     )
@@ -771,11 +771,11 @@ RestartSampling_hyper <- function(
         )
 
         de_input <- setDEInput(
-            pop_migration_prob = pop_migration_prob,
             sub_migration_prob = sub_migration_prob,
             gamma_precursor = gamma_precursor, rp = rp,
-            is_hblocked = is_hblocked, is_pblocked = is_pblocked,
-            nparameter = as.integer(priors@nparameter), nchain = as.integer(nchain)
+            is_pblocked = is_pblocked,
+            nparameter = as.integer(priors@nparameter), nchain = as.integer(nchain),
+            sub_debug = sub_debug
         )
 
         config_list <- set_configs(

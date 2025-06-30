@@ -44,8 +44,8 @@ When pll=FALSE, it extracts all theta parameters.
 \examples{
 \dontrun{
 fits <- fits1
-fit <- ggdmcDE::RebuildHyper(fits)
-fit_thetas <- ggdmcDE:::RebuildPosteriors(fits)
+fit <- RebuildHyper(fits)
+fit_thetas <- RebuildPosteriors(fits)
 DT <- prepare_theta_data(fit)
 }
 }

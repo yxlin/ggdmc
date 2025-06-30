@@ -50,18 +50,17 @@ Rcpp::S4 run_hyper(const Rcpp::S4 &config_r, const Rcpp::S4 &dmi,
 
 //' Run MCMC Sampling for Cognitive Models
 //'
-//' Executes MCMC-based posterior sampling for LBA or decision-diffusion
+//' Executes MCMC-based posterior sampling for the LBA or the diffusion
 //' models. The model can be structured as either one or two level(s),
-//' including subject-only, group-level, and hierarchical
-//' multi-subject models.
+//' including one-subject, hyperparameter-only, or
+//' hierarchical multi-subject models.
 //'
 //' @description
-//' These functions manage the MCMC sampling process for Linear
-//' Ballistic Accumulator (LBA) models via C++ backends. The sampling is
-//' configured using an S4 `config` object, which carries sampler settings
-//' and model specifications. The `dmi` (data-model instance) contains
-//' trial-level data and likelihood structure, and `samples` represents an
-//' initial or resumed parameter state.
+//' These functions manage the MCMC sampling process via C++ backends.
+//' The sampling is configured using an S4 `config` object, which carries
+//' sampler settings and model specifications. The `dmi` (data-model
+//' instance) contains trial-level data and likelihood structure, and
+//' `samples` represents an initial or resumed parameter state.
 //'
 //' @param config_r An S4 object of class \code{config} specifying model
 //' settings, priors, tuning parameters, etc.
@@ -69,6 +68,7 @@ Rcpp::S4 run_hyper(const Rcpp::S4 &config_r, const Rcpp::S4 &dmi,
 //' object containing a data-model instance for one subject or one set of
 //' pressumed true theta values (in a R matrix format). For \code{run()}, a
 //' list of \code{dmi} objects (one per subject).
+//'
 //' @param dmis For \code{run()}, a list of \code{dmi} objects (one per
 //'             subject).
 //' @param samples For \code{run_subject()} and \code{run_hyper()}, an
@@ -87,17 +87,23 @@ Rcpp::S4 run_hyper(const Rcpp::S4 &config_r, const Rcpp::S4 &dmi,
 //' }
 //'
 //' @details
-//' These functions are typically called from higher-level model fitting
-//' workflows. Internally, they coordinate log-likelihood evaluation,
+//' These functions are typically called by external model fitting
+//' functions, \code{\link{sampling_functions}}, which should initialise
+//' three (or more) (true) independent sets of starting samples.
+//' These internal functions coordinate log-likelihood evaluation,
 //' parameter proposal, acceptance checks, and diagnostics.
 //'
 //' \code{run_subject()} and \code{run_hyper()} differ in that the former
 //' operates on trial-level likelihoods for an individual subject, while the
-//' latter works with summary statistics and priors for group-level parameters.
+//' latter works with a set of (assumed) true respone-time model parameters,
+//' and treats them as the data.
 //'
 //' \code{run()} enables full hierarchical modeling across multiple subjects
-//' by looping through each subject's `dmi` and `samples`,
-//' applying \code{run_subject()}.
+//' by looping through each subject's `dmi` and `samples`, and also updates
+//' prior likelhoods when necessary.
+//'
+//' @seealso \code{\link{sampling_functions}} for the external wrapper
+//' functions
 //'
 //' @examples
 //' \dontrun{

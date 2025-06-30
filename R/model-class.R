@@ -425,15 +425,15 @@ setMethod(
 
 #' Compare True Parameters to Estimated Quantiles
 #'
-#' Compares true parameters to posterior quantiles from a fitted model object,
-#' calculating estimation accuracy and bias.
+#' Compares true parameters to posterior quantiles from a fitted model object 
+#' and calculates estimation accuracy.
 #'
 #' @param object A fitted instance from the a posterior class
 #' @param start First iteration to include in comparison (default: 1)
 #' @param end Last iteration to include in comparison (default: NULL uses all samples)
 #' @param ps Named vector of true parameter values to compare against estimates
 #' @param probability Vector of quantiles to compute (default: c(0.05, 0.5, 0.975))
-#' @param verbose Logical indicating whether to print results (default: TRUE)
+#' @param verbose Logical Whether to print results (default: TRUE)
 #'
 #' @return A matrix with rows containing:
 #' \itemize{
@@ -450,7 +450,13 @@ setMethod(
 #'   \item Computes estimation bias using the median
 #'   \item Returns (and optionally prints) a comparison matrix
 #' }
-#'
+#' 
+#' @seealso
+#' \code{\link{compare_many}} for the function compare multiple posterior objects
+#' \code{\link{summary}} for the function summarises a posterior object used in the 
+#' situation of fitting empirical data
+#' \code{\link{summary_many}} for the function summarises multiple posterior objects
+#' 
 #' @examples
 #' \dontrun{
 #' model <- ggdmcModel::BuildModel(
@@ -462,10 +468,10 @@ setMethod(
 #'     type = "lba"
 #' )
 #'
-#' fits0 <- ggdmcDE::StartSampling_subject(sub_dmis[[1]], sub_priors,
+#' fits0 <- ggdmc::StartSampling_subject(sub_dmis[[1]], sub_priors,
 #'     sub_migration_prob = 0.00, thin = 1L, seed = 9032
 #' )
-#' fit0 <- ggdmcDE::RebuildPosterior(fits0)
+#' fit0 <- ggdmc::RebuildPosterior(fits0)
 #' options(digits = 2)
 #' est_phi <- compare(fit0, ps = p_vector)
 #' }
@@ -475,10 +481,7 @@ compare <- function(object, start = 1L, end = NULL, ps = NULL, probability = c(0
     if (is.null(ps)) {
         stop("Must provide the true parameter")
     }
-    # object <- phi
-    # probability <- c(.05, .5, .975)
-    # start <- 1
-    # end <- phi@nmc * 0.5
+    
 
     qs <- summary(object, start, end, probability)
     es <- qs$quantiles
@@ -491,7 +494,7 @@ compare <- function(object, start = 1L, end = NULL, ps = NULL, probability = c(0
     # Create labels for the quantiles based on probability argument
     prob_labels <- paste0(100 * probability, "%")
 
-    # Initialize output matrix
+    # Initialise output matrix
     out <- rbind(
         "True" = ps[order(names(ps))]
     )
@@ -505,8 +508,12 @@ compare <- function(object, start = 1L, end = NULL, ps = NULL, probability = c(0
     }
     # Calculate bias using the median (50% quantile)
     median_idx <- which.min(abs(probability - 0.5)) # Find closest to median
-    if (length(median_idx) == 0) median_idx <- ceiling(length(probability) / 2) # fallback
+    if (length(median_idx) == 0) {
+        median_idx <- ceiling(length(probability) / 2) # fallback
+    }
+
     est <- qs$quantiles[names(ps), median_idx]
+
     oest <- est[order(names(est))]
     bias <- oest - out["True", ]
     out <- rbind(out, "Median-True" = bias)
@@ -524,7 +531,7 @@ compare <- function(object, start = 1L, end = NULL, ps = NULL, probability = c(0
 #' @param objects A list of posterior objects to summarise
 #' @param start First iteration to include in summary
 #' @param end Last iteration to include in summary (NULL for all)
-#' @param verbose Logical, whether to print summarised results. Default: FALSE
+#' @param verbose Logical Whether to print summarised results. Default: FALSE
 #'
 #' @return Either a list of summary objects (if verbose=FALSE) or a matrix of 
 #' means
@@ -731,8 +738,8 @@ compare_many <- function(objects, start = 1L, end = NULL, ps = NULL,
 #' @examples
 #' \dontrun{
 #' fits <- fits1
-#' fit <- ggdmcDE::RebuildHyper(fits)
-#' fit_thetas <- ggdmcDE:::RebuildPosteriors(fits)
+#' fit <- RebuildHyper(fits)
+#' fit_thetas <- RebuildPosteriors(fits)
 #' DT <- prepare_theta_data(fit)
 #' }
 #' @export
@@ -948,15 +955,16 @@ setMethod(
 
 #' Prepare Theta Parameters Data from MCMC Samples
 #'
-#' Extracts and formats theta parameter samples from MCMC output for analysis or visualization,
+#' Extracts and formats parameter estimates from a MCMC output,
 #' with options for subchain extraction and chain selection.
 #'
 #' @param x A model object containing MCMC samples (requires slots: @theta, @pnames,
-#'        @nchain, @nmc, and optionally @subchain_theta if subchain=TRUE)
+#'        @nchain, @nmc)
 #' @param start First iteration to include (default: 1)
 #' @param end Last iteration to include (default: NULL uses all available samples)
-#' @param subchain Logical indicating whether to extract subchain samples (default: FALSE)
-#' @param chains Numeric vector specifying which chains to include (default: NA includes all chains)
+#' @param subchain Logical Whether to extract subchain samples (default: FALSE)
+#' @param chains Numeric vector specifying which chains to include (default: NA 
+#'        includes all chains)
 #'
 #' @return A data.table in long format with columns:
 #' \itemize{
@@ -974,9 +982,6 @@ setMethod(
 #'   \item Supports iteration range selection
 #'   \item Returns data in tidy format for easy plotting with ggplot2
 #' }
-#'
-#' When subchain=TRUE, the function will attempt to access @subchain_theta slot.
-#' If chains are specified, only those chains will be included in the output.
 #'
 #' @examples
 #' \dontrun{
@@ -1060,16 +1065,20 @@ prepare_thetas_data <- function(x, start = 1L, end = NULL, subchain = FALSE, cha
 #' s (subject label)
 #' @param start First iteration to include (default: 1)
 #' @param end Last iteration to include (default: NULL uses all samples)
-#' @param subchain Logical indicating whether to subset chains (default: FALSE)
+#' @param subchain Logical Whether to plot a subset of chains (default: FALSE)
 #' @param chains Numeric vector specifying which chains to include when subchain=TRUE
 #'        (default: NA includes all chains)
-#' @param hide_legend Logical indicating whether to hide legend (default: TRUE)
+#' @param hide_legend Logical Whether to hide legend (default: TRUE)
 #' @param subjects Number of subjects to plot or vector of specific subjects:
 #'        - NULL (default): plots all subjects, if less than 5. Plot the first 5, when
 #'                          the subject number exceeeds 5.
 #'        - Integer N: randomly samples N subjects
 #'        - Character vector: plots specified subjects
-#' @param seed Optional random seed for reproducible sampling (default: NULL)
+#' @param seed (Optional) random seed for reproducible sampling (default: NULL)
+#' @param max_subjects (Optional) The maximum number of subjects to plot. If the
+#' posterior object contains many subjects, setting this argument to at most 
+#' \code{max_subjects} (default: 50). Useful for avoiding overplotting with large 
+#' datasets.
 #'
 #' @return Invisibly returns the lattice plot object. Primarily called for side effects.
 #'
@@ -1191,7 +1200,7 @@ plot_thetas <- function(x, start = 1L, end = NULL, subchain = FALSE,
 }
 
 
-################## ggdmcDE class ------------------------
+################## DE class ------------------------
 
 #' Differential Evolution (DE) MCMC Input Configuration
 #'
@@ -1226,10 +1235,11 @@ plot_thetas <- function(x, start = 1L, end = NULL, subchain = FALSE,
 #' @param sub_migration_prob Subject-level migration probability (0-1)
 #' @param gamma_precursor Scaling factor for proposal generation (typically 2.38)
 #' @param rp Random perturbation size for proposals
-#' @param is_hblocked Use block updating for hyperparameters?
-#' @param is_pblocked Use block updating for subject parameters?
+#' @param is_hblocked Whether to use block updating for hyperparameters.
+#' @param is_pblocked Whether to use block updating for subject parameters.
 #' @param nparameter Number of parameters in the model
-#' @param nchain Number of parallel chains
+#' @param nchain Number of DE-MC chains/chromosomes. (Note this is not the true 
+#' independent chain.)
 #' @param pop_debug Logical. If \code{TRUE}, enables verbose diagnostic
 #' output at the population level for debugging purposes (default = FALSE).
 #' @param sub_debug Logical. If \code{TRUE}, enables verbose diagnostic
@@ -1247,9 +1257,12 @@ plot_thetas <- function(x, start = 1L, end = NULL, subchain = FALSE,
 #' \itemize{
 #'   \item Chain migration probabilities control between-chain mixing
 #'   \item Gamma precursor affects proposal jump sizes
-#'   \item Random perturbation (rp) maintains chain diversity
-#'   \item Block updating options can improve efficiency for correlated parameters
+#'   \item Random perturbation (rp) adds onto the parameter proposal 
+#'   \item Block updating options improve between chain-mixing for correlated parameters
 #' }
+#' The migration sampler compares the self likelihood against a (randomly selected) 
+#' neighbor chain's likelihood. Sometimes, it may trap a chain into a local minimal/maximum.
+#' Use it wisely.  
 #'
 #' @examples
 #' # Create a default configuration
@@ -1268,7 +1281,6 @@ plot_thetas <- function(x, start = 1L, end = NULL, subchain = FALSE,
 #'
 #' @seealso
 #' \code{\link{StartSampling}} for functions using these configurations,
-#' \code{\link{setClass}} for S4 class definitions
 #'
 #' @rdname de_input
 #' @aliases de_input-class setDEInput print,de_input-method
@@ -1402,7 +1414,7 @@ setMethod(
 #' \itemize{
 #'   \item **Prior distributions** (from ggdmcPrior)
 #'   \item **Parameter specifications**
-#'   \item **DE-MCMC tuning parameters** (jump sizes: rp and gamma_precursor; 
+#'   \item **DE-MCMC tuning parameters** (jump sizes: \code{rp} and \code{gamma_precursor}; 
 #' migration probabilities, etc.)
 #'   \item **Random number generation** with proper seed management
 #' }
@@ -1430,21 +1442,21 @@ setMethod(
 #' \dontrun{
 #' # To create a configuration profile, we first set up a de_input
 #' 
-#' de_input <- ggdmc::setDEInput(
+#' de_input <- setDEInput(
 #'     sub_migration_prob = 0.00,
 #'     nparameter = as.integer(sub_theta_input@nparameter),
 #'     nchain = as.integer(sub_theta_input@nchain)
 #' )
 #' 
 #' # Then a theta_input
-#' theta_input <- ggdmc::setThetaInput(nmc = 2, nchain = 3, pnames = model@pnames, thin = 1)
+#' theta_input <- setThetaInput(nmc = 2L, nchain = 3L, pnames = model@pnames, thin = 1)
 #' 
 #' # Finally we can use set_configs to create  configuration profile
-#' configs <- ggdmc::set_configs(prior = sub_priors, theta_input = theta_input, 
+#' configs <- set_configs(prior = sub_priors, theta_input = theta_input, 
 #' de_input = de_input)
 #' 
 #' # The default setting is to set up three configurations for three independent chains
-#' # You have to ensure that you have three different starting `samples`.
+#' # You should ensure that you have three different starting `samples`.
 #' cfg <- configs[[1]]
 #' }
 #'
@@ -1639,15 +1651,7 @@ NULL
 #' @return List with psrf and mpsrf
 #' @keywords internal
 #'
-#'
-.gelman_diag <- function(x, start = 1, end = NA, conf = 0.95, digits = 2) {
-    # Common parameter setup
-
-    # start <- 1
-    # end <- NA
-    # conf <- 0.95
-    # digits <- 2
-    # x <- fit
+.gelman_diag <- function(x, start = 1, end = NA, conf = 0.95) {
     if (is.na(end)) {
         end <- slot(x, "nmc")
     }
@@ -1693,7 +1697,6 @@ NULL
 #' @param start First iteration to use
 #' @param end Last iteration to use (NA for all)
 #' @param conf Confidence level for upper CI (default = 0.95)
-#' @param digits Number of digits to print (default = 2)
 #' @return A list containing psrf and mpsrf (if requested)
 #' @rdname gelman
 #' @examples
@@ -1709,8 +1712,7 @@ NULL
 #' @export
 setGeneric(
     "gelman",
-    function(x, start = 1, end = NA, conf = 0.95,
-             digits = 2) {
+    function(x, start = 1, end = NA, conf = 0.95) {
         standardGeneric("gelman")
     }
 )
@@ -1719,11 +1721,10 @@ setGeneric(
 #' @export
 setMethod(
     "gelman", "posterior",
-    function(x, start = 1, end = NA, conf = 0.95, 
-             digits = 2) {
+    function(x, start = 1, end = NA, conf = 0.95) {
         out <- tryCatch(
             {
-                .gelman_diag(x, start, end, conf, digits)
+                .gelman_diag(x, start, end, conf)
             },
             error = function(e) {
                 message("Error: chains not converged?\n")

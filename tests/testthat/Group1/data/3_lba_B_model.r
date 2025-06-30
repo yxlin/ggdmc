@@ -138,12 +138,7 @@ s_prior <- ggdmcPrior::BuildPrior(
 
 pop_priors <- ggdmcPrior::set_priors(p_prior = model_likelihood, l_prior = l_prior, s_prior = s_prior)
 
-
 pop_theta_input <- setThetaInput(nmc = nmc, pnames = pop_priors@pnames)
-
-print(sub_theta_input)
-print(pop_theta_input)
-
 pop_samples <- initialise_phi(pop_theta_input, pop_priors, pop_dmis, seed = 846671, verbose = FALSE)
 
 

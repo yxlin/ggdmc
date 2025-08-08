@@ -4,31 +4,26 @@
 \name{ggdmc}
 \alias{ggdmc-package}
 \alias{ggdmc}
-\title{Choice Response Time Models}
+\title{Hierarchical Bayesian Inference for Choice Response Time Models}
 \description{
-Using differential evolution sampling to do Bayesian inference on
-a range of choice response time models.
+Provides tools for Bayesian inference using differential evolution Markov 
+Chain Monte Carlo (DE-MCMC) sampling for a variety of choice response time 
+models. The package supports flexible parameter mappings, hierarchical model
+structures, and models including the Linear Ballistic Accumulator (LBA) and
+Diffusion Decision Model (DDM).
 }
 \references{
-Lin, Y.-S. & Strickland, L., (2019). Evidence accumulation models with R: A
-practical guide to hierarchical Bayesian methods.
-\emph{The Quantitative Method in Psychology}. \cr
+Lin, Y.-S., & Strickland, L. (2020). Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods. \emph{The Quantitative Methods for Psychology}, 16(2), 133–153. \cr
 
-Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M. &
-Matzke, D., (2018). Dynamic model of choice.
-\emph{Behavior Research Methods}.
-https://doi.org/10.3758/s13428-018-1067-y. \cr
+Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M., & Matzke, D. (2018). Dynamic models of choice. \emph{Behavior Research Methods}, 50(2), 730–741. https://doi.org/10.3758/s13428-018-1067-y \cr
 
-Turner, B. M., & Sederberg P. B. (2012). Approximate Bayesian computation
-with differential evolution, \emph{Journal of Mathematical Psychology}, 56,
-375--385. \cr
+Turner, B. M., & Sederberg, P. B. (2012). Approximate Bayesian computation with differential evolution. \emph{Journal of Mathematical Psychology}, 56(5), 375–385. \cr
 
-Ter Braak (2006). A Markov Chain Monte Carlo version of the genetic
-algorithm Differential Evolution: easy Bayesian computing for real
-parameter spaces. \emph{Statistics and Computing}, 16, 239-249.
+ter Braak, C. J. F. (2006). A Markov Chain Monte Carlo version of the genetic algorithm Differential Evolution: Easy Bayesian computing for real parameter spaces. \emph{Statistics and Computing}, 16(3), 239–249. \cr
+
+Hu, B., & Tsui, K.-W. (2010). Distributed evolutionary Monte Carlo for Bayesian computing. \emph{Computational Statistics & Data Analysis}, 54(3), 688–697. https://doi.org/10.1016/j.csda.2008.10.025
 }
 \author{
-Yi-Shin Lin <yishinlin001@gmail.com> \cr
-Andrew Heathcote <andrew.heathcote@utas.edu.au>
+Yi-Shin Lin \email{yishinlin001@gmail.com} \cr
 }
 \keyword{package}

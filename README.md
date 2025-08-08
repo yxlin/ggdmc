@@ -6,7 +6,7 @@
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml)
 
-`ggdmc` provides tools for conducting **Bayesian inference** on a range of **choice response time models**, such as the **Linear Ballistic Accumulator (LBA)** and **Diffusion Decision Model (DDM)**.
+`ggdmc` (version 0.2.8.9) provides tools for conducting **Bayesian inference** on a range of **choice response time models**, such as the **Linear Ballistic Accumulator (LBA)** and **Diffusion Decision Model (DDM)**.
 
 ## 🚀 Getting Started
 

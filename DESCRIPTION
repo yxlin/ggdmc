@@ -1,0 +1,31 @@
+Package: ggdmc
+Type: Package
+Title: Hierarchical Bayesian Inference for Choice Response Time Models
+Version: 0.2.8.9
+Date: 2025-08-08
+Authors@R: c(
+  person(given = "Yi-Shin", family = "Lin", role = c("aut", "cre"), email = "yishinlin001@gmail.com")
+)
+Maintainer: Yi-Shin Lin <yishinlin001@gmail.com>
+Description: Provides tools for fitting hierarchical Bayesian models of choice and response time using Differential Evolution Markov Chain Monte Carlo (DE-MCMC) sampling. Designed for cognitive scientists and psychologists, it supports models including the Linear Ballistic Accumulator (LBA) and Diffusion Decision Model (DDM), offering flexible parameter mapping and condition-specific modelling. Implements fast, parallelised C++ routines for large-scale applications in decision modelling. Core functionality includes parameter sampling, simulation, model building, posterior recovery, and convergence diagnostics. Sampling methods follow Turner et al. (2013) <doi:10.1037/a0032222>, Braak (2006) <doi:10.1007/s11222-006-8769-1>, and Hu & Tsui (2010) <doi:10.1016/j.csda.2008.10.025>. The parameter mapping and condition-specific structrue are based on Heathcote et al. (2018) <doi:10.3758/s13428-018-1067-y>. 
+License: GPL (>= 2)
+Imports: 
+    ggdmcModel,
+    ggdmcPrior, 
+    ggdmcLikelihood,
+    Rcpp (>= 1.0.7),
+    methods,
+    data.table,
+    matrixStats,
+    lattice
+Depends: 
+    R (>= 3.5.0)
+LinkingTo: 
+    Rcpp (>= 1.0.7),
+    RcppArmadillo (>= 0.10.7.5.0),
+    ggdmcHeaders
+Suggests: 
+    testthat (>= 3.0.0)
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+NeedsCompilation: yes

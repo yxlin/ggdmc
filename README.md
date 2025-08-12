@@ -71,13 +71,13 @@ If you use `ggdmc`, please cite:
 
 ## 👨‍💼 Contributors
 
-The early version of `ggdmc` was adapted from the Dynamic Model of Choice (Heathcote et al., 2018). Bug reports and suggestions are welcome via [(email)](mailto:yishinlin001@gmail.com) or [GitHub Issues](https://github.com/yxlin/ggdmc/issues).
+The early version of `ggdmc` was adapted from the Dynamic Model of Choice (Heathcote et al., 2018). Bug reports and suggestions are welcome via [email](mailto:yishinlin001@gmail.com) or [GitHub Issues](https://github.com/yxlin/ggdmc/issues).
 
 ### Example 1: LBA Model with Population Recovery
 
 This example demonstrates how to define a condition-dependent LBA model, simulate data, and recover parameters at both subject and population levels.
 
-▶️ See script under: `tests/testthat/Group1/data/`
+▶️ See script under: `tests/testthat/Group1/data/` and `tests/testthat/Group1/`
 
 ```r
 model <- BuildModel(

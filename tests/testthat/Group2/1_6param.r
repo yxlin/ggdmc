@@ -1,11 +1,11 @@
-q(save = "no")
+# q(save = "no")
 cat("\n\n-------------------- 6 parameters --------------------")
 rm(list = ls())
 pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
 cat("\nWorking directory: ", getwd(), "\n")
 
-data_dir <- "~/Documents/ggdmc/tests/testthat/Group1/"
+data_dir <- "/media/yslin/Tui/01_Projects/ggdmc/tests/testthat/Group1/"
 fn <- paste0(data_dir, "data/lba_data1.rda")
 load(fn)
 
@@ -26,10 +26,10 @@ est_theta <- compare(fit, ps = p_vector)
 # 97.5% Estimate 1.246 2.488         3.14         4.1     0.187 0.341
 # Median-True    0.049 0.024         0.25         0.2     0.017 0.022
 
-# p0 <- ggdmc::plot(fit, pll = FALSE, den = TRUE, start = fit@nmc * 0.5)
-# ggdmc::plot(fits[[1]], start = fits[[1]]@nmc * 0.5)
-# ggdmc::plot(fits[[2]], start = fits[[1]]@nmc * 0.5)
-# ggdmc::plot(fits[[3]], start = fits[[1]]@nmc * 0.5)
-# ggdmc::plot(fits[[1]], pll = F, den = T, start = fits[[1]]@nmc * 0.5)
-# ggdmc::plot(fits[[2]], pll = F, den = T, start = fits[[1]]@nmc * 0.5)
-# ggdmc::plot(fits[[3]], pll = F, den = T, start = fits[[1]]@nmc * 0.5)
+# p0 <- plot(fit, pll = FALSE, den = TRUE, start = fit@nmc * 0.5)
+# p1 <- plot(fits[[1]], start = fits[[1]]@nmc * 0.5)
+# p1 <- plot(fits[[2]], start = fits[[1]]@nmc * 0.5)
+# p1 <- plot(fits[[3]], start = fits[[1]]@nmc * 0.5)
+# p1 <- plot(fits[[1]], pll = F, den = T, start = fits[[1]]@nmc * 0.5)
+# p1 <- plot(fits[[2]], pll = F, den = T, start = fits[[1]]@nmc * 0.5)
+# p1 <- plot(fits[[3]], pll = F, den = T, start = fits[[1]]@nmc * 0.5)

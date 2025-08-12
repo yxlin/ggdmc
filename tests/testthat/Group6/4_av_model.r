@@ -1,0 +1,111 @@
+#  q(save = "no")
+cat("\n\n-------------------- DDM a model --------------------")
+rm(list = ls())
+pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood")
+suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))
+cat("\nWorking directory: ", getwd(), "\n")
+options(digits = 2)
+fn <- "~/Documents/ggdmc/tests/testthat/Group6/data/ddm_data4.rda"
+wkdir <- "~/Documents/ggdmc/tests/testthat/Group6/"
+save_path <- paste0(wkdir, "fit_data/4_avmodel.rda")
+
+load(fn)
+load(save_path)
+
+# fits0 <- StartSampling(pop_dmis, pop_priors,
+#     sub_migration_prob = 0.05,
+#     thin = 4L, pop_debug = F, seed = 9032
+# )
+
+# save(fits0, file = save_path)
+
+# fits1 <- RestartSampling(fits0,
+#     pop_migration_prob = 0.02,
+#     sub_migration_prob = 0.00,
+#     thin = 4L, seed = 9032
+# )
+
+# save(fits0, fits1, file = save_path)
+
+# fits2 <- RestartSampling(fits1,
+#     pop_migration_prob = 0.00,
+#     sub_migration_prob = 0.00,
+#     thin = 2L, seed = 9032
+# )
+# save(fits0, fits1, fits2, file = save_path)
+
+# fits3 <- RestartSampling(fits2,
+#     pop_migration_prob = 0.03,
+#     sub_migration_prob = 0.00,
+#     thin = 4L, seed = 9032
+# )
+# save(fits0, fits1, fits2, fits3, file = save_path)
+
+fits4 <- RestartSampling(fits3,
+    pop_migration_prob = 0.05,
+    sub_migration_prob = 0.00,
+    nmc = 1000L, report_length = 200L,
+    thin = 8L, seed = 9032
+)
+save(fits0, fits1, fits2, fits3, fits4, file = save_path)
+
+# fits <- fits3
+# phi <- RebuildHyper(fits)
+# thetas <- RebuildPosteriors(fits)
+
+# est_phi <- compare(phi, ps = true_vector)
+# est_theta <- compare_many(thetas, ps = ps)
+#                loc_a.left.blue loc_a.left.red loc_a.right.blue loc_a.right.red
+# True                     1.000          2.500            1.500            3.50
+# 5% Estimate              0.057          1.961            0.208            3.14
+# 50% Estimate             0.772          2.404            1.434            3.38
+# 97.5% Estimate           1.113          2.895            1.519            3.80
+# Median-True             -0.228         -0.096           -0.066           -0.12
+#                 loc_sz  loc_t0 loc_v.high loc_v.low loc_v.moderate  loc_z
+# True            0.2500  0.1500      1.800      2.50           2.00  0.380
+# 5% Estimate     0.0065  0.1366      0.061      1.38           0.37  0.013
+# 50% Estimate    0.0754  0.1447      0.608      2.05           1.30  0.194
+# 97.5% Estimate  0.2753  0.1530      1.611      2.47           1.93  0.448
+# Median-True    -0.1746 -0.0053     -1.192     -0.45          -0.70 -0.186
+#                sca_a.left.blue sca_a.left.red sca_a.right.blue sca_a.right.red
+# True                     0.050           0.06             0.05            0.08
+# 5% Estimate              0.054           0.29             0.11            0.57
+# 50% Estimate             1.015           1.25             0.27            0.81
+# 97.5% Estimate           2.127           2.06             2.41            1.67
+# Median-True              0.965           1.19             0.22            0.73
+#                sca_sz sca_t0 sca_v.high sca_v.low sca_v.moderate sca_z
+# True             0.02 0.0200       1.50      0.50           1.00 0.030
+# 5% Estimate      0.20 0.0169       1.32      0.83           1.04 0.085
+# 50% Estimate     0.35 0.0231       1.93      1.13           1.42 0.575
+# 97.5% Estimate   1.03 0.0382       2.89      2.19           2.16 1.727
+# Median-True      0.33 0.0031       0.43      0.63           0.42 0.545
+
+#      a.left.blue a.left.red a.right.blue a.right.red     sz     t0 v.high v.low
+# Mean       1.022      2.395       1.4730       3.324  0.299 0.1466   1.66  2.17
+# True       0.991      2.502       1.4817       3.524  0.243 0.1480   1.80  2.45
+# Diff      -0.032      0.107       0.0087       0.200 -0.056 0.0015   0.14  0.28
+# Sd         0.074      0.317       0.1134       0.611  0.187 0.0183   1.17  0.92
+# True       0.054      0.047       0.0496       0.075  0.025 0.0187   1.52  0.50
+# Diff      -0.020     -0.269      -0.0638      -0.536 -0.163 0.0004   0.35 -0.42
+#      v.moderate      z
+# Mean      1.768  0.424
+# True      2.084  0.380
+# Diff      0.317 -0.044
+# Sd        1.030  0.100
+# True      0.973  0.024
+# Diff     -0.057 -0.076
+
+# rhat <- gelman(phi)
+# rhat
+
+# DT <- ggdmc::prepare_thetas_data(fits[[1]]$subject_theta, start = fits[[1]]$phi@nmc * 0.5)
+# p1 <- plot_thetas(DT)
+# rhat <- gelman(phi)
+
+# p3 <- plot(fits[[1]]$phi, facet_chains = F)
+# p3 <- plot(fits[[2]]$phi, facet_chains = F)
+# p3 <- plot(fits[[3]]$phi, facet_chains = F)
+
+
+# p3 <- plot(phi, facet_chains = F, start = phi@nmc * 0.5)
+# p3 <- plot(phi, den = TRUE, pll = F, start = phi@nmc * 0.5)

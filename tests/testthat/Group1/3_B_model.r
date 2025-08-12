@@ -1,4 +1,5 @@
 # q(save = "no")
+## TODO: old test code to be updated
 cat("\n\n--------------------Testing B Model--------------------")
 rm(list = ls())
 pkg <- c("ggdmc")

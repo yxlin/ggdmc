@@ -1,4 +1,4 @@
-#    q(save = "no")
+# q(save = "no")
 cat("\n\n-------------------- 5 DDM parameters --------------------")
 rm(list = ls())
 pkg <- c("ggdmc")

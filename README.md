@@ -6,47 +6,108 @@
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml)
 
-`ggdmc` (version 0.2.8.9) provides tools for conducting **Bayesian inference** on a range of **choice response time models**, such as the **Linear Ballistic Accumulator (LBA)** and **Diffusion Decision Model (DDM)**.
+`ggdmc` (v0.2.8.9) is an R package for **Bayesian inference** on cognitive **choice response time models**, including:
+
+- **Linear Ballistic Accumulator (LBA)**
+- **Diffusion Decision Model (DDM)**
+
+It supports **hierarchical Bayesian modelling**, efficient MCMC sampling, and flexible model definitions.
+
 
 ## 🚀 Getting Started
 
-### ✨ Installation
+### Installation
 
-Install the package from CRAN:
-
+From CRAN:
 ```r
 install.packages("ggdmc")
 ```
 
----
+From GitHub (development version):
+```r
+remotes::install_github("yxlin/ggdmc")
+```
+
 
 ## 🔢 Overview
 
-`ggdmc` supports *hierarchical Bayesian inference* with cognitive models of decision making. It includes:
+`ggdmc`  helps researchers fit hierarchical Bayesian models of decision-making.
+Key features include:
 
-- Flexible model specification with support for condition-dependent parameters
-- Efficient MCMC sampling with population-level migration
-- Truncated normal priors and bounded uniform priors
-- Built-in tools for posterior summarisation and convergence diagnostics
+- Flexible **model specification** with condition-dependent parameters
+- Efficient **MCMC sampling** with population-level migration
+- Support for Truncated normal priors and bounded uniform priors
+- Built-in tools for:
+  - Posterior summarisation
+  - Convergence diagnostics
+  - Model comparison 
 
-Models supported:
+### Currently supported models:
 - LBA (Linear Ballistic Accumulator)
 - DDM (Diffusion Decision Model)
-- Extendable to user-defined models
+- Regular statistical models (via hyper-only route)
+- Extendable to user-defined models (e.g., pLBA, DDM with varying drift rates)
+
+
+## ⚡ Quick Start — Fit a Simple DDM
+Below is a step-by-step example of fitting a basic single-subject DDM.
+We’ll simulate some data, fit the model, and plot the posterior distributions.
+
+
+```r
+# 1. Load package
+library(ggdmc)
+
+# 2. Define a simple DDM model
+model <- ggdmcModel::BuildModel(
+  p_map = list(a="1", v="1", z="1", sz="1", t0="1"),  # Free parameters
+  match_map = list(M = list(s1="r1", s2="r2")),       # Mapping stimuli to responses
+  factors = list(S = c("s1", "s2")),                  # Experimental factors
+  constants = c(d=0, s=1, st0=0, sv=0, precision=3),  # Fixed parameters
+  accumulators = c("r1", "r2"),
+  type = "fastdm"
+)
+
+# 3. Simulate a small dataset for one subject
+true_params <- c(a=1.0, sz=0.25, t0=0.15, v=2.5, z=0.38)
+dat <- simulate(model, nsim=300, parameter_vector=true_params, n_subject=1)
+
+# 4. Prepare the data for fitting
+dmi <- ggdmcModel::BuildDMI(dat, model)
+
+# 5. Set flat (uninformative) priors
+pri <- ggdmcPrior::set_priors(
+  ggdmcPrior::BuildPrior(
+    p0=rep(0, model@npar), p1=rep(10, model@npar),
+    lower=rep(NA, model@npar), upper=rep(NA, model@npar),
+    dist=rep("unif", model@npar), log_p=rep(TRUE, model@npar)
+  )
+)
+
+# 6. Fit the model (MCMC sampling)
+fit <- ggdmc::StartSampling_subject(dmi[[1]], pri, thin=2, seed=123)
+
+# 7. Rebuild and plot posterior distributions
+post <- ggdmc::RebuildPosterior(fit)
+ggdmc::plot(post, pll=FALSE, den=TRUE)
+```
+
+💡 **Tip**: For faster tests, lower `nsim` and `nmc` in `setThetaInput()`. For real analyses, increase them for better convergence.
 
 
 ## 🔧 Dependencies
 
-Requires:
+`ggdmc` requires:
 
 - R (≥ 3.3.0)
 - C++ integration: `Rcpp`, `RcppArmadillo`
-- Data processing: `data.table`, `matrixStats`, `lattice`
-- Core components: `ggdmcHeaders`, `ggdmcModel`, `ggdmcPrior`, `ggdmcLikelihood`
-- Supported models: `lbaModel`, `ddModel`
+- Data handling: `data.table`, `matrixStats`
+- Plotting: `lattice`
+- Core `ggdmc` components: `ggdmcHeaders`, `ggdmcModel`, `ggdmcPrior`, `ggdmcLikelihood`
+- Model modules: `lbaModel`, `ddModel`
 
 
-Installation:
+Install all dependencies:
 
 ```r
 install.packages(c(
@@ -58,62 +119,19 @@ install.packages(c(
 ))
 ```
 
-
-
 ## 📄 Citation
-
 If you use `ggdmc`, please cite:
 
-- Lin, Y.-S., & Strickland, L. (2020). *Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods*. The Quantitative Methods for Psychology, 16(2), 133–153. https://doi.org/10.20982/tqmp.16.2.p133. [PDF](https://www.tqmp.org/RegularArticles/vol16-2/p133/p133.pdf)
+- Lin, Y.-S., & Strickland, L. (2020). *Evidence accumulation models with R: A practical guide to hierarchical Bayesian methods*. The Quantitative Methods for Psychology, 16(2), 133–153. [doi.org/10.20982/tqmp.16.2.p133](https://doi.org/10.20982/tqmp.16.2.p133) | [PDF](https://www.tqmp.org/RegularArticles/vol16-2/p133/p133.pdf)
  
-- Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M., & Matzke, D. (2018). Dynamic models of choice. *Behavior Research Methods*. https://doi.org/10.3758/s13428-018-1067-y
-
+- Heathcote, A., Lin, Y.-S., Reynolds, A., Strickland, L., Gretton, M., & Matzke, D. (2018). Dynamic models of choice. *Behavior Research Methods*. [doi.org/10.3758/s13428-018-1067-y](https://doi.org/10.3758/s13428-018-1067-y)
 
 ## 👨‍💼 Contributors
+The initial version of `ggdmc` was adapted from the **Dynamic Model of Choice** (Heathcote et al., 2018). 
 
-The early version of `ggdmc` was adapted from the Dynamic Model of Choice (Heathcote et al., 2018). Bug reports and suggestions are welcome via [email](mailto:yishinlin001@gmail.com) or [GitHub Issues](https://github.com/yxlin/ggdmc/issues).
-
-### Example 1: LBA Model with Population Recovery
-
-This example demonstrates how to define a condition-dependent LBA model, simulate data, and recover parameters at both subject and population levels.
-
-▶️ See script under: `tests/testthat/Group1/data/` and `tests/testthat/Group1/`
-
-```r
-model <- BuildModel(
-  p_map = list(A = "1", B = c("S", "COLOR"), t0 = "1", mean_v = c("NOISE", "M"), sd_v = "M", st0 = "1"),
-  match_map = list(M = list(left = "z_key", right = "x_key")),
-  factors = list(S = c("left", "right"), COLOR = c("red", "blue"), NOISE = c("high", "moderate", "low")),
-  constants = c(st0 = 0, sd_v.false = 1),
-  accumulators = c("z_key", "x_key"),
-  type = "lba"
-)
-```
-
-Run `simulate()`, `StartSampling()`, and `compare()` to analyse the recovery performance.
-
----
-
-### Example 2: Minimal DDM Recovery
-
-Defines and fits a simple DDM in a hierarchical setting.
-
-▶️ See script under: `tests/testthat/Group6/data/` [to be updated.]
-
-```r
-model <- BuildModel(
-  p_map = list(a = "1", v = "1", z = "1", d = "1", sz = "1", sv = "1", t0 = "1", st0 = "1", s = "1", precision = "1"),
-  match_map = list(M = list(s1 = "r1", s2 = "r2")),
-  factors = list(S = c("s1", "s2")),
-  constants = c(d = 0, s = 1, st0 = 0, sv = 0, precision = 3),
-  accumulators = c("r1", "r2"),
-  type = "fastdm"
-)
-```
-
-Use `simulate()`, `setThetaInput()`, and `StartSampling()` to conduct full recovery.
-
----
+Bug reports and suggestions are welcome via:
+- 📧 [Email](mailto:yishinlin001@gmail.com)
+- 🐛 [GitHub Issues](https://github.com/yxlin/ggdmc/issues)
 
 ## 📓 Acknowledgments
 
@@ -124,5 +142,74 @@ Use `simulate()`, `setThetaInput()`, and `StartSampling()` to conduct full recov
   - Robert, C. P. (1995). *Simulation of truncated normal variables*. *Statistics and Computing, 5*(2), 121–125. https://doi.org/10.1007/BF00143942
 
 ---
+
+## Further Examples
+
+### ⚡ Quick Start — Fit a Simple LBA
+This example simulates a two-choice LBA for one participant, fits it, and plots the posterior. We keep drift variability fixed (sd_v = 1) and let the core parameters vary: A, B, t0, mean_v.true, mean_v.false.
+
+```# 1. Load package
+library(ggdmc)
+
+# 2. Define a simple LBA model (two accumulators)
+model <- ggdmcModel::BuildModel(
+  p_map  = list(A="1", B="1", t0="1", mean_v="M", st0="1"),  # 'M' => match/mismatch (true/false)
+  match_map = list(M = list(s1="r1", s2="r2")),
+  factors   = list(S = c("s1","s2")),
+  constants = c(st0=0, sd_v=1),                              # fix drift SD
+  accumulators = c("r1","r2"),
+  type = "lba"
+)
+
+# 3. Simulate data for one subject
+true_params <- c(A=0.5, B=1.2, t0=0.30, mean_v.true=2.5, mean_v.false=1.5)
+dat <- simulate(model, nsim=400, parameter_vector=true_params, n_subject=1)
+
+# 4. Prepare data & priors, then fit
+dmi <- ggdmcModel::BuildDMI(dat, model)
+pri <- ggdmcPrior::set_priors(
+  ggdmcPrior::BuildPrior(
+    p0=rep(0, model@npar), p1=rep(10, model@npar),
+    lower=rep(NA, model@npar), upper=rep(NA, model@npar),
+    dist=rep("unif", model@npar), log_p=rep(TRUE, model@npar)
+  )
+)
+fit  <- ggdmc::StartSampling_subject(dmi[[1]], pri, thin=2, seed=42)
+
+# 5. Inspect posteriors
+post <- ggdmc::RebuildPosterior(fit)
+ggdmc::plot(post, pll=FALSE, den=TRUE)
+```
+
+**Tip**: For a quick smoke test, reduce nsim (e.g., 200) or thin; for real analyses, increase them to improve convergence and stability.
+
+
+### Example 1: LBA Model with Population Recovery
+
+This example shows how to:
+
+1. Define a condition-dependent LBA model
+2. Simulate data
+3. Recover parameters at both subject and population levels
+
+See scripts under:
+
+- `tests/testthat/Group1/data/` – simulation data
+- `tests/testthat/Group1/0_5param_hyper.r` – hyper-level only model
+- `tests/testthat/Group1/1_6param_fit_subject.r` – single participant fitting
+- `tests/testthat/Group1/2_v_model_multiple_level.r` – hierarchical model with varying drift rates
+- `tests/testthat/Group1/3_B_model_中文.r` – hierarchical model with varying thresholds (Chinese example)
+
+Key functions:
+
+- `simulate()` – generate data
+- `StartSampling()` – find optimised parameters
+- `compare()` – analyse posterior recovery
+
+---
+
+### Example 2: Minimal DDM Recovery
+- `tests/testthat/Group6/data/` – simulation data
+- `tests/testthat/Group6//` – fitting the data to find optimised parameters 
 
 

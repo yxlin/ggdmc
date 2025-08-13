@@ -1,6 +1,10 @@
 # q(save = "no")
 cat("\n\n--------------------Testing Drift Rate Model--------------------")
 rm(list = ls())
+# tmp1 <- c(13000 , 3*32100, 19450)
+# tmp2 <- c(13000 , 3*32100, 19450)
+# sum(tmp1) * 31 + 
+# sum(tmp1) * 40
 
 pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood", "lbaModel")
 suppressPackageStartupMessages(tmp <- sapply(pkg, require, character.only = TRUE))

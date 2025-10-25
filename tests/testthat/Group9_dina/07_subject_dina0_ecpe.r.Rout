@@ -1,0 +1,471 @@
+
+R version 4.4.3 (2025-02-28) -- "Trophy Case"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> #!/usr/bin/env Rscript
+> # Baseline CDM Model: DINA Rule without MVN
+> # Subject-level parameter estimation ecpe
+> cat("\n\n--------- CDM DINA Baseline Model (Subject-level) ----------\n")
+
+
+--------- CDM DINA Baseline Model (Subject-level) ----------
+> rm(list = ls())
+> # q(save = "no")
+> # Load packages
+> pkg <- c("ggdmc", "ggdmcPrior", "ggdmcModel", "cdModel")
+> suppressPackageStartupMessages(pkg_ok <- sapply(pkg, require, character.only = TRUE))
+> 
+> home_dir <- "/media/yslin/Tui/01_Projects/ggdmc_ecosystem/ggdmc/tests/testthat"
+> data_dir <- file.path(home_dir, "Group9_gen_cdm/data")
+> fig_dir <- file.path(home_dir, "Group9_gen_cdm/figs")
+> save_path <- file.path(data_dir, "07_subject_dina0_ecpe.rda")
+> source(file.path(home_dir, "Group9_gen_cdm/00_helpers.r"))
+> load(save_path)
+> # -------------------- Q-Matrix Setup --------------------
+> # 3 items, 2 skills: Item 1 (Algebra only), Item 2 (Geometry only), Item 3 (both)
+> K <- 3
+> ecpe_dat <- CDM::data.ecpe$data[, c("id", paste0("E", 1:10))]
+> Q <- CDM::data.ecpe$q.matrix[1:10, ]
+> 
+> ecpe <- CDM::din(data = ecpe_dat[, -1], q.matrix = Q)
+-----------------------------------------------------------------------
+DINA MODEL 
+** 2025-10-24 10:14:14.81425 
+---------------------------------------------------------------------------------
+Iter.  1  :  10:14:14.831802 ,   loglike= -15959.16  / max. param. ch. :  0.469571  / relative deviance change :  1
+Iter.  2  :  10:14:14.833048 ,   loglike= -14799.54  / max. param. ch. :  0.03814  / relative deviance change :  0.078355
+Iter.  3  :  10:14:14.834272 ,   loglike= -14770.32  / max. param. ch. :  0.02263  / relative deviance change :  0.001978
+Iter.  4  :  10:14:14.835791 ,   loglike= -14757.28  / max. param. ch. :  0.016754  / relative deviance change :  0.000884
+Iter.  5  :  10:14:14.837683 ,   loglike= -14748.86  / max. param. ch. :  0.013581  / relative deviance change :  0.000571
+Iter.  6  :  10:14:14.839159 ,   loglike= -14742.72  / max. param. ch. :  0.01136  / relative deviance change :  0.000417
+Iter.  7  :  10:14:14.840624 ,   loglike= -14737.99  / max. param. ch. :  0.009622  / relative deviance change :  0.000321
+Iter.  8  :  10:14:14.842062 ,   loglike= -14734.21  / max. param. ch. :  0.009118  / relative deviance change :  0.000256
+Iter.  9  :  10:14:14.843364 ,   loglike= -14731.12  / max. param. ch. :  0.008965  / relative deviance change :  0.00021
+Iter.  10  :  10:14:14.844962 ,   loglike= -14728.53  / max. param. ch. :  0.008676  / relative deviance change :  0.000176
+Iter.  11  :  10:14:14.846468 ,   loglike= -14726.33  / max. param. ch. :  0.008267  / relative deviance change :  0.000149
+Iter.  12  :  10:14:14.848036 ,   loglike= -14724.44  / max. param. ch. :  0.007774  / relative deviance change :  0.000128
+Iter.  13  :  10:14:14.849502 ,   loglike= -14722.8  / max. param. ch. :  0.007233  / relative deviance change :  0.000111
+Iter.  14  :  10:14:14.850593 ,   loglike= -14721.37  / max. param. ch. :  0.006675  / relative deviance change :  9.7e-05
+Iter.  15  :  10:14:14.851798 ,   loglike= -14720.11  / max. param. ch. :  0.006125  / relative deviance change :  8.5e-05
+Iter.  16  :  10:14:14.85308 ,   loglike= -14719  / max. param. ch. :  0.0056  / relative deviance change :  7.5e-05
+Iter.  17  :  10:14:14.854378 ,   loglike= -14718.02  / max. param. ch. :  0.005109  / relative deviance change :  6.7e-05
+Iter.  18  :  10:14:14.855718 ,   loglike= -14717.14  / max. param. ch. :  0.004659  / relative deviance change :  6e-05
+Iter.  19  :  10:14:14.8569 ,   loglike= -14716.36  / max. param. ch. :  0.004251  / relative deviance change :  5.3e-05
+Iter.  20  :  10:14:14.858088 ,   loglike= -14715.65  / max. param. ch. :  0.003885  / relative deviance change :  4.8e-05
+Iter.  21  :  10:14:14.859411 ,   loglike= -14715.02  / max. param. ch. :  0.003559  / relative deviance change :  4.3e-05
+Iter.  22  :  10:14:14.860733 ,   loglike= -14714.45  / max. param. ch. :  0.00327  / relative deviance change :  3.9e-05
+Iter.  23  :  10:14:14.862037 ,   loglike= -14713.93  / max. param. ch. :  0.003014  / relative deviance change :  3.5e-05
+Iter.  24  :  10:14:14.863312 ,   loglike= -14713.46  / max. param. ch. :  0.002787  / relative deviance change :  3.2e-05
+Iter.  25  :  10:14:14.864575 ,   loglike= -14713.04  / max. param. ch. :  0.002587  / relative deviance change :  2.9e-05
+Iter.  26  :  10:14:14.865789 ,   loglike= -14712.65  / max. param. ch. :  0.002487  / relative deviance change :  2.6e-05
+Iter.  27  :  10:14:14.866879 ,   loglike= -14712.29  / max. param. ch. :  0.0024  / relative deviance change :  2.4e-05
+Iter.  28  :  10:14:14.868107 ,   loglike= -14711.96  / max. param. ch. :  0.002317  / relative deviance change :  2.2e-05
+Iter.  29  :  10:14:14.869419 ,   loglike= -14711.66  / max. param. ch. :  0.002238  / relative deviance change :  2e-05
+Iter.  30  :  10:14:14.870735 ,   loglike= -14711.39  / max. param. ch. :  0.002162  / relative deviance change :  1.9e-05
+Iter.  31  :  10:14:14.872019 ,   loglike= -14711.14  / max. param. ch. :  0.00209  / relative deviance change :  1.7e-05
+Iter.  32  :  10:14:14.873319 ,   loglike= -14710.9  / max. param. ch. :  0.002022  / relative deviance change :  1.6e-05
+Iter.  33  :  10:14:14.874652 ,   loglike= -14710.69  / max. param. ch. :  0.001956  / relative deviance change :  1.5e-05
+Iter.  34  :  10:14:14.875874 ,   loglike= -14710.49  / max. param. ch. :  0.001893  / relative deviance change :  1.4e-05
+Iter.  35  :  10:14:14.876979 ,   loglike= -14710.31  / max. param. ch. :  0.001833  / relative deviance change :  1.3e-05
+Iter.  36  :  10:14:14.878084 ,   loglike= -14710.14  / max. param. ch. :  0.001776  / relative deviance change :  1.2e-05
+Iter.  37  :  10:14:14.879342 ,   loglike= -14709.98  / max. param. ch. :  0.001721  / relative deviance change :  1.1e-05
+Iter.  38  :  10:14:14.88065 ,   loglike= -14709.83  / max. param. ch. :  0.001668  / relative deviance change :  1e-05
+Iter.  39  :  10:14:14.88195 ,   loglike= -14709.69  / max. param. ch. :  0.001617  / relative deviance change :  9e-06
+Iter.  40  :  10:14:14.883235 ,   loglike= -14709.57  / max. param. ch. :  0.001568  / relative deviance change :  9e-06
+Iter.  41  :  10:14:14.884333 ,   loglike= -14709.45  / max. param. ch. :  0.001522  / relative deviance change :  8e-06
+Iter.  42  :  10:14:14.885476 ,   loglike= -14709.33  / max. param. ch. :  0.001477  / relative deviance change :  8e-06
+Iter.  43  :  10:14:14.886579 ,   loglike= -14709.23  / max. param. ch. :  0.001434  / relative deviance change :  7e-06
+Iter.  44  :  10:14:14.887697 ,   loglike= -14709.13  / max. param. ch. :  0.001393  / relative deviance change :  7e-06
+Iter.  45  :  10:14:14.889332 ,   loglike= -14709.04  / max. param. ch. :  0.001353  / relative deviance change :  6e-06
+Iter.  46  :  10:14:14.891368 ,   loglike= -14708.96  / max. param. ch. :  0.001315  / relative deviance change :  6e-06
+Iter.  47  :  10:14:14.89296 ,   loglike= -14708.87  / max. param. ch. :  0.001278  / relative deviance change :  6e-06
+Iter.  48  :  10:14:14.8944 ,   loglike= -14708.8  / max. param. ch. :  0.001242  / relative deviance change :  5e-06
+Iter.  49  :  10:14:14.89602 ,   loglike= -14708.73  / max. param. ch. :  0.001208  / relative deviance change :  5e-06
+Iter.  50  :  10:14:14.897907 ,   loglike= -14708.66  / max. param. ch. :  0.001176  / relative deviance change :  5e-06
+Iter.  51  :  10:14:14.899692 ,   loglike= -14708.59  / max. param. ch. :  0.001144  / relative deviance change :  4e-06
+Iter.  52  :  10:14:14.901485 ,   loglike= -14708.53  / max. param. ch. :  0.001114  / relative deviance change :  4e-06
+Iter.  53  :  10:14:14.903255 ,   loglike= -14708.48  / max. param. ch. :  0.001085  / relative deviance change :  4e-06
+Iter.  54  :  10:14:14.904847 ,   loglike= -14708.42  / max. param. ch. :  0.001056  / relative deviance change :  4e-06
+Iter.  55  :  10:14:14.906141 ,   loglike= -14708.37  / max. param. ch. :  0.001029  / relative deviance change :  4e-06
+Iter.  56  :  10:14:14.907252 ,   loglike= -14708.32  / max. param. ch. :  0.001003  / relative deviance change :  3e-06
+Iter.  57  :  10:14:14.908345 ,   loglike= -14708.27  / max. param. ch. :  0.000978  / relative deviance change :  3e-06
+---------------------------------------------------------------------------------
+Time difference of 0.1045771 secs
+> param <- CDM::IRT.se(ecpe, extended = TRUE)
+> p <- split(param, param$partype)
+> cdm_result <- tibble::tibble(
++     guess = p$guess$est,
++     slip = p$slip$est,
++     guess005 = p$guess$est - 1.96 * p$guess$se,
++     guess975 = p$guess$est + 1.96 * p$guess$se,
++     slip005 = p$slip$est - 1.96 * p$slip$se,
++     slip975 = p$slip$est + 1.96 * p$slip$se
++ )
+> 
+> # Rearrange to match ggdmc format
+> nitem <- length(p$guess$est)
+> cdm_formatted <- data.frame(
++     `5%` = c(
++         p$guess$est - 1.96 * p$guess$se, # guess lower bounds
++         p$slip$est - 1.96 * p$slip$se # slip lower bounds
++     ),
++     `50%` = c(p$guess$est, p$slip$est), # medians (estimates)
++     `97.5%` = c(
++         p$guess$est + 1.96 * p$guess$se, # guess upper bounds
++         p$slip$est + 1.96 * p$slip$se # slip upper bounds
++     ),
++     check.names = FALSE
++ )
+> rownames(cdm_formatted) <- c(
++     paste0("guess", 1:nitem),
++     paste0("slip", 1:nitem)
++ )
+> 
+> cat("\n=== CDM Package Results ===\n")
+
+=== CDM Package Results ===
+> print(round(cdm_formatted, 3))
+           5%   50% 97.5%
+guess1  0.647 0.678 0.710
+guess2  0.606 0.656 0.706
+guess3  0.367 0.401 0.434
+guess4  0.369 0.417 0.466
+guess5  0.697 0.734 0.771
+guess6  0.634 0.675 0.715
+guess7  0.472 0.507 0.541
+guess8  0.688 0.732 0.776
+guess9  0.444 0.491 0.537
+guess10 0.363 0.404 0.444
+slip1   0.071 0.092 0.113
+slip2   0.083 0.103 0.122
+slip3   0.236 0.265 0.294
+slip4   0.150 0.173 0.195
+slip5   0.035 0.048 0.061
+slip6   0.056 0.071 0.086
+slip7   0.069 0.092 0.116
+slip8   0.024 0.038 0.053
+slip9   0.186 0.209 0.231
+slip10  0.129 0.156 0.183
+> 
+> cat("\n=== Original cdm_result ===\n")
+
+=== Original cdm_result ===
+> print(cdm_result)
+# A tibble: 10 × 6
+   guess   slip guess005 guess975 slip005 slip975
+   <dbl>  <dbl>    <dbl>    <dbl>   <dbl>   <dbl>
+ 1 0.678 0.0919    0.647    0.710  0.0706  0.113 
+ 2 0.656 0.103     0.606    0.706  0.0833  0.122 
+ 3 0.401 0.265     0.367    0.434  0.236   0.294 
+ 4 0.417 0.173     0.369    0.466  0.150   0.195 
+ 5 0.734 0.0485    0.697    0.771  0.0355  0.0615
+ 6 0.675 0.0711    0.634    0.715  0.0558  0.0865
+ 7 0.507 0.0923    0.472    0.541  0.0685  0.116 
+ 8 0.732 0.0382    0.688    0.776  0.0236  0.0527
+ 9 0.491 0.209     0.444    0.537  0.186   0.231 
+10 0.404 0.156     0.363    0.444  0.129   0.183 
+> 
+> 
+> Qmat <- as.matrix(Q)
+> colnames(Qmat) <- c("Algebra", "Geometry", "Science")
+> rownames(Qmat) <- paste0("Item", 1:nrow(Qmat))
+> 
+> # -------------------- Prior Setup --------------------
+> p_map <- list(
++     guess1 = "1", guess2 = "1", guess3 = "1",
++     guess4 = "1", guess5 = "1", guess6 = "1",
++     guess7 = "1", guess8 = "1",
++     guess9 = "1", guess10 = "1",
++     pi_000 = "1",
++     pi_100 = "1",
++     pi_010 = "1",
++     pi_110 = "1",
++     pi_001 = "1",
++     pi_101 = "1",
++     pi_011 = "1",
++     slip1 = "1", slip2 = "1", slip3 = "1",
++     slip4 = "1", slip5 = "1", slip6 = "1",
++     slip7 = "1", slip8 = "1",
++     slip9 = "1", slip10 = "1"
++ )
+> 
+> fit_model <- BuildModel(
++     p_map = p_map,
++     factors = NULL,
++     constants = NULL,
++     match_map = NULL,
++     accumulators = Qmat,
++     type = "cdm",
++     verbose = TRUE
++ )
+27 parameters (showing first 10):
+  guess1, guess10, guess2, guess3, guess4, guess5, guess6, guess7, guess8
+  guess9
+  ... +17 more
+1 cell names : Cell
+
+=====CDM Model Information=====
+Items: 10  |  Skills: 3  |  Profiles: 8
+Skills: Algebra, Geometry, Science
+Default skill profile distribution: uniform (0.1250)
+
+Q-matrix:
+       Algebra Geometry Science
+Item1        1        1       0
+Item2        0        1       0
+Item3        1        0       1
+Item4        0        0       1
+Item5        0        0       1
+Item6        0        0       1
+Item7        1        0       1
+Item8        0        1       0
+Item9        0        0       1
+Item10       1        0       0
+
+Skill profiles (first 6):
+  Algebra Geometry Science
+1       0        0       0
+2       1        0       0
+3       0        1       0
+4       1        1       0
+5       0        0       1
+6       1        0       1
+... +2 more
+> 
+> sub_priors <- cdModel::setup_cdm_prior(fit_model)
+> print_prior(sub_priors@p_prior)
+--------------------------------------------------------------------
+| Parameter |   p0   |   p1   | Lower  | Upper  | Log_P | Dist  |
+--------------------------------------------------------------------
+|  guess1 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess2 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess3 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess4 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess5 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess6 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess7 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess8 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess9 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess10 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  pi_000 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_100 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_010 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_110 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_001 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_101 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_011 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|   slip1 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip2 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip3 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip4 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip5 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip6 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip7 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip8 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip9 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip10 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+--------------------------------------------------------------------
+ [1] "guess1"  "guess2"  "guess3"  "guess4"  "guess5"  "guess6"  "guess7" 
+ [8] "guess8"  "guess9"  "guess10" "pi_000"  "pi_100"  "pi_010"  "pi_110" 
+[15] "pi_001"  "pi_101"  "pi_011"  "slip1"   "slip2"   "slip3"   "slip4"  
+[22] "slip5"   "slip6"   "slip7"   "slip8"   "slip9"   "slip10" 
+> 
+> 
+> 
+> dat_long <- wide2long_base(ecpe_dat)
+> dat_long$s <- 1
+> 
+> dat_responses <- dat_long[, 2:5]
+> 
+> # Build data-model-info objects
+> sub_dmis <- BuildDMI(dat_responses, fit_model,
++     q_matrix = fit_model@cdm_info$q_matrix,
++     rule = "DINA",
++     use_mvn = FALSE
++ )
+Experimental BuildDMI for CDM.
+> 
+> # -------------------- MCMC Sampling --------------------
+> # Stage 0: Burn-in with migration plus blocking at the
+> # subject level (exploration phase)
+> fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors,
++     sub_migration_prob = 0.05, thin = 2, is_pblocked = TRUE,
++     seed = 9032
++ )
+Use 81 chains in an instance to optimise the model
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+Initialise 3 independent sets of new theta samples
+
+Launching 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time (in R): 1284.59 secs.
+> save(fits0, file = save_path)
+> 
+> 
+> # Stage 1: First restart without migration
+> fits1 <- ggdmc:::RestartSampling_subject(fits0,
++     sub_migration_prob = 0.00, thin = 2, is_pblocked = FALSE
++ )
+Configuration parameters changed - creating new configs
+Sampling settings:
+---------------------
+Main seed: 273342
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 896929
+  Instance 2: 885064
+  Instance 3: 670477
+
+Sampling 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time (in R): 40.12 secs.
+> 
+> save(fits0, fits1, file = save_path)
+> 
+> fits <- fits1
+> fit <- RebuildPosterior(fits)
+> 
+> # -------------------- Diagnostics (Optional) --------------------
+> # Check Stage 0: Burn-in chains
+> figure_name <- file.path(fig_dir, "07_subject_dina0_ecpe.pdf")
+> pdf(figure_name)
+> 
+> p0 <- ggdmc::plot(fits0[[1]], start = 1)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[2]], start = 1)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[3]], start = 1)
+Construct a data table instance for plotting...
+> 
+> p0 <- ggdmc::plot(fits0[[1]], start = 200)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[2]], start = 200)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[3]], start = 200)
+Construct a data table instance for plotting...
+> 
+> p0 <- ggdmc::plot(fits1[[1]])
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits1[[2]])
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits1[[3]])
+Construct a data table instance for plotting...
+> 
+> p1 <- ggdmc::plot(fit)
+Construct a data table instance for plotting...
+> p1 <- ggdmc::plot(fit, den = TRUE, pll = FALSE, hide_legend = FALSE)
+Construct a data table instance for plotting...
+> dev.off()
+null device 
+          1 
+> 
+> # -------------------- Convergence Check --------------------
+> hat <- gelman(fit)
+> cat("Overall mpsrf = ", hat$mpsrf, "\n")
+Overall mpsrf =  1.013808 
+> 
+> # Check individual chains
+> ncore <- 3
+> for (i in seq_len(ncore)) {
++     hat <- gelman(fits[[i]])
++     cat("Chain", i, "mpsrf = ", hat$mpsrf, "\n")
++ }
+Chain 1 mpsrf =  1.148569 
+Chain 2 mpsrf =  1.163955 
+Chain 3 mpsrf =  1.159178 
+> 
+> # -------------------- Parameter summary --------------------
+> # options(digits = 2)
+> est_theta <- ggdmc::summary(fit)
+> print(est_theta$quantile)
+                 5%        50%      97.5%
+guess1  0.657386795 0.68736080 0.71994231
+guess2  0.639385895 0.69891431 0.74868569
+guess3  0.375005488 0.40635988 0.44397424
+guess4  0.366631365 0.42229554 0.48033432
+guess5  0.696865216 0.73717299 0.77827139
+guess6  0.631995483 0.67702604 0.72332194
+guess7  0.477829459 0.51563388 0.55657573
+guess8  0.719935933 0.77509474 0.82020159
+guess9  0.446966271 0.49376172 0.54409763
+guess10 0.362155179 0.42200061 0.47342135
+pi_000  0.157926546 0.22026225 0.29200675
+pi_100  0.001171528 0.01459114 0.05944294
+pi_010  0.004506319 0.04028426 0.10855364
+pi_110  0.002211328 0.01843520 0.05214681
+pi_001  0.045977763 0.09195980 0.15997190
+pi_101  0.005299444 0.03189887 0.08420805
+pi_011  0.032604311 0.08583146 0.14671346
+slip1   0.059256940 0.08369288 0.11109955
+slip2   0.072009987 0.09430630 0.11896008
+slip3   0.230493686 0.25981895 0.29430398
+slip4   0.147614593 0.17155505 0.19871087
+slip5   0.036705333 0.04830518 0.06259947
+slip6   0.056463803 0.07056789 0.08776228
+slip7   0.061759555 0.08750687 0.11867777
+slip8   0.014533429 0.03159043 0.05050521
+slip9   0.185451193 0.20737272 0.23254937
+slip10  0.121777789 0.15175987 0.18497390
+> 
+> # A tibble: 10 × 6
+> #    guess   slip guess005 guess975 slip005 slip975
+> #    <dbl>  <dbl>    <dbl>    <dbl>   <dbl>   <dbl>
+> #  1 0.678 0.0919    0.647    0.710  0.0706  0.113
+> #  2 0.656 0.103     0.606    0.706  0.0833  0.122
+> #  3 0.401 0.265     0.367    0.434  0.236   0.294
+> #  4 0.417 0.173     0.369    0.466  0.150   0.195
+> #  5 0.734 0.0485    0.697    0.771  0.0355  0.0615
+> #  6 0.675 0.0711    0.634    0.715  0.0558  0.0865
+> #  7 0.507 0.0923    0.472    0.541  0.0685  0.116
+> #  8 0.732 0.0382    0.688    0.776  0.0236  0.0527
+> #  9 0.491 0.209     0.444    0.537  0.186   0.231
+> # 10 0.404 0.156     0.363    0.444  0.129   0.183
+> 
+> #       guess1 guess2 guess3 guess4 guess5 guess6 guess7 guess8 guess9 guess10
+> # 5%      0.75   0.88   0.36   0.39   0.71   0.64   0.46   0.95   0.45    0.32
+> # 50%     0.83   0.92   0.41   0.45   0.75   0.70   0.52   0.98   0.51    0.45
+> # 97.5%   0.92   0.98   0.73   0.91   0.98   0.97   0.90   1.00   0.86    0.96
+> #       pi_000 pi_100 pi_010 pi_110 pi_001 pi_101 pi_011 slip1 slip2 slip3 slip4
+> # 5%    0.0017 0.0011   0.01 0.0012 0.0052  0.015  0.021 0.014  0.23  0.24  0.15
+> # 50%   0.0711 0.0164   0.15 0.0397 0.0463  0.338  0.075 0.342  0.27  0.28  0.18
+> # 97.5% 0.4347 0.0980   0.34 0.0931 0.1066  0.617  0.187 0.959  0.39  0.66  0.51
+> #       slip5 slip6 slip7 slip8 slip9 slip10
+> # 5%    0.038 0.057 0.071  0.15  0.18   0.13
+> # 50%   0.053 0.076 0.113  0.20  0.21   0.19
+> # 97.5% 0.219 0.279 0.573  0.30  0.47   0.62
+> 
+> proc.time()
+    user   system  elapsed 
+3966.569    3.778 1347.904 

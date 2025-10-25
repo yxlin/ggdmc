@@ -50,11 +50,109 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// run_subject_fast
+Rcpp::List run_subject_fast(const Rcpp::S4& config_r, const Rcpp::S4& dmi, const Rcpp::S4& samples);
+RcppExport SEXP _ggdmc_run_subject_fast(SEXP config_rSEXP, SEXP dmiSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type dmi(dmiSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_subject_fast(config_r, dmi, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_hyper_fast
+Rcpp::List run_hyper_fast(const Rcpp::S4& config_r, const Rcpp::S4& dmi, const Rcpp::S4& samples);
+RcppExport SEXP _ggdmc_run_hyper_fast(SEXP config_rSEXP, SEXP dmiSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type dmi(dmiSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_hyper_fast(config_r, dmi, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_subject_fast_notiming
+Rcpp::S4 run_subject_fast_notiming(const Rcpp::S4& config_r, const Rcpp::S4& dmi, const Rcpp::S4& samples);
+RcppExport SEXP _ggdmc_run_subject_fast_notiming(SEXP config_rSEXP, SEXP dmiSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type dmi(dmiSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_subject_fast_notiming(config_r, dmi, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_hyper_fast_notiming
+Rcpp::S4 run_hyper_fast_notiming(const Rcpp::S4& config_r, const Rcpp::S4& dmi, const Rcpp::S4& samples);
+RcppExport SEXP _ggdmc_run_hyper_fast_notiming(SEXP config_rSEXP, SEXP dmiSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type dmi(dmiSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_hyper_fast_notiming(config_r, dmi, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_fast
+Rcpp::List run_fast(const Rcpp::S4& config_r, const Rcpp::List& dmis, const Rcpp::List& samples);
+RcppExport SEXP _ggdmc_run_fast(SEXP config_rSEXP, SEXP dmisSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type dmis(dmisSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_fast(config_r, dmis, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_fast_notiming
+Rcpp::List run_fast_notiming(const Rcpp::S4& config_r, const Rcpp::List& dmis, const Rcpp::List& samples);
+RcppExport SEXP _ggdmc_run_fast_notiming(SEXP config_rSEXP, SEXP dmisSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type dmis(dmisSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_fast_notiming(config_r, dmis, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_subject_typeconv
+Rcpp::S4 run_subject_typeconv(const Rcpp::S4& config_r, const Rcpp::S4& dmi, const Rcpp::S4& samples);
+RcppExport SEXP _ggdmc_run_subject_typeconv(SEXP config_rSEXP, SEXP dmiSEXP, SEXP samplesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type config_r(config_rSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type dmi(dmiSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::S4& >::type samples(samplesSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_subject_typeconv(config_r, dmi, samples));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ggdmc_run_subject", (DL_FUNC) &_ggdmc_run_subject, 3},
     {"_ggdmc_run_hyper", (DL_FUNC) &_ggdmc_run_hyper, 3},
     {"_ggdmc_run", (DL_FUNC) &_ggdmc_run, 3},
+    {"_ggdmc_run_subject_fast", (DL_FUNC) &_ggdmc_run_subject_fast, 3},
+    {"_ggdmc_run_hyper_fast", (DL_FUNC) &_ggdmc_run_hyper_fast, 3},
+    {"_ggdmc_run_subject_fast_notiming", (DL_FUNC) &_ggdmc_run_subject_fast_notiming, 3},
+    {"_ggdmc_run_hyper_fast_notiming", (DL_FUNC) &_ggdmc_run_hyper_fast_notiming, 3},
+    {"_ggdmc_run_fast", (DL_FUNC) &_ggdmc_run_fast, 3},
+    {"_ggdmc_run_fast_notiming", (DL_FUNC) &_ggdmc_run_fast_notiming, 3},
+    {"_ggdmc_run_subject_typeconv", (DL_FUNC) &_ggdmc_run_subject_typeconv, 3},
     {NULL, NULL, 0}
 };
 

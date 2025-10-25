@@ -11,6 +11,11 @@ de_class::de_class(const DEInput &de_input)
     /*--------tuning parameters------------------------------*/
     m_gamma = m_gamma_precursor / std::sqrt(2.0 * m_nparameter);
     m_chains = arma::linspace<arma::uvec>(0, m_nchain - 1, m_nchain);
+
+    /*--------Pre-allocate buffers for fast version----------*/
+    m_chains_buffer = arma::linspace<arma::uvec>(0, m_nchain - 1, m_nchain);
+    m_subchains_buffer.set_size(m_nchain);
+    m_shuffle_indices.set_size(m_nchain);
 }
 
 de_class::de_class(const DEInput &de_input, unsigned int nsubject)
@@ -25,6 +30,16 @@ de_class::de_class(const DEInput &de_input, unsigned int nsubject)
     m_chains = arma::linspace<arma::uvec>(0, m_nchain - 1, m_nchain);
 
     m_nsubject = nsubject;
+
+    /*--------Pre-allocate buffers for fast version----------*/
+    m_chains_buffer = arma::linspace<arma::uvec>(0, m_nchain - 1, m_nchain);
+    m_subchains_buffer.set_size(m_nchain);
+    m_shuffle_indices.set_size(m_nchain);
+
+    /*--------HB cache for hyper-likelihood------------------*/
+    m_cached_hlike.set_size(m_nchain, 1);
+    m_cached_hlike.zeros();
+    m_hlike_cache_valid = false;
 }
 
 de_class::~de_class()
@@ -75,6 +90,61 @@ arma::uvec de_class::get_subchains()
     arma::uvec out = rchains.head(m_nsubchain);
     return arma::sort(out);
     // return rchains.rows(0, m_nsubchain - 1);
+}
+
+/* -------------------Optimized versions with pre-allocated buffers ------*/
+// Fast version: updates m_subchains_buffer in-place
+void de_class::get_chains_fast(unsigned int k, unsigned int nsubchain)
+{
+    // Generate shuffle indices in-place
+    for (size_t i = 0; i < m_nchain; ++i)
+    {
+        m_shuffle_indices(i) = i;
+    }
+
+    // Fisher-Yates shuffle in-place, excluding chain k
+    unsigned int excluded_idx = m_nchain - 1;
+    if (k != excluded_idx)
+    {
+        std::swap(m_shuffle_indices(k), m_shuffle_indices(excluded_idx));
+    }
+
+    // Shuffle the remaining chains (all except the last one which is k)
+    for (size_t i = 0; i < excluded_idx - 1; ++i)
+    {
+        size_t j = i + static_cast<size_t>(Rf_runif(0, 1) * (excluded_idx - i));
+        std::swap(m_shuffle_indices(i), m_shuffle_indices(j));
+    }
+
+    // Store the first nsubchain shuffled indices in m_subchains
+    m_subchains = m_shuffle_indices.head(nsubchain);
+}
+
+void de_class::get_subchains_fast()
+{
+    // Calculate the number of subchains to pick by generating random proportion
+    double proportion = Rf_runif(0.0, 1.0);
+    m_nsubchain = static_cast<unsigned int>(std::ceil(m_nchain * proportion));
+
+    // Ensure nsubchain is at least min_nsubchain and at most m_nchain
+    m_nsubchain = std::max(m_nsubchain, m_min_nsubchain);
+    m_nsubchain = std::min(m_nsubchain, m_nchain);
+
+    // Shuffle all chains in-place using shuffle_indices
+    for (size_t i = 0; i < m_nchain; ++i)
+    {
+        m_shuffle_indices(i) = i;
+    }
+
+    // Fisher-Yates shuffle
+    for (size_t i = 0; i < m_nchain - 1; ++i)
+    {
+        size_t j = i + static_cast<size_t>(Rf_runif(0, 1) * (m_nchain - i));
+        std::swap(m_shuffle_indices(i), m_shuffle_indices(j));
+    }
+
+    // Store the first nsubchain shuffled indices and sort them
+    m_subchains = arma::sort(m_shuffle_indices.head(m_nsubchain));
 }
 
 /* -------------------De Samplers -------------------------*/
@@ -232,6 +302,308 @@ void de_class::run_chains(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
             else
             {
                 crossover(t_ptr, p_ptr, l_ptr, debug);
+            }
+        }
+
+        t_ptr->store(i);
+        t_ptr->print_progress(i);
+    }
+    Rcpp::Rcout << std::endl;
+}
+
+/* -------------------Optimized De Samplers with timing ---------------*/
+void de_class::crossover_fast(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
+                              bool debug, size_t para_idx)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    if (debug)
+    {
+        Rcpp::Rcout << "-----Start theta crossover step (fast): "
+                    << "Proposed log prior, like, & post [MH ratio]\n";
+    }
+    for (size_t i = 0; i < m_nchain; ++i)
+    {
+        m_cur_log_pos = t_ptr->m_used_ll(i) + t_ptr->m_used_lp(i);
+        m_tmp_theta = t_ptr->m_used_theta.col(i);
+        get_chains_fast(i, 2); // Updates m_subchains in-place
+        const arma::vec &theta0 = t_ptr->m_used_theta.col(m_subchains(0));
+        const arma::vec &theta1 = t_ptr->m_used_theta.col(m_subchains(1));
+
+        /*-----------------Blocking switch----------------*/
+        if (para_idx != SIZE_T_MAX)
+        {
+            m_tmp_theta(para_idx) +=
+                Rf_runif(-m_rp, m_rp) +
+                m_gamma * (theta0(para_idx) - theta1(para_idx));
+        }
+        else
+        {
+            for (size_t j = 0; j < m_nparameter; ++j)
+            {
+                m_tmp_theta(j) +=
+                    Rf_runif(-m_rp, m_rp) + m_gamma * (theta0(j) - theta1(j));
+            }
+        }
+
+        /* ---------------------- M-H algorithm----------------------*/
+        auto ll_start = std::chrono::high_resolution_clock::now();
+        m_tmp_lp = p_ptr->sumlogprior(m_tmp_theta);
+        m_tmp_ll = l_ptr->sumloglike(m_tmp_theta, debug);
+        auto ll_end = std::chrono::high_resolution_clock::now();
+        m_timing_stats.likelihood_time +=
+            std::chrono::duration<double>(ll_end - ll_start).count();
+
+        m_tmp_log_pos = m_tmp_lp + m_tmp_ll;
+        m_mh_ratio = std::exp(m_tmp_log_pos - m_cur_log_pos);
+
+        update_theta(t_ptr, i, debug);
+    }
+    if (debug)
+    {
+        Rcpp::Rcout << "-----End theta crossover (fast)\n\n";
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    m_timing_stats.crossover_time +=
+        std::chrono::duration<double>(end_time - start_time).count();
+    m_timing_stats.n_crossover++;
+}
+
+/* -------------------Optimized version WITHOUT timing overhead -------*/
+void de_class::crossover_fast_notiming(ThetaPtr t_ptr, PriorPtr p_ptr,
+                                       LPtr l_ptr, bool debug, size_t para_idx)
+{
+    if (debug)
+    {
+        Rcpp::Rcout << "-----Start theta crossover step (fast): "
+                    << "Proposed log prior, like, & post [MH ratio]\n";
+    }
+    for (size_t i = 0; i < m_nchain; ++i)
+    {
+        m_cur_log_pos = t_ptr->m_used_ll(i) + t_ptr->m_used_lp(i);
+        m_tmp_theta = t_ptr->m_used_theta.col(i);
+        get_chains_fast(i, 2); // Updates m_subchains in-place
+        const arma::vec &theta0 = t_ptr->m_used_theta.col(m_subchains(0));
+        const arma::vec &theta1 = t_ptr->m_used_theta.col(m_subchains(1));
+
+        /*-----------------Blocking switch----------------*/
+        if (para_idx != SIZE_T_MAX)
+        {
+            m_tmp_theta(para_idx) +=
+                Rf_runif(-m_rp, m_rp) +
+                m_gamma * (theta0(para_idx) - theta1(para_idx));
+        }
+        else
+        {
+            for (size_t j = 0; j < m_nparameter; ++j)
+            {
+                m_tmp_theta(j) +=
+                    Rf_runif(-m_rp, m_rp) + m_gamma * (theta0(j) - theta1(j));
+            }
+        }
+
+        /* ---------------------- M-H algorithm----------------------*/
+        m_tmp_lp = p_ptr->sumlogprior(m_tmp_theta);
+        m_tmp_ll = l_ptr->sumloglike(m_tmp_theta, debug);
+        m_tmp_log_pos = m_tmp_lp + m_tmp_ll;
+        m_mh_ratio = std::exp(m_tmp_log_pos - m_cur_log_pos);
+
+        update_theta(t_ptr, i, debug);
+    }
+    if (debug)
+    {
+        Rcpp::Rcout << "-----End theta crossover (fast)\n\n";
+    }
+}
+
+void de_class::migration_fast(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
+                              bool debug, size_t para_idx)
+{
+    auto start_time = std::chrono::high_resolution_clock::now();
+
+    if (debug)
+    {
+        Rcpp::Rcout << "-----Start theta migration step (fast): ";
+    }
+    get_subchains_fast(); // Updates m_subchains in-place
+    unsigned int next_chain;
+
+    for (size_t i = 0; i < m_nsubchain; i++)
+    {
+        next_chain =
+            ((i + 1) == m_nsubchain) ? m_subchains(0) : m_subchains(i + 1);
+        m_tmp_theta = t_ptr->m_used_theta.col(m_subchains(i));
+
+        /*-----------------Blocking switch----------------*/
+        if (para_idx != SIZE_T_MAX)
+        {
+            m_tmp_theta(para_idx) += Rf_runif(-m_rp, m_rp);
+        }
+        else
+        {
+            for (size_t j = 0; j < m_nparameter; ++j)
+            {
+                m_tmp_theta(j) += Rf_runif(-m_rp, m_rp);
+            }
+        }
+
+        auto ll_start = std::chrono::high_resolution_clock::now();
+        m_tmp_lp = p_ptr->sumlogprior(m_tmp_theta);
+        m_tmp_ll = l_ptr->sumloglike(m_tmp_theta);
+        auto ll_end = std::chrono::high_resolution_clock::now();
+        m_timing_stats.likelihood_time +=
+            std::chrono::duration<double>(ll_end - ll_start).count();
+
+        m_tmp_log_pos = m_tmp_lp + m_tmp_ll;
+        m_cur_log_pos =
+            t_ptr->m_used_lp[next_chain] + t_ptr->m_used_ll[next_chain];
+        m_mh_ratio = std::exp(m_tmp_log_pos - m_cur_log_pos);
+
+        update_theta(t_ptr, next_chain, debug);
+    }
+    if (debug)
+    {
+        Rcpp::Rcout << "-----End theta migration (fast)\n\n";
+    }
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    m_timing_stats.migration_time +=
+        std::chrono::duration<double>(end_time - start_time).count();
+    m_timing_stats.n_migration++;
+}
+
+void de_class::migration_fast_notiming(ThetaPtr t_ptr, PriorPtr p_ptr,
+                                       LPtr l_ptr, bool debug, size_t para_idx)
+{
+    if (debug)
+    {
+        Rcpp::Rcout << "-----Start theta migration step (fast): ";
+    }
+    get_subchains_fast(); // Updates m_subchains in-place
+    unsigned int next_chain;
+
+    for (size_t i = 0; i < m_nsubchain; i++)
+    {
+        next_chain =
+            ((i + 1) == m_nsubchain) ? m_subchains(0) : m_subchains(i + 1);
+        m_tmp_theta = t_ptr->m_used_theta.col(m_subchains(i));
+
+        /*-----------------Blocking switch----------------*/
+        if (para_idx != SIZE_T_MAX)
+        {
+            m_tmp_theta(para_idx) += Rf_runif(-m_rp, m_rp);
+        }
+        else
+        {
+            for (size_t j = 0; j < m_nparameter; ++j)
+            {
+                m_tmp_theta(j) += Rf_runif(-m_rp, m_rp);
+            }
+        }
+
+        m_tmp_lp = p_ptr->sumlogprior(m_tmp_theta);
+        m_tmp_ll = l_ptr->sumloglike(m_tmp_theta);
+        m_tmp_log_pos = m_tmp_lp + m_tmp_ll;
+        m_cur_log_pos =
+            t_ptr->m_used_lp[next_chain] + t_ptr->m_used_ll[next_chain];
+        m_mh_ratio = std::exp(m_tmp_log_pos - m_cur_log_pos);
+
+        update_theta(t_ptr, next_chain, debug);
+    }
+    if (debug)
+    {
+        Rcpp::Rcout << "-----End theta migration (fast)\n\n";
+    }
+}
+
+void de_class::run_chains_fast(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
+                               bool debug)
+{
+    // Reset timing statistics
+    m_timing_stats = TimingStats();
+
+    auto total_start = std::chrono::high_resolution_clock::now();
+
+    std::vector<std::pair<double, std::function<void()>>> migration_actions = {
+        {m_sub_migration_prob,
+         [&]() { migration_fast(t_ptr, p_ptr, l_ptr, debug); }}};
+
+    for (size_t i = 1; i < t_ptr->m_nsample; ++i)
+    {
+        double rand_val = Rf_runif(0.0, 1.0);
+        bool action_taken = false;
+
+        for (const auto &pair : migration_actions)
+        {
+            if (rand_val < pair.first)
+            {
+                pair.second();
+                action_taken = true;
+                break;
+            }
+        }
+
+        if (!action_taken)
+        {
+            if (m_is_pblocked)
+            {
+                for (size_t para_idx = 0; para_idx < m_nparameter; ++para_idx)
+                {
+                    crossover_fast(t_ptr, p_ptr, l_ptr, debug, para_idx);
+                }
+            }
+            else
+            {
+                crossover_fast(t_ptr, p_ptr, l_ptr, debug);
+            }
+        }
+
+        t_ptr->store(i);
+        t_ptr->print_progress(i);
+    }
+    Rcpp::Rcout << std::endl;
+
+    auto total_end = std::chrono::high_resolution_clock::now();
+    m_timing_stats.total_time =
+        std::chrono::duration<double>(total_end - total_start).count();
+}
+
+void de_class::run_chains_fast_notiming(ThetaPtr t_ptr, PriorPtr p_ptr,
+                                        LPtr l_ptr, bool debug)
+{
+    std::vector<std::pair<double, std::function<void()>>> migration_actions = {
+        {m_sub_migration_prob,
+         [&]() { migration_fast_notiming(t_ptr, p_ptr, l_ptr, debug); }}};
+
+    for (size_t i = 1; i < t_ptr->m_nsample; ++i)
+    {
+        double rand_val = Rf_runif(0.0, 1.0);
+        bool action_taken = false;
+
+        for (const auto &pair : migration_actions)
+        {
+            if (rand_val < pair.first)
+            {
+                pair.second();
+                action_taken = true;
+                break;
+            }
+        }
+
+        if (!action_taken)
+        {
+            if (m_is_pblocked)
+            {
+                for (size_t para_idx = 0; para_idx < m_nparameter; ++para_idx)
+                {
+                    crossover_fast_notiming(t_ptr, p_ptr, l_ptr, debug,
+                                            para_idx);
+                }
+            }
+            else
+            {
+                crossover_fast_notiming(t_ptr, p_ptr, l_ptr, debug);
             }
         }
 
@@ -662,4 +1034,142 @@ void de_class::migration(ThetaPtr phi_ptr, LPtr l_ptr, ThetaPtr t_ptr,
     {
         Rcpp::Rcout << "-----End theta-phi migration_Hu\n\n";
     }
+}
+
+/* ==================== Step 3: Type Conversion Optimization ==================
+ * These functions eliminate arma::vec -> std::vector<double> conversions
+ * by calling sumloglike_fast() which accepts const arma::vec& directly
+ * ============================================================================*/
+
+void de_class::crossover_typeconv(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
+                                  bool debug, size_t para_idx)
+{
+    if (debug)
+    {
+        Rcpp::Rcout << "-----Start theta crossover step (typeconv): "
+                    << "Proposed log prior, like, & post [MH ratio]\n";
+    }
+    for (size_t i = 0; i < m_nchain; ++i)
+    {
+        m_cur_log_pos = t_ptr->m_used_ll(i) + t_ptr->m_used_lp(i);
+        m_tmp_theta = t_ptr->m_used_theta.col(i);
+        m_subchains = get_chains(i, 2);
+        const arma::vec &theta0 = t_ptr->m_used_theta.col(m_subchains(0));
+        const arma::vec &theta1 = t_ptr->m_used_theta.col(m_subchains(1));
+
+        /*-----------------Blocking switch----------------*/
+        if (para_idx != SIZE_T_MAX)
+        {
+            m_tmp_theta(para_idx) +=
+                Rf_runif(-m_rp, m_rp) +
+                m_gamma * (theta0(para_idx) - theta1(para_idx));
+        }
+        else
+        {
+            for (size_t j = 0; j < m_nparameter; ++j)
+            {
+                m_tmp_theta(j) +=
+                    Rf_runif(-m_rp, m_rp) + m_gamma * (theta0(j) - theta1(j));
+            }
+        }
+
+        /* ---------------------- M-H algorithm----------------------*/
+        m_tmp_lp = p_ptr->sumlogprior(m_tmp_theta);
+        m_tmp_ll = l_ptr->sumloglike_fast(m_tmp_theta, debug); // KEY CHANGE
+        m_tmp_log_pos = m_tmp_lp + m_tmp_ll;
+        m_mh_ratio = std::exp(m_tmp_log_pos - m_cur_log_pos);
+
+        update_theta(t_ptr, i, debug);
+    }
+    if (debug)
+    {
+        Rcpp::Rcout << "-----End theta crossover (typeconv)\n\n";
+    }
+}
+
+void de_class::migration_typeconv(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
+                                  bool debug, size_t para_idx)
+{
+    if (debug)
+    {
+        Rcpp::Rcout << "-----Start theta migration step (typeconv): ";
+    }
+    m_subchains = get_subchains();
+    unsigned int next_chain;
+
+    for (size_t i = 0; i < m_nsubchain; i++)
+    {
+        next_chain =
+            ((i + 1) == m_nsubchain) ? m_subchains(0) : m_subchains(i + 1);
+        m_tmp_theta = t_ptr->m_used_theta.col(m_subchains(i));
+
+        /*-----------------Blocking switch----------------*/
+        if (para_idx != SIZE_T_MAX)
+        {
+            m_tmp_theta(para_idx) += Rf_runif(-m_rp, m_rp);
+        }
+        else
+        {
+            for (size_t j = 0; j < m_nparameter; ++j)
+            {
+                m_tmp_theta(j) += Rf_runif(-m_rp, m_rp);
+            }
+        }
+
+        m_tmp_lp = p_ptr->sumlogprior(m_tmp_theta);
+        m_tmp_ll = l_ptr->sumloglike_fast(m_tmp_theta); // KEY CHANGE
+        m_tmp_log_pos = m_tmp_lp + m_tmp_ll;
+        m_cur_log_pos =
+            t_ptr->m_used_lp[next_chain] + t_ptr->m_used_ll[next_chain];
+        m_mh_ratio = std::exp(m_tmp_log_pos - m_cur_log_pos);
+
+        update_theta(t_ptr, next_chain, debug);
+    }
+    if (debug)
+    {
+        Rcpp::Rcout << "-----End theta migration (typeconv)\n\n";
+    }
+}
+
+void de_class::run_chains_typeconv(ThetaPtr t_ptr, PriorPtr p_ptr, LPtr l_ptr,
+                                   bool debug)
+{
+    std::vector<std::pair<double, std::function<void()>>> migration_actions = {
+        {m_sub_migration_prob,
+         [&]() { migration_typeconv(t_ptr, p_ptr, l_ptr, debug); }}};
+
+    for (size_t i = 1; i < t_ptr->m_nsample; ++i)
+    {
+        double rand_val = Rf_runif(0.0, 1.0);
+        bool action_taken = false;
+
+        for (const auto &pair : migration_actions)
+        {
+            if (rand_val < pair.first)
+            {
+                pair.second();
+                action_taken = true;
+                break;
+            }
+        }
+
+        if (!action_taken)
+        {
+            if (m_is_pblocked)
+            {
+                for (size_t para_idx = 0; para_idx < m_nparameter; ++para_idx)
+                {
+                    crossover_typeconv(t_ptr, p_ptr, l_ptr, debug, para_idx);
+                }
+            }
+            else
+            {
+                crossover_typeconv(t_ptr, p_ptr, l_ptr, debug);
+            }
+        }
+
+        t_ptr->store(i);
+        t_ptr->print_progress(i);
+    }
+    Rcpp::Rcout << std::endl;
 }

@@ -1,7 +1,7 @@
-PKG_CPPFLAGS = 
+PKG_CPPFLAGS = -DARMA_USE_CURRENT
 PKG_CXXFLAGS =
 
-PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"`
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
 # Enable Dependency Tracking
 # PKG_CXXFLAGS += -MMD -MP

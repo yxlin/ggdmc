@@ -5,12 +5,12 @@
 \alias{theta_input-class}
 \title{An S4 class to store MCMC sampling parameters.}
 \description{
-This class holds parameters that control the Markov Chain Monte Carlo (MCMC)
+This class holds parameters that control the Markov chain Monte Carlo (MCMC)
 sampling process.
 }
 \details{
 This class is used to encapsulate the key parameters that govern the
-MCMC sampling process.  These parameters are essential for controlling
+MCMC sampling process. These parameters are essential for controlling
 the length of the MCMC run, how often to keep samples, and the
 storage and reporting of the sampling process.
 }
@@ -24,7 +24,7 @@ storage and reporting of the sampling process.
 
 \item{\code{thin}}{A integer indicating the thinning interval.  This
 determines how often samples are kept (e.g., a `thin` of 10 keeps every
-10th sample).  Thinning can help reduce autocorrelation in the MCMC samples.}
+10th sample). Thinning can help reduce autocorrelation in the MCMC samples.}
 
 \item{\code{nparameter}}{A integer storing the number of free parameter.}
 
@@ -50,3 +50,20 @@ constructor, where `...` are named arguments corresponding to
 the slots.
 }
 
+\examples{
+if (requireNamespace("ggdmcModel", quietly = TRUE))
+{
+    BuildModel <- getFromNamespace("BuildModel", "ggdmcModel")
+    model <- BuildModel(
+        p_map = list(A = "1", B = "1", t0 = "1", mean_v = "M", sd_v = "1", st0 = "1"),
+        match_map = list(M = list(s1 = "r1", s2 = "r2")),
+        factors = list(S = c("s1", "s2")),
+        constants = c(st0 = 0, sd_v = 1),
+        accumulators = c("r1", "r2"),
+        type = "lba"
+    )
+}
+
+nmc <- 200
+theta_input <- setThetaInput(nmc = nmc, pnames = model@pnames)
+}

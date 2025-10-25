@@ -1,7 +1,7 @@
 ################## ggdmcPhi class ---------------------------------------------
 #' An S4 class to store MCMC sampling parameters.
 #'
-#' This class holds parameters that control the Markov Chain Monte Carlo (MCMC)
+#' This class holds parameters that control the Markov chain Monte Carlo (MCMC)
 #' sampling process.
 #'
 #' @slot nmc A integer specifying the total number of MCMC iterations
@@ -9,7 +9,7 @@
 #' @slot nchain A integer indicating the number of MCMC chains to run.
 #' @slot thin A integer indicating the thinning interval.  This
 #' determines how often samples are kept (e.g., a `thin` of 10 keeps every
-#' 10th sample).  Thinning can help reduce autocorrelation in the MCMC samples.
+#' 10th sample). Thinning can help reduce autocorrelation in the MCMC samples.
 #' @slot nparameter A integer storing the number of free parameter.
 #' @slot pnames A string vector storing the name of the free parameter.
 #' @slot report_length A integer specifying the interval at which
@@ -23,7 +23,7 @@
 #'
 #' @details
 #' This class is used to encapsulate the key parameters that govern the
-#' MCMC sampling process.  These parameters are essential for controlling
+#' MCMC sampling process. These parameters are essential for controlling
 #' the length of the MCMC run, how often to keep samples, and the
 #' storage and reporting of the sampling process.
 #'
@@ -32,6 +32,22 @@
 #' the `setThetaInput` or the conventional `new("theta_input", ...)`
 #' constructor, where `...` are named arguments corresponding to
 #' the slots.
+#' @examples
+#' if (requireNamespace("ggdmcModel", quietly = TRUE))
+#' {
+#'     BuildModel <- getFromNamespace("BuildModel", "ggdmcModel")
+#'     model <- BuildModel(
+#'         p_map = list(A = "1", B = "1", t0 = "1", mean_v = "M", sd_v = "1", st0 = "1"),
+#'         match_map = list(M = list(s1 = "r1", s2 = "r2")),
+#'         factors = list(S = c("s1", "s2")),
+#'         constants = c(st0 = 0, sd_v = 1),
+#'         accumulators = c("r1", "r2"),
+#'         type = "lba"
+#'     )
+#' }
+#' 
+#' nmc <- 200
+#' theta_input <- setThetaInput(nmc = nmc, pnames = model@pnames)
 #' @export
 setClass("theta_input",
     slots = c(
@@ -423,6 +439,17 @@ setMethod(
     }
 )
 
+order_c <- function(x) {
+  old <- Sys.getlocale("LC_COLLATE")
+  on.exit(try(Sys.setlocale("LC_COLLATE", old), silent = TRUE), add = TRUE)
+  Sys.setlocale("LC_COLLATE", "C")
+  order(x, method = "radix")
+}
+
+sort_c <- function(x) x[order_c(x)]
+
+
+
 #' Compare True Parameters to Estimated Quantiles
 #'
 #' Compares true parameters to posterior quantiles from a fitted model object 
@@ -433,6 +460,8 @@ setMethod(
 #' @param end Last iteration to include in comparison (default: NULL uses all samples)
 #' @param ps Named vector of true parameter values to compare against estimates
 #' @param probability Vector of quantiles to compute (default: c(0.05, 0.5, 0.975))
+#' @param sort_name Logical Whether to sort the name of the estimate and the true 
+#' parameter vector
 #' @param verbose Logical Whether to print results (default: TRUE)
 #'
 #' @return A matrix with rows containing:
@@ -477,52 +506,62 @@ setMethod(
 #' }
 #'
 #' @export
-compare <- function(object, start = 1L, end = NULL, ps = NULL, probability = c(0.05, 0.5, 0.975), verbose = TRUE) {
-    if (is.null(ps)) {
-        stop("Must provide the true parameter")
-    }
-    
+compare <- function(object, start = 1L, end = NULL, ps = NULL, 
+probability = c(0.05, 0.5, 0.975), sort_name = TRUE, verbose = TRUE) {
+    if (is.null(ps)) { stop("Must provide the true parameter 'ps'.") }
+    if (!is.numeric(ps) || is.null(names(ps)))
+        stop("'ps' must be a *named numeric* vector.")
 
+    # start <- 1
+    # end <- 500
+    # probability = c(0.05, 0.5, 0.975)
+    # qs <- ggdmc:::summary(fit, start, end, probability)
+    # ps <- true_p_vector
     qs <- summary(object, start, end, probability)
-    es <- qs$quantiles
-    pnames_from_samples <- dimnames(qs)[[1]]
-    pnames_from_true <- names(ps)
+    qmat <- qs$quantiles
 
-    if (!is.null(ps) && (!all(pnames_from_samples %in% pnames_from_true))) {
-        stop("The name in the true vector (ps) do not match the parameter names stored in samples (ie object)")
-    }
-    # Create labels for the quantiles based on probability argument
-    prob_labels <- paste0(100 * probability, "%")
-
-    # Initialise output matrix
-    out <- rbind(
-        "True" = ps[order(names(ps))]
-    )
-
-    # Add each quantile estimate
-    for (i in seq_along(probability)) {
-        est <- qs$quantiles[names(ps), i]
-        oest <- est[order(names(est))]
-        out <- rbind(out, oest)
-        rownames(out)[nrow(out)] <- paste0(prob_labels[i], " Estimate")
-    }
-    # Calculate bias using the median (50% quantile)
-    median_idx <- which.min(abs(probability - 0.5)) # Find closest to median
-    if (length(median_idx) == 0) {
-        median_idx <- ceiling(length(probability) / 2) # fallback
+    if (is.null(rownames(qmat))) {
+        stop("summary(object)$quantiles must have row names (parameter names).")
     }
 
-    est <- qs$quantiles[names(ps), median_idx]
+    samp_names <- rownames(qmat)
+    true_names <- names(ps)
+    # samp_names
+    # true_names
+    # setequal(samp_names, true_names)
 
-    oest <- est[order(names(est))]
-    bias <- oest - out["True", ]
+    # require exact name set match
+    if (!setequal(samp_names, true_names)) {
+        stop("Names in 'ps' must exactly match parameter names in samples.")
+    }
+
+    # Sort using C++ little-endian ordering for CDM profile probabilities
+    if (sort_name) {
+        ord <- ggdmc:::sort_c(samp_names)
+        # ord <- sort(samp_names)
+        ps_ord <- ps[ord]
+        q_ord  <- qmat[ord, , drop = FALSE]
+    } else {
+        ps_ord <- ps
+        q_ord  <- qmat
+    }
+
+    # labels for rows of estimates
+    prob_labels <- trimws(formatC(100 * probability, format = "fg", digits = 3))
+    # prob_labels <- paste0(100 * probability, "%")
+
+    # build result: True row + all quantile rows
+    est_block <- t(q_ord)  # rows = probabilities, cols = parameters
+    rownames(est_block) <- paste0(prob_labels, " Estimate")
+    out <- rbind("True" = ps_ord, est_block)
+
+    # bias using quantile closest to 0.5
+    median_idx <- which.min(abs(probability - 0.5))
+    bias <- q_ord[, median_idx] - ps_ord
     out <- rbind(out, "Median-True" = bias)
 
-    if (verbose) {
-        print(out)
-    }
-
-    return(out)
+    if (verbose) print(out)
+    out
 }
 
 
@@ -1335,12 +1374,12 @@ setDEInput <- function(
     }
 
     if (!is.integer(nparameter)) {
-        message("You enter a numeric nparameter, but we need it to be an integer.")
+        message("Numeric (nparameter) input detected; converted to integer.")
         nparameter <- as.integer(nparameter)
     }
 
     if (!is.integer(nchain)) {
-        message("You enter a numeric nchain, but we need it to be an integer.")
+        message("Numeric (nchain) input detected; converted to integer.")
         nchain <- as.integer(nchain)
     }
 

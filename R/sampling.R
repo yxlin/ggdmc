@@ -101,7 +101,7 @@ parallel_lapply <- function(
             tryCatch(
                 {
                     if (identical(fun, run_hyper)) {
-                        fun(config_list[[i]], hyper_dmi, samples_list[[i]]$phi)
+                        fun(config_list[[i]], hyper_dmi, samples_list[[i]])
                     } else if (identical(fun, run)) {
                         fun(config_list[[i]], dmis, samples_list[[i]])
                     } else if (identical(fun, run_subject)) {
@@ -119,6 +119,14 @@ parallel_lapply <- function(
     }
     return(out)
 }
+
+#' Sampling functions (overview)
+#'
+#' See \link[=StartSampling]{StartSampling()} and related functions.
+#'
+#' @name sampling_functions
+#' @aliases sampling_functions
+NULL
 
 
 #' Initialise or Continue MCMC Sampling
@@ -300,6 +308,8 @@ StartSampling <- function(
     attr(out, "dmis") <- dmis
     attr(out, "priors") <- priors
     attr(out, "start_samples") <- samples_list
+    attr(out, "run_time") <- proc_time
+
     return(out)
 }
 
@@ -436,6 +446,7 @@ RestartSampling <- function(
     attr(out, "configs") <- config_list
     attr(out, "dmis") <- dmis
     attr(out, "priors") <- priors
+    attr(out, "run_time") <- proc_time
 
     return(out)
 }
@@ -467,7 +478,7 @@ StartSampling_subject <- function(
         sub_migration_prob = sub_migration_prob,
         gamma_precursor = gamma_precursor, rp = rp,
         is_pblocked = is_pblocked,
-        nparameter = as.integer(priors@nparameter), nchain = as.integer(nchain),
+        nparameter = as.integer(nparameter), nchain = as.integer(nchain),
         sub_debug = sub_debug
     )
     config_list <- set_configs(
@@ -496,6 +507,7 @@ StartSampling_subject <- function(
     attr(out, "dmi") <- dmi
     attr(out, "priors") <- priors
     attr(out, "start_samples") <- samples_list
+    attr(out, "run_time") <- proc_time
 
 
     return(out)
@@ -605,6 +617,7 @@ RestartSampling_subject <- function(
     attr(out, "configs") <- config_list
     attr(out, "dmi") <- dmi
     attr(out, "priors") <- priors
+    attr(out, "run_time") <- proc_time
 
     return(out)
 }
@@ -673,6 +686,8 @@ StartSampling_hyper <- function(
     attr(out, "dmis") <- dmis
     attr(out, "priors") <- priors
     attr(out, "start_samples") <- samples_list
+    attr(out, "run_time") <- proc_time
+
     return(out)
 }
 
@@ -806,6 +821,7 @@ RestartSampling_hyper <- function(
     attr(out, "hyper_dmi") <- hyper_dmi
     attr(out, "dmis") <- dmis
     attr(out, "priors") <- priors
+    attr(out, "run_time") <- proc_time
 
     return(out)
 }

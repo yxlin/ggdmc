@@ -1,0 +1,127 @@
+#' Run MCMC Sampling for Cognitive Models
+#'
+#' Execute MCMC-based posterior sampling for LBA, diffusion, or
+#' cognitive diagnostic models in one- or two-level structures.
+#'
+#' @description
+#' These functions manage the MCMC sampling process via C++ backends…
+#'
+#' @param config_r S4 \code{config} with priors, tuning, and model settings.
+#' @param dmi For \code{run_subject()} and \code{run_hyper()}: a single S4 DMI
+#'   instance for one subject, or a matrix of presumed true parameters (for hyper).
+#' @param dmis For \code{run()}: a list of DMI objects, one per subject.
+#' @param samples For \code{run_subject()} and \code{run_hyper()}: an S4
+#'   \code{samples} object. For \code{run()}: a list with elements
+#'   \code{subject_theta} (length N) and \code{phi} (group-level).
+#'
+#' @return
+#' \describe{
+#'   \item{\code{run_subject()}}{An S4 \code{posterior} object with slots:
+#'     \describe{
+#'       \item{\code{theta}}{Matrix/array of sampled parameter values.}
+#'       \item{\code{summed_log_prior}}{Numeric vector of log-prior values per draw.}
+#'       \item{\code{log_likelihoods}}{Numeric vector of log-likelihood values per draw.}
+#'       \item{\code{start}}{Integer, starting iteration index.}
+#'       \item{\code{npar}}{Integer, number of free parameters.}
+#'       \item{\code{pnames}}{Character vector of parameter names.}
+#'       \item{\code{nmc}}{Integer, total Monte Carlo iterations.}
+#'       \item{\code{thin}}{Integer, thinning interval.}
+#'       \item{\code{nchain}}{Integer, number of MCMC chains.}
+#'     }}
+#'
+#'   \item{\code{run_hyper()}}{An S4 \code{posterior} with the same slots,
+#'     estimated for group-level (hyper) parameters.}
+#'
+#'   \item{\code{run()}}{A named \code{list} with:
+#'     \describe{
+#'       \item{\code{phi}}{S4 \code{posterior} for group-level parameters.}
+#'       \item{\code{subject_theta}}{List of length \eqn{N}; each element is
+#'         an S4 \code{posterior} for one subject.}
+#'     }}
+#' }
+#'
+#' @details
+#' These functions are typically called by higher-level helpers
+#' (see \code{\link{sampling_functions}}). Internally, they coordinate
+#' log-likelihood evaluation, proposal generation, acceptance checks,
+#' and basic diagnostics. \code{run_subject()} operates on trial-level
+#' likelihoods; \code{run_hyper()} works with presumed true parameter
+#' vectors (treated as data). \code{run()} loops across subjects and
+#' updates hyperparameters as needed.
+#'
+#' @seealso \link[=sampling_functions]{sampling functions overview}
+#'
+#' @examples
+#' \donttest{
+#' if (requireNamespace("ggdmcModel", quietly = TRUE) &&
+#'     requireNamespace("ggdmcPrior", quietly = TRUE) &&
+#'     requireNamespace("lbaModel", quietly = TRUE)) {
+#'     ## 1) Build a simple LBA model
+#'     model <- ggdmcModel::BuildModel(
+#'         p_map = list(A = "1", B = "1", t0 = "1", mean_v = "M", sd_v = "1", st0 = "1"),
+#'         match_map = list(M = list(s1 = "r1", s2 = "r2")),
+#'         factors = list(S = c("s1", "s2")),
+#'         constants = c(st0 = 0, sd_v = 1),
+#'         accumulators = c("r1", "r2"),
+#'         type = "lba"
+#'     )
+#'
+#'     ## 2) Simulate data
+#'     p_vector <- c(A = .75, B = 1.25, mean_v.false = 1.5, mean_v.true = 2.5, t0 = .15)
+#'     rt_model <- lbaModel::setLBA(model)
+#'     dat <- lbaModel::simulate(
+#'         rt_model,
+#'         nsim = 128,
+#'         parameter_vector = p_vector,
+#'         n_subject = 1
+#'     )
+#'
+#'     ## 3) Build DMI (one subject)
+#'     sub_dmis <- ggdmcModel::BuildDMI(dat, model)
+#'
+#'     ## 4) Vague priors
+#'     p0 <- rep(0, model@npar)
+#'     names(p0) <- model@pnames
+#'     p_prior <- ggdmcPrior::BuildPrior(
+#'         p0 = p0,
+#'         p1 = rep(10, model@npar),
+#'         lower = rep(NA, model@npar),
+#'         upper = rep(NA, model@npar),
+#'         dist = rep("unif", model@npar),
+#'         log_p = rep(TRUE, model@npar)
+#'     )
+#'     priors <- ggdmcPrior::set_priors(p_prior)
+#'
+#'     ## 5) MCMC configuration
+#'     nmc <- 200L
+#'     theta_input <- ggdmc::setThetaInput(nmc = nmc, pnames = model@pnames)
+#'     sub_samples <- ggdmc::initialise_theta(
+#'         theta_input, priors, sub_dmis[[1]],
+#'         seed = 123, verbose = FALSE
+#'     )
+#'
+#'     de_input <- ggdmc::setDEInput(
+#'         sub_migration_prob = 0,
+#'         gamma_precursor = 2.38, rp = 0.001,
+#'         is_pblocked = FALSE,
+#'         nparameter = as.integer(model@npar),
+#'         nchain = as.integer(model@npar * 3L),
+#'         sub_debug = FALSE
+#'     )
+#'
+#'     config_list <- ggdmc::set_configs(
+#'         prior = priors, theta_input = theta_input, de_input = de_input,
+#'         ncore = 1L, seed = 123
+#'     )
+#'
+#'     ## 6) Run subject-level sampling
+#'     fit <- ggdmc::run_subject(
+#'         config_r = config_list[[1]],
+#'         dmi = sub_dmis[[1]],
+#'         samples = sub_samples
+#'     )
+#'     print(fit)
+#' }
+#' }
+#' @name run
+NULL

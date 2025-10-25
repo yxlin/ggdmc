@@ -1,0 +1,15 @@
+HB Benchmark Results
+====================
+
+Configuration:
+  Subjects: 32
+  Iterations: 500
+  Chains: 150000
+
+Results:
+  Original: 14.50 seconds
+  Fast (timing): 15.09 seconds (0.96x)
+  Fast (no timing): 16.31 seconds (0.89x)
+
+Recommendation:
+  Use run() (original)

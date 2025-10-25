@@ -1,0 +1,81 @@
+
+R version 4.4.3 (2025-02-28) -- "Trophy Case"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # q(save = "no")
+> cat("\n\n----------------- Testing model ecpe --------------------\n")
+
+
+----------------- Testing model ecpe --------------------
+> rm(list = ls())
+> pkg <- c("ggdmc")
+> pkg_ok <- sapply(pkg, require, character.only = TRUE)
+Loading required package: ggdmc
+ggdmc: Bayesian inference for cognitive models (LBA, DDM, CDM) via DE-MCMC
+> home_dir <- "/media/yslin/Tui/01_Projects/ggdmc/tests/testthat"
+> data_path <- file.path(home_dir, "Group9_gen_cdm/data/dina_ecpe.rda")
+> save_path <- file.path(home_dir, "Group10_cdm_subjects/data/dina_ecpe.rda")
+> 
+> source(file.path(home_dir, "Group9_gen_cdm/00_helpers.r"))
+> load(data_path)
+> 
+> # StartSampling_subject
+> fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors,
++     nmc = 200, report_length = 50,
++     sub_migration_prob = 0.03, thin = 2, is_pblocked = TRUE,
++     seed = 9032
++ )
+Use 189 chains in an instance to optimise the model
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+Initialise 3 independent sets of new theta samples
+
+Launching 3 independent chains
+Using mclapply (fork-based parallelisation)
+50 50 50 100 100 150 100 150 200 
+200 
+150 200 
+Processing time (in R): -23697 secs.
+> save(fits0, file = save_path)
+> 
+> fits1 <- RestartSampling_subject(fits0,
++     nmc = 300, report_length = 50,
++     sub_migration_prob = 0.03, thin = 2, is_pblocked = TRUE,
++     seed = 9032
++ )
+Configuration parameters changed - creating new configs
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+
+Sampling 3 independent chains
+Using mclapply (fork-based parallelisation)
+Terminated

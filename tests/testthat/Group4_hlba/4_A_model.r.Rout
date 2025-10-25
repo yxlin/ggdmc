@@ -1,0 +1,64 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # q(save = "no")
+> rm(list = ls())
+> cat("\n\n-------------------- A model --------------------")
+
+
+-------------------- A model --------------------> 
+> pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood")
+> sapply(pkg, require, character.only = TRUE)
+Loading required package: ggdmc
+ggdmc: Bayesian inference for cognitive models (LBA, DDM, CDM) via DE-MCMC
+Loading required package: ggdmcModel
+Loading required package: ggdmcPrior
+Loading required package: ggdmcLikelihood
+          ggdmc      ggdmcModel      ggdmcPrior ggdmcLikelihood 
+           TRUE            TRUE            TRUE            TRUE 
+> home_dir <- "/media/yslin/Tui/01_Projects/ggdmc/tests/testthat"
+> wkdir <- file.path(home_dir, "Group4_hlba/")
+> 
+> data_path <- file.path(home_dir, "Group0_gen_data/data/lba_data4.rda")
+> save_path <- file.path(home_dir, "Group4_hlba/data/A_model.rda")
+> cat("\nWorking directory: ", wkdir, "\n")
+
+Working directory:  /media/yslin/Tui/01_Projects/ggdmc/tests/testthat/Group4_hlba/ 
+> load(data_path)
+> 
+> 
+> fits0 <- StartSampling(pop_dmis, pop_priors,
++     sub_migration_prob = 0.01, is_pblocked = TRUE,
++     thin = 2L, pop_debug = F, seed = 9032
++ )
+Use 78 chains in an instance to optimise the model
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+Initialise 3 independent sets of new phi samples
+
+Launching 3 cores/chains (mclapply)
+Using mclapply (fork-based parallelisation)
+100 100 Terminated

@@ -1,0 +1,131 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # q(save = "no")
+> cat("\n\n----------------- Testing model9 --------------------\n")
+
+
+----------------- Testing model9 --------------------
+> rm(list = ls())
+> pkg <- c("ggdmc")
+> pkg_ok <- sapply(pkg, require, character.only = TRUE)
+Loading required package: ggdmc
+ggdmc: Bayesian inference for cognitive models (LBA, DDM, CDM) via DE-MCMC
+> home_dir <- "/media/yslin/Tui/01_Projects/ggdmc/tests/testthat"
+> data_path <- file.path(home_dir, "Group9_gen_cdm/data/dina9.rda")
+> save_path <- file.path(home_dir, "Group10_cdm_subjects/data/dina9.rda")
+> source(file.path(home_dir, "Group9_gen_cdm/00_helpers.r"))
+> 
+> cat(paste0("Load data file from ", data_path), "\n")
+Load data file from /media/yslin/Tui/01_Projects/ggdmc/tests/testthat/Group9_gen_cdm/data/dina9.rda 
+> 
+> 
+> load(data_path)
+> # load(save_path)
+> 
+> fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors,
++     sub_migration_prob = 0.05, thin = 10, is_pblocked = TRUE,
++     seed = 9032
++ )
+Use 51 chains in an instance to optimise the model
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+Initialise 3 independent sets of new theta samples
+
+Launching 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time (in R): 1536.99 secs.
+> 
+> save(fits0, file = save_path)
+> 
+> fits1 <- ggdmc:::RestartSampling_subject(fits0,
++     sub_migration_prob = 0.00, thin = 2, is_pblocked = TRUE,
++     seed = 9032
++ )
+Configuration parameters changed - creating new configs
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+
+Sampling 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time (in R): 322.54 secs.
+> 
+> save(fits0, fits1, file = save_path)
+> 
+> # fits2 <- ggdmc:::RestartSampling_subject(fits1,
+> #     sub_migration_prob = 0.00, thin = 2, is_pblocked = TRUE,
+> #     seed = 9032
+> # )
+> # save(fits0, fits1, fits2, file = save_path)
+> cat(paste0("Save fit results to ", save_path), "\n")
+Save fit results to /media/yslin/Tui/01_Projects/ggdmc/tests/testthat/Group10_cdm_subjects/data/dina9.rda 
+> 
+> 
+> fits <- fits1
+> fit <- RebuildPosterior(fits)
+> hat <- gelman(fit)
+> cat("mpsrf = ", hat$mpsrf, "\n")
+mpsrf =  3.569136 
+> options(digits = 3)
+> est_theta <- ggdmc::compare(fit, ps = p_vector)
+               guess1 guess2 guess3 guess4 guess5     pi1    pi2     pi3    pi4
+True          0.71000 0.7200  0.440  0.480  0.760  0.3100 0.0100 0.04000 0.0500
+   5 Estimate 0.52813 0.4111  0.583  0.766  0.932  0.0121 0.0086 0.00555 0.0484
+  50 Estimate 0.71108 0.7599  0.616  0.836  0.982  0.1390 0.1003 0.06236 0.3019
+97.5 Estimate 0.98918 1.0647  0.666  1.041  1.093  0.4654 0.3468 0.24074 0.6262
+Median-True   0.00108 0.0399  0.176  0.356  0.222 -0.1710 0.0903 0.02236 0.2519
+                  pi5     pi6     pi7  slip1   slip2 slip3 slip4 slip5
+True          0.01000 0.03000  0.1000 0.0850  0.1100 0.270 0.160 0.040
+   5 Estimate 0.00421 0.00727  0.0049 0.0255  0.0125 0.523 0.516 0.207
+  50 Estimate 0.04427 0.07371  0.0475 0.1540  0.0951 0.635 0.606 0.300
+97.5 Estimate 0.19901 0.31479  0.1609 0.9822  0.5404 1.011 0.973 0.508
+Median-True   0.03427 0.04371 -0.0525 0.0690 -0.0149 0.365 0.446 0.260
+> 
+> pdf("Dina9_Rplot.pdf")
+> p0 <- ggdmc::plot(fit)
+Construct a data table instance for plotting...
+> p1 <- ggdmc::plot(fit, pll = FALSE, den = TRUE, start = 1)
+Construct a data table instance for plotting...
+> dev.off()
+null device 
+          1 
+> 
+> proc.time()
+   user  system elapsed 
+5395.76    1.37 1867.30 

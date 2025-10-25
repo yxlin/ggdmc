@@ -1,0 +1,140 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # q(save = "no")
+> cat("\n\n-------------------- Fitting hierarchical model2 --------------------")
+
+
+-------------------- Fitting hierarchical model2 --------------------> rm(list = ls())
+> pkg <- c("ggdmc")
+> sapply(pkg, require, character.only = TRUE)
+Loading required package: ggdmc
+ggdmc: Bayesian inference for cognitive models (LBA, DDM, CDM) via DE-MCMC
+ggdmc 
+ TRUE 
+> home_dir <- "/media/yslin/Tui/01_Projects/ggdmc/tests/testthat"
+> # home_dir <- "~/Documents/ggdmc/tests/testthat"
+> data_path <- file.path(home_dir, "Group9_gen_cdm/data/dina2.rda")
+> save_path <- file.path(home_dir, "Group11_hcdm/data/dina2.rda")
+> 
+> 
+> # long: columns = student (fct/int/chr), item (fct/int/chr), C (0/1), s (ignore)
+> long2wide <- function(df) {
++     require(dplyr)
++     require(tidyr)
++     require(stringr)
++     wide <- df %>%
++         # keep only what we need
++         select(student, item, C) %>%
++         # make sure ids and items are clean, ordered, and item names look like E1..E28
++         mutate(
++             id   = as.integer(as.character(student)),
++             item = paste0("E", as.integer(as.character(item))),
++             C    = as.integer(C)
++         ) %>%
++         select(id, item, C) %>%
++         # if there could be duplicates per (id,item), pick one; change to mean/max if needed
++         distinct(id, item, .keep_all = TRUE) %>%
++         # ensure a full rectangular layout (so missing item administrations show up as NA)
++         complete(id, item) %>%
++         # pivot to wide
++         pivot_wider(names_from = item, values_from = C, values_fill = NA_integer_) %>%
++         arrange(id)
++ 
++     wide
++ }
+> 
+> 
+> cat("\nLoad data: ", data_path, "\n")
+
+Load data:  /media/yslin/Tui/01_Projects/ggdmc/tests/testthat/Group9_gen_cdm/data/dina2.rda 
+> load(data_path)
+> 
+> cat("\nLoad fits data: ", data_path, "\n")
+
+Load fits data:  /media/yslin/Tui/01_Projects/ggdmc/tests/testthat/Group9_gen_cdm/data/dina2.rda 
+> load(save_path)
+> 
+> 
+> 
+> # Fit random-effect models -------
+> # fits0 <- StartSampling(pop_dmis, pop_priors,
+> #     sub_migration_prob = 0.05, is_pblocked = TRUE,
+> #     thin = 2L, pop_debug = F, seed = 9032
+> # )
+> 
+> # save(fits0, file = save_path)
+> 
+> fits1 <- RestartSampling(fits0,
++     sub_migration_prob = 0.00,
++     is_pblocked = TRUE,
++     thin = 1L, seed = 9032
++ )
+Comparing configuration parameters:
+Parameter changed: thin (old: 2, new: 1)
+Parameter changed: sub_migration_prob (old: 0.05, new: 0)
+
+Configuration parameters changed - creating new configs
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+
+Sampling 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time: 1341.75 secs.
+> 
+> save(fits0, fits1, file = save_path)
+> 
+> 
+> fits2 <- RestartSampling(fits1,
++     pop_migration_prob = 0.02,
++     sub_migration_prob = 0.02,
++     is_pblocked = FALSE,
++     is_hblocked = TRUE,
++     thin = 1L, seed = 9032
++ )
+Comparing configuration parameters:
+Parameter changed: pop_migration_prob (old: 0, new: 0.02)
+Parameter changed: sub_migration_prob (old: 0, new: 0.02)
+Parameter changed: is_hblocked (old: FALSE, new: TRUE)
+Parameter changed: is_pblocked (old: TRUE, new: FALSE)
+
+Configuration parameters changed - creating new configs
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+
+Sampling 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 Terminated

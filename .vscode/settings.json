@@ -79,5 +79,9 @@
         "any": "cpp",
         "codecvt": "cpp",
         "future": "cpp"
+    },
+     "[r]": {
+        "editor.defaultFormatter": "REditorSupport.r",
+        "editor.formatOnSave": true
     }
 }

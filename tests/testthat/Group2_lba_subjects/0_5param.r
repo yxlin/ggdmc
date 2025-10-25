@@ -1,0 +1,57 @@
+# q(save = "no")
+cat("\n\n-------------------- Testing model0 - 5 parameters --------------------")
+rm(list = ls())
+pkg <- c("ggdmc", "ggdmcModel", "ggdmcPrior", "ggdmcLikelihood")
+sapply(pkg, require, character.only = TRUE)
+home_dir <- "/media/yslin/Tui/01_Projects/ggdmc_ecosystem/ggdmc/tests/testthat"
+wkdir <- file.path(home_dir, "Group2_lba_subjects/")
+data_path <- file.path(home_dir, "Group1_gen_lba/data/lba_data0.rda")
+cat("\nWorking directory: ", getwd(), "\n")
+load(data_path)
+
+# StartSampling_subject
+fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors,
+    sub_migration_prob = 0.02, seed = 9032
+)
+fits1 <- RestartSampling_subject(fits0, sub_migration_prob = 0.00, seed = 9032)
+
+fits <- fits1
+fit <- RebuildPosterior(fits)
+
+hat <- gelman(fit)
+cat("mpsrf = ", hat$mpsrf, "\n")
+
+options(digits = 2)
+
+est_theta <- ggdmc::compare(fit, ps = p_vector)
+#        A     B mean_v.false mean_v.true    t0
+# True          0.75  1.25        1.500         2.5 0.150
+#    5 Estimate 1.00  0.32        0.859         2.2 0.087
+#   50 Estimate 1.68  0.65        1.485         2.8 0.272
+# 97.5 Estimate 2.43  1.79        2.284         3.6 0.358
+# Median-True   0.93 -0.60       -0.015         0.3 0.122
+
+#                   A     B mean_v.false mean_v.true    t0
+# True           0.75  1.25         1.50        2.50 0.150
+#    5 Estimate  0.07  0.55         0.82        1.84 0.098
+#   50 Estimate  0.57  1.05         1.39        2.36 0.213
+# 97.5 Estimate  1.28  1.85         1.99        2.93 0.325
+# Median-True   -0.18 -0.20        -0.11       -0.14 0.063
+
+#                    A    B mean_v.false mean_v.true     t0
+# True           0.750 1.25        1.500       2.500  0.150
+# 5% Estimate    0.103 0.77        0.972       2.112  0.015
+# 50% Estimate   0.797 1.43        1.534       2.581  0.118
+# 97.5% Estimate 1.576 2.17        2.078       3.103  0.267
+# Median-True    0.047 0.18        0.034       0.081 -0.032
+
+# p0 <- ggdmc::plot(fit, pll = FALSE, den = TRUE, start = fit@nmc * 0.5)
+# p1 <- ggdmc::plot(fit, facet_chains = F, start = fit@nmc * 0.5)
+# p1 <- ggdmc::plot(fit, facet_chains = F, pll = F, start = fit@nmc * 0.5)
+
+# p0 <- ggdmc::plot(fits[[1]], pll = T, start = 1)
+# p0 <- ggdmc::plot(fits[[2]], pll = T, start = 1)
+# p0 <- ggdmc::plot(fits[[3]], pll = T, start = 1)
+# p0 <- ggdmc::plot(fits[[1]], pll = FALSE, den = TRUE, start = fits[[1]]@nmc * 0.5)
+# p0 <- ggdmc::plot(fits[[2]], pll = FALSE, den = TRUE, start = fits[[1]]@nmc * 0.5)
+# p0 <- ggdmc::plot(fits[[3]], pll = FALSE, den = TRUE, start = fits[[1]]@nmc * 0.5)

@@ -1,0 +1,512 @@
+
+R version 4.4.3 (2025-02-28) -- "Trophy Case"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #!/usr/bin/env Rscript
+> # DINA Model fit ECPE data
+> # Subject-level parameter estimation
+> cat("\n\n--------- CDM DINA ECPE Model (Subject-level) ----------\n")
+
+
+--------- CDM DINA ECPE Model (Subject-level) ----------
+> rm(list = ls())
+> # q(save = "no")
+> # Load packages
+> pkg <- c("ggdmc", "ggdmcPrior", "ggdmcModel", "cdModel")
+> suppressPackageStartupMessages(pkg_ok <- sapply(pkg, require, character.only = TRUE))
+> 
+> home_dir <- "/media/yslin/Tui/01_Projects/ggdmc_ecosystem/ggdmc/tests/testthat"
+> data_dir <- file.path(home_dir, "Group9_gen_cdm/data")
+> fig_dir <- file.path(home_dir, "Group9_gen_cdm/figs")
+> save_path <- file.path(data_dir, "08_subject_dina0_ecpe.rda")
+> source(file.path(home_dir, "Group9_gen_cdm/00_helpers.r"))
+> 
+> # load(save_path)
+> # -------------------- Q-Matrix Setup --------------------
+> n_student <- dim(CDM::data.ecpe$data)[1]
+> n_item <- dim(CDM::data.ecpe$data)[2] - 1
+> K <- dim(CDM::data.ecpe$q.matrix)[2]
+> 
+> ecpe_dat <- CDM::data.ecpe$data
+> Q <- CDM::data.ecpe$q.matrix
+> 
+> ecpe <- CDM::din(data = ecpe_dat[, -1], q.matrix = Q)
+-----------------------------------------------------------------------
+DINA MODEL 
+** 2025-10-24 14:05:32.092456 
+---------------------------------------------------------------------------------
+Iter.  1  :  14:05:32.165743 ,   loglike= -48100.12  / max. param. ch. :  0.536317  / relative deviance change :  1
+Iter.  2  :  14:05:32.169594 ,   loglike= -43378.32  / max. param. ch. :  0.068317  / relative deviance change :  0.108852
+Iter.  3  :  14:05:32.173295 ,   loglike= -43202.24  / max. param. ch. :  0.047803  / relative deviance change :  0.004076
+Iter.  4  :  14:05:32.177071 ,   loglike= -43094.75  / max. param. ch. :  0.037809  / relative deviance change :  0.002494
+Iter.  5  :  14:05:32.180766 ,   loglike= -43022.48  / max. param. ch. :  0.028244  / relative deviance change :  0.00168
+Iter.  6  :  14:05:32.18444 ,   loglike= -42972.78  / max. param. ch. :  0.021244  / relative deviance change :  0.001156
+Iter.  7  :  14:05:32.188122 ,   loglike= -42938.14  / max. param. ch. :  0.018516  / relative deviance change :  0.000807
+Iter.  8  :  14:05:32.191871 ,   loglike= -42913.71  / max. param. ch. :  0.016872  / relative deviance change :  0.000569
+Iter.  9  :  14:05:32.195681 ,   loglike= -42896.29  / max. param. ch. :  0.015291  / relative deviance change :  0.000406
+Iter.  10  :  14:05:32.202114 ,   loglike= -42883.76  / max. param. ch. :  0.013794  / relative deviance change :  0.000292
+Iter.  11  :  14:05:32.205285 ,   loglike= -42874.66  / max. param. ch. :  0.012396  / relative deviance change :  0.000212
+Iter.  12  :  14:05:32.208443 ,   loglike= -42867.99  / max. param. ch. :  0.011106  / relative deviance change :  0.000156
+Iter.  13  :  14:05:32.21158 ,   loglike= -42863.04  / max. param. ch. :  0.00993  / relative deviance change :  0.000115
+Iter.  14  :  14:05:32.21469 ,   loglike= -42859.33  / max. param. ch. :  0.008866  / relative deviance change :  8.7e-05
+Iter.  15  :  14:05:32.217799 ,   loglike= -42856.51  / max. param. ch. :  0.007911  / relative deviance change :  6.6e-05
+Iter.  16  :  14:05:32.220946 ,   loglike= -42854.34  / max. param. ch. :  0.00706  / relative deviance change :  5.1e-05
+Iter.  17  :  14:05:32.224101 ,   loglike= -42852.63  / max. param. ch. :  0.006304  / relative deviance change :  4e-05
+Iter.  18  :  14:05:32.227146 ,   loglike= -42851.28  / max. param. ch. :  0.005636  / relative deviance change :  3.2e-05
+Iter.  19  :  14:05:32.230342 ,   loglike= -42850.18  / max. param. ch. :  0.005046  / relative deviance change :  2.6e-05
+Iter.  20  :  14:05:32.233447 ,   loglike= -42849.28  / max. param. ch. :  0.004527  / relative deviance change :  2.1e-05
+Iter.  21  :  14:05:32.236519 ,   loglike= -42848.53  / max. param. ch. :  0.00407  / relative deviance change :  1.8e-05
+Iter.  22  :  14:05:32.240254 ,   loglike= -42847.89  / max. param. ch. :  0.003668  / relative deviance change :  1.5e-05
+Iter.  23  :  14:05:32.243871 ,   loglike= -42847.34  / max. param. ch. :  0.003315  / relative deviance change :  1.3e-05
+Iter.  24  :  14:05:32.247489 ,   loglike= -42846.87  / max. param. ch. :  0.003004  / relative deviance change :  1.1e-05
+Iter.  25  :  14:05:32.251104 ,   loglike= -42846.45  / max. param. ch. :  0.00273  / relative deviance change :  1e-05
+Iter.  26  :  14:05:32.254699 ,   loglike= -42846.08  / max. param. ch. :  0.002489  / relative deviance change :  9e-06
+Iter.  27  :  14:05:32.258501 ,   loglike= -42845.75  / max. param. ch. :  0.002276  / relative deviance change :  8e-06
+Iter.  28  :  14:05:32.262096 ,   loglike= -42845.45  / max. param. ch. :  0.002088  / relative deviance change :  7e-06
+Iter.  29  :  14:05:32.265696 ,   loglike= -42845.18  / max. param. ch. :  0.001921  / relative deviance change :  6e-06
+Iter.  30  :  14:05:32.269366 ,   loglike= -42844.94  / max. param. ch. :  0.001772  / relative deviance change :  6e-06
+Iter.  31  :  14:05:32.272932 ,   loglike= -42844.72  / max. param. ch. :  0.00164  / relative deviance change :  5e-06
+Iter.  32  :  14:05:32.276574 ,   loglike= -42844.51  / max. param. ch. :  0.001522  / relative deviance change :  5e-06
+Iter.  33  :  14:05:32.280289 ,   loglike= -42844.32  / max. param. ch. :  0.001417  / relative deviance change :  4e-06
+Iter.  34  :  14:05:32.283909 ,   loglike= -42844.15  / max. param. ch. :  0.001322  / relative deviance change :  4e-06
+Iter.  35  :  14:05:32.287564 ,   loglike= -42843.99  / max. param. ch. :  0.001237  / relative deviance change :  4e-06
+Iter.  36  :  14:05:32.291148 ,   loglike= -42843.84  / max. param. ch. :  0.00116  / relative deviance change :  3e-06
+Iter.  37  :  14:05:32.294717 ,   loglike= -42843.71  / max. param. ch. :  0.00109  / relative deviance change :  3e-06
+Iter.  38  :  14:05:32.298471 ,   loglike= -42843.58  / max. param. ch. :  0.001027  / relative deviance change :  3e-06
+Iter.  39  :  14:05:32.30208 ,   loglike= -42843.46  / max. param. ch. :  0.00097  / relative deviance change :  3e-06
+---------------------------------------------------------------------------------
+Time difference of 0.2673705 secs
+> param <- CDM::IRT.se(ecpe, extended = TRUE)
+> p <- split(param, param$partype)
+> 
+> cdm_result <- tibble::tibble(
++     guess = p$guess$est,
++     slip = p$slip$est,
++     guess005 = p$guess$est - 1.96 * p$guess$se,
++     guess975 = p$guess$est + 1.96 * p$guess$se,
++     slip005 = p$slip$est - 1.96 * p$slip$se,
++     slip975 = p$slip$est + 1.96 * p$slip$se
++ )
+> 
+> # Rearrange to match ggdmc format
+> cdm_formatted <- data.frame(
++     `5%` = c(
++         p$guess$est - 1.96 * p$guess$se, # guess lower bounds
++         p$slip$est - 1.96 * p$slip$se # slip lower bounds
++     ),
++     `50%` = c(p$guess$est, p$slip$est), # medians (estimates)
++     `97.5%` = c(
++         p$guess$est + 1.96 * p$guess$se, # guess upper bounds
++         p$slip$est + 1.96 * p$slip$se # slip upper bounds
++     ),
++     check.names = FALSE
++ )
+> rownames(cdm_formatted) <- c(
++     paste0("guess", 1:n_item),
++     paste0("slip", 1:n_item)
++ )
+> 
+> cat("\n=== CDM Package Results ===\n")
+
+=== CDM Package Results ===
+> print(round(cdm_formatted, 3))
+           5%   50% 97.5%
+guess1  0.681 0.705 0.730
+guess2  0.693 0.724 0.754
+guess3  0.411 0.438 0.465
+guess4  0.446 0.480 0.514
+guess5  0.736 0.764 0.791
+guess6  0.688 0.717 0.747
+guess7  0.516 0.544 0.571
+guess8  0.775 0.802 0.828
+guess9  0.501 0.534 0.568
+guess10 0.454 0.483 0.511
+guess11 0.529 0.556 0.583
+guess12 0.172 0.195 0.218
+guess13 0.606 0.633 0.660
+guess14 0.489 0.517 0.545
+guess15 0.721 0.749 0.777
+guess16 0.522 0.549 0.576
+guess17 0.792 0.816 0.839
+guess18 0.700 0.729 0.758
+guess19 0.439 0.473 0.508
+guess20 0.215 0.239 0.263
+guess21 0.595 0.621 0.648
+guess22 0.288 0.322 0.355
+guess23 0.604 0.637 0.670
+guess24 0.279 0.313 0.348
+guess25 0.484 0.512 0.540
+guess26 0.522 0.555 0.588
+guess27 0.240 0.265 0.291
+guess28 0.627 0.659 0.691
+slip1   0.067 0.085 0.103
+slip2   0.084 0.101 0.118
+slip3   0.240 0.266 0.292
+slip4   0.143 0.162 0.181
+slip5   0.030 0.040 0.051
+slip6   0.053 0.066 0.080
+slip7   0.067 0.085 0.102
+slip8   0.028 0.040 0.052
+slip9   0.178 0.199 0.220
+slip10  0.140 0.163 0.185
+slip11  0.080 0.099 0.118
+slip12  0.278 0.305 0.333
+slip13  0.102 0.122 0.141
+slip14  0.188 0.212 0.236
+slip15  0.029 0.040 0.050
+slip16  0.105 0.126 0.146
+slip17  0.044 0.058 0.072
+slip18  0.072 0.086 0.100
+slip19  0.131 0.150 0.169
+slip20  0.268 0.295 0.323
+slip21  0.079 0.097 0.115
+slip22  0.167 0.188 0.208
+slip23  0.059 0.075 0.092
+slip24  0.296 0.322 0.348
+slip25  0.245 0.272 0.298
+slip26  0.190 0.211 0.231
+slip27  0.340 0.369 0.397
+slip28  0.072 0.086 0.101
+> 
+> cat("\n=== Original cdm_result ===\n")
+
+=== Original cdm_result ===
+> print(cdm_result)
+# A tibble: 28 × 6
+   guess   slip guess005 guess975 slip005 slip975
+   <dbl>  <dbl>    <dbl>    <dbl>   <dbl>   <dbl>
+ 1 0.705 0.0850    0.681    0.730  0.0667  0.103 
+ 2 0.724 0.101     0.693    0.754  0.0835  0.118 
+ 3 0.438 0.266     0.411    0.465  0.240   0.292 
+ 4 0.480 0.162     0.446    0.514  0.143   0.181 
+ 5 0.764 0.0405    0.736    0.791  0.0301  0.0508
+ 6 0.717 0.0665    0.688    0.747  0.0533  0.0797
+ 7 0.544 0.0846    0.516    0.571  0.0669  0.102 
+ 8 0.802 0.0398    0.775    0.828  0.0277  0.0519
+ 9 0.534 0.199     0.501    0.568  0.178   0.220 
+10 0.483 0.163     0.454    0.511  0.140   0.185 
+# ℹ 18 more rows
+> 
+> 
+> Qmat <- as.matrix(Q)
+> colnames(Qmat) <- c("Algebra", "Geometry", "Science")
+> rownames(Qmat) <- paste0("Item", 1:nrow(Qmat))
+> 
+> # -------------------- Prior Setup --------------------
+> p_map <- list(
++     guess1 = "1", guess2 = "1", guess3 = "1", guess4 = "1", guess5 = "1",
++     guess6 = "1", guess7 = "1", guess8 = "1", guess9 = "1", guess10 = "1",
++     guess11 = "1", guess12 = "1", guess13 = "1", guess14 = "1", guess15 = "1",
++     guess16 = "1", guess17 = "1", guess18 = "1", guess19 = "1", guess20 = "1",
++     guess21 = "1", guess22 = "1", guess23 = "1", guess24 = "1", guess25 = "1",
++     guess26 = "1", guess27 = "1", guess28 = "1",
++     pi_000 = "1",
++     pi_100 = "1",
++     pi_010 = "1",
++     pi_110 = "1",
++     pi_001 = "1",
++     pi_101 = "1",
++     pi_011 = "1",
++     slip1 = "1", slip2 = "1", slip3 = "1", slip4 = "1", slip5 = "1",
++     slip6 = "1", slip7 = "1", slip8 = "1", slip9 = "1", slip10 = "1",
++     slip11 = "1", slip12 = "1", slip13 = "1", slip14 = "1", slip15 = "1",
++     slip16 = "1", slip17 = "1", slip18 = "1", slip19 = "1", slip20 = "1",
++     slip21 = "1", slip22 = "1", slip23 = "1", slip24 = "1", slip25 = "1",
++     slip26 = "1", slip27 = "1", slip28 = "1"
++ )
+> 
+> fit_model <- BuildModel(
++     p_map = p_map,
++     factors = NULL,
++     constants = NULL,
++     match_map = NULL,
++     accumulators = Qmat,
++     type = "cdm",
++     verbose = TRUE
++ )
+63 parameters (showing first 10):
+  guess1, guess10, guess11, guess12, guess13, guess14, guess15, guess16
+  guess17, guess18
+  ... +53 more
+1 cell names : Cell
+
+=====CDM Model Information=====
+Items: 28  |  Skills: 3  |  Profiles: 8
+Skills: Algebra, Geometry, Science
+Default skill profile distribution: uniform (0.1250)
+
+Q-matrix:
+       Algebra Geometry Science
+Item1        1        1       0
+Item2        0        1       0
+Item3        1        0       1
+Item4        0        0       1
+Item5        0        0       1
+Item6        0        0       1
+Item7        1        0       1
+Item8        0        1       0
+Item9        0        0       1
+Item10       1        0       0
+Item11       1        0       1
+Item12       1        0       1
+Item13       1        0       0
+Item14       1        0       0
+Item15       0        0       1
+Item16       1        0       1
+Item17       0        1       1
+Item18       0        0       1
+Item19       0        0       1
+Item20       1        0       1
+Item21       1        0       1
+Item22       0        0       1
+Item23       0        1       0
+Item24       0        1       0
+Item25       1        0       0
+Item26       0        0       1
+Item27       1        0       0
+Item28       0        0       1
+
+Skill profiles (first 6):
+  Algebra Geometry Science
+1       0        0       0
+2       1        0       0
+3       0        1       0
+4       1        1       0
+5       0        0       1
+6       1        0       1
+... +2 more
+> 
+> sub_priors <- cdModel::setup_cdm_prior(fit_model)
+> print_prior(sub_priors@p_prior)
+--------------------------------------------------------------------
+| Parameter |   p0   |   p1   | Lower  | Upper  | Log_P | Dist  |
+--------------------------------------------------------------------
+|  guess1 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess2 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess3 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess4 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess5 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess6 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess7 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess8 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  guess9 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess10 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess11 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess12 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess13 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess14 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess15 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess16 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess17 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess18 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess19 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess20 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess21 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess22 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess23 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess24 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess25 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess26 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess27 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+| guess28 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  pi_000 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_100 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_010 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_110 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_001 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_101 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|  pi_011 |   1.00 |    nan |   0.00 |   1.00 |  True | dirichlet |
+|   slip1 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip2 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip3 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip4 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip5 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip6 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip7 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip8 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|   slip9 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip10 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip11 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip12 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip13 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip14 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip15 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip16 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip17 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip18 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip19 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip20 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip21 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip22 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip23 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip24 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip25 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip26 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip27 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+|  slip28 |   0.00 |   1.00 |   0.00 |   1.00 |  True | uniform |
+--------------------------------------------------------------------
+ [1] "guess1"  "guess2"  "guess3"  "guess4"  "guess5"  "guess6"  "guess7" 
+ [8] "guess8"  "guess9"  "guess10" "guess11" "guess12" "guess13" "guess14"
+[15] "guess15" "guess16" "guess17" "guess18" "guess19" "guess20" "guess21"
+[22] "guess22" "guess23" "guess24" "guess25" "guess26" "guess27" "guess28"
+[29] "pi_000"  "pi_100"  "pi_010"  "pi_110"  "pi_001"  "pi_101"  "pi_011" 
+[36] "slip1"   "slip2"   "slip3"   "slip4"   "slip5"   "slip6"   "slip7"  
+[43] "slip8"   "slip9"   "slip10"  "slip11"  "slip12"  "slip13"  "slip14" 
+[50] "slip15"  "slip16"  "slip17"  "slip18"  "slip19"  "slip20"  "slip21" 
+[57] "slip22"  "slip23"  "slip24"  "slip25"  "slip26"  "slip27"  "slip28" 
+> 
+> 
+> dat_long <- wide2long_base(ecpe_dat)
+> dat_long$s <- 1
+> dat_responses <- dat_long[, 2:5]
+> 
+> # Build data-model-info objects
+> sub_dmis <- BuildDMI(dat_responses, fit_model,
++     q_matrix = fit_model@cdm_info$q_matrix,
++     rule = "DINA",
++     use_mvn = FALSE
++ )
+Experimental BuildDMI for CDM.
+> 
+> # -------------------- MCMC Sampling --------------------
+> # Stage 0: Burn-in with migration plus blocking at the
+> # subject level (exploration phase)
+> fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors,
++     sub_migration_prob = 0.05, thin = 2, is_pblocked = TRUE,
++     seed = 9032
++ )
+Use 189 chains in an instance to optimise the model
+Sampling settings:
+---------------------
+Main seed: 9032
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 948108
+  Instance 2: 284704
+  Instance 3: 558105
+Initialise 3 independent sets of new theta samples
+
+Launching 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time (in R): 14707.65 secs.
+> save(fits0, file = save_path)
+> 
+> 
+> # Stage 1: First restart without migration
+> fits1 <- ggdmc:::RestartSampling_subject(fits0,
++     sub_migration_prob = 0.00, thin = 2, is_pblocked = FALSE
++ )
+Configuration parameters changed - creating new configs
+Sampling settings:
+---------------------
+Main seed: 300667
+Number of cores: 3
+
+Seeds for each instance:
+  Instance 1: 761574
+  Instance 2: 338787
+  Instance 3: 550740
+
+Sampling 3 independent chains
+Using mclapply (fork-based parallelisation)
+100 100 100 200 200 200 300 300 300 400 400 400 500 
+500 
+500 
+Processing time (in R): 224.48 secs.
+> 
+> save(fits0, fits1, file = save_path)
+> 
+> fits <- fits1
+> fit <- RebuildPosterior(fits)
+> 
+> # -------------------- Diagnostics (Optional) --------------------
+> # Check Stage 0: Burn-in chains
+> figure_name <- file.path(fig_dir, "08_subject_dina0_ecpe_all.pdf")
+> pdf(figure_name)
+> 
+> p0 <- ggdmc::plot(fits0[[1]], start = 1)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[2]], start = 1)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[3]], start = 1)
+Construct a data table instance for plotting...
+> 
+> p0 <- ggdmc::plot(fits0[[1]], start = 200)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[2]], start = 200)
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits0[[3]], start = 200)
+Construct a data table instance for plotting...
+> 
+> p0 <- ggdmc::plot(fits1[[1]])
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits1[[2]])
+Construct a data table instance for plotting...
+> p0 <- ggdmc::plot(fits1[[3]])
+Construct a data table instance for plotting...
+> 
+> p1 <- ggdmc::plot(fit)
+Construct a data table instance for plotting...
+> p1 <- ggdmc::plot(fit, den = TRUE, pll = FALSE, hide_legend = FALSE)
+Construct a data table instance for plotting...
+> dev.off()
+null device 
+          1 
+> 
+> # -------------------- Convergence Check --------------------
+> hat <- gelman(fit)
+> cat("Overall mpsrf = ", hat$mpsrf, "\n")
+Overall mpsrf =  1.029561 
+> 
+> # Check individual chains
+> ncore <- 3
+> for (i in seq_len(ncore)) {
++     hat <- gelman(fits[[i]])
++     cat("Chain", i, "mpsrf = ", hat$mpsrf, "\n")
++ }
+Chain 1 mpsrf =  1.280434 
+Chain 2 mpsrf =  1.297084 
+Chain 3 mpsrf =  1.286275 
+> 
+> # -------------------- Parameter summary --------------------
+> options(digits = 2)
+> est_theta <- ggdmc::summary(fit)
+> # print(est_theta$quantile)
+> 
+> # cdm_formatted[1:10, ] - est_theta$quantile[1:10, ]
+> # cdm_formatted[11:20, ] - est_theta$quantile[18:27, ]
+> 
+> 
+> # cdm_est_profile_probs <- cbind(
+> #     p$probs$est - 1.96 * p$probs$se, p$probs$est,
+> #     p$probs$est + 1.96 * p$probs$se
+> # )
+> # rownames(cdm_est_profile_probs) <- rownames(ecpe$attribute.patt)
+> # cdm_est_profile_probs
+> 
+> # ggdmc_est <- est_theta$quantile[11:17, ]
+> 
+> 
+> # Full comparison with output
+> result <- compare_profile_probs(ggdmc_est, cdm_est_profile_probs)
+Error: object 'ggdmc_est' not found
+Execution halted

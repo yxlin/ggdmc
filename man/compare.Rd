@@ -10,6 +10,7 @@ compare(
   end = NULL,
   ps = NULL,
   probability = c(0.05, 0.5, 0.975),
+  sort_name = TRUE,
   verbose = TRUE
 )
 }
@@ -23,6 +24,9 @@ compare(
 \item{ps}{Named vector of true parameter values to compare against estimates}
 
 \item{probability}{Vector of quantiles to compute (default: c(0.05, 0.5, 0.975))}
+
+\item{sort_name}{Logical Whether to sort the name of the estimate and the true 
+parameter vector}
 
 \item{verbose}{Logical Whether to print results (default: TRUE)}
 }

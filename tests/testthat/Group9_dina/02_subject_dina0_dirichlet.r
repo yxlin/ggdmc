@@ -9,8 +9,8 @@ pkg <- c("ggdmc", "ggdmcPrior", "ggdmcModel", "cdModel")
 suppressPackageStartupMessages(pkg_ok <- sapply(pkg, require, character.only = TRUE))
 
 home_dir <- "/media/yslin/Tui/01_Projects/ggdmc_ecosystem/ggdmc/tests/testthat"
-data_dir <- file.path(home_dir, "Group9_gen_cdm/data")
-fig_dir <- file.path(home_dir, "Group9_gen_cdm/figs")
+data_dir <- file.path(home_dir, "Group9_dina/data")
+fig_dir <- file.path(home_dir, "Group9_dina/figs")
 
 # -------------------- Q-Matrix Setup --------------------
 # 3 items, 2 skills: Item 1 (Algebra only), Item 2 (Geometry only), Item 3 (both)

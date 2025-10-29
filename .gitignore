@@ -52,3 +52,21 @@ rsconnect/
 .lintr
 .Rbuildignore
 .build.r
+
+# Compiled object files
+*.o
+*.so
+
+# Binary data files and figures (reproducible, don't track)
+*.rda
+*.RData
+*.pdf
+
+# Test executables (compiled C++ test programs)
+tests/testthat/*/test_*
+!tests/testthat/*/test_*.r
+!tests/testthat/*/test_*.R
+!tests/testthat/*/test_*.cpp
+
+# PNG images (reproducible visualizations)
+*.png

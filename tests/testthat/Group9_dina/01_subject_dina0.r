@@ -9,8 +9,10 @@ pkg <- c("ggdmc", "ggdmcPrior", "ggdmcModel", "cdModel")
 suppressPackageStartupMessages(pkg_ok <- sapply(pkg, require, character.only = TRUE))
 
 home_dir <- "/media/yslin/Tui/01_Projects/ggdmc_ecosystem/ggdmc/tests/testthat"
-data_dir <- file.path(home_dir, "Group9_gen_cdm/data")
-fig_dir <- file.path(home_dir, "Group9_gen_cdm/figs")
+data_dir <- file.path(home_dir, "Group9_dina/data")
+fig_dir <- file.path(home_dir, "Group9_dina/figs")
+save_path <- file.path(data_dir, "01_subject_dina0.rda")
+figure_name <- file.path(fig_dir, "01_subject_dina0.pdf")
 
 # -------------------- Q-Matrix Setup --------------------
 # 3 items, 2 skills: Item 1 (Algebra only), Item 2 (Geometry only), Item 3 (both)
@@ -100,22 +102,22 @@ sub_dmis <- BuildDMI(dat$responses, model,
 # sub_dmis[[1]]@use_mvn
 # -------------------- MCMC Sampling --------------------
 # Stage 0: Burn-in with migration no blocking at the
-# subject level (exploration phase)
+# e subject level (exploration phase)
+
 fits0 <- StartSampling_subject(sub_dmis[[1]], sub_priors,
     sub_migration_prob = 0.05, thin = 2, is_pblocked = TRUE,
     seed = 9032
 )
-
+save(fits0, file = save_path)
 # Stage 1: Sampling without migration
 fits1 <- ggdmc:::RestartSampling_subject(fits0,
     sub_migration_prob = 0.00, thin = 2, is_pblocked = FALSE
 )
-
+save(fits0, fits1, file = save_path)
 fits <- fits1
 fit <- RebuildPosterior(fits)
 # -------------------- Diagnostics (Optional) --------------------
 # Check Stage 0: Burn-in chains
-figure_name <- file.path(fig_dir, "01_subject_dina0.pdf")
 pdf(figure_name)
 p0 <- ggdmc::plot(fits0[[1]], start = 1)
 p0 <- ggdmc::plot(fits0[[2]], start = 1)
@@ -134,7 +136,6 @@ p1 <- ggdmc::plot(fit, den = TRUE, pll = FALSE)
 dev.off()
 
 # -------------------- Convergence Check --------------------
-
 hat <- gelman(fit)
 cat("Overall mpsrf = ", hat$mpsrf, "\n")
 
@@ -163,3 +164,17 @@ est_theta <- ggdmc::compare(fit, ps = sim_p_vector)
 # 50 Estimate    0.0975  0.110  0.276  0.19 0.264  0.24 0.0467 0.057 0.0574
 # 97.5 Estimate  0.2253  0.248  0.311  0.24 0.335  0.31 0.1217 0.131 0.1532
 # Median-True   -0.0025 -0.090 -0.024 -0.06 0.014 -0.01 0.0367 0.027 0.0074
+
+#                guess1 guess2 guess3 pi_00 pi_01   pi_10  slip1 slip2  slip3
+# True           0.1000  0.200  0.300  0.25 0.250  0.2500 0.0100 0.030 0.0500
+# 5 Estimate     0.0098  0.011  0.232  0.15 0.211  0.1889 0.0064 0.010 0.0055
+# 50 Estimate    0.0978  0.110  0.275  0.19 0.264  0.2401 0.0486 0.058 0.0561
+# 97.5 Estimate  0.2275  0.243  0.311  0.24 0.336  0.3060 0.1227 0.129 0.1551
+# Median-True   -0.0022 -0.090 -0.025 -0.06 0.014 -0.0099 0.0386 0.028 0.0061
+
+#     guess1 guess2 guess3  pi_00 pi_01  pi_10 slip1 slip2 slip3
+# True          0.1000  0.200  0.300  0.250 0.250  0.250 0.010 0.030 0.050
+# 5 Estimate    0.0094  0.011  0.233  0.145 0.210  0.185 0.005 0.010 0.006
+# 50 Estimate   0.1069  0.108  0.277  0.192 0.267  0.238 0.047 0.061 0.065
+# 97.5 Estimate 0.2412  0.258  0.314  0.242 0.342  0.315 0.124 0.133 0.174
+# Median-True   0.0069 -0.092 -0.023 -0.058 0.017 -0.012 0.037 0.031 0.015

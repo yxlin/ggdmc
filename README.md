@@ -1,4 +1,6 @@
-# 📦 ggdmc
+# 📦 ggdmc [DEV BRANCH]
+
+> ⚠️ **Development Branch**: This is the active development branch with new features and experimental code. For the stable version, see the [main branch](https://github.com/yxlin/ggdmc/tree/main).
 
 <!-- Badges -->
 [![CRAN Status](https://www.r-pkg.org/badges/version/ggdmc)](https://cran.r-project.org/package=ggdmc)
@@ -6,24 +8,39 @@
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml)
 
-`ggdmc` (v0.2.8.9) is an R package for **Bayesian inference** on cognitive **choice response time models**, including:
+`ggdmc` (v0.2.8.9) is an R package for **Bayesian inference** on cognitive **choice response time models** and **cognitive diagnostic models**, including:
 
 - **Linear Ballistic Accumulator (LBA)**
 - **Diffusion Decision Model (DDM)**
+- **Cognitive Diagnostic Models (CDM)** - DINA, DINO, RRUM, GDINA, LCDM ✨ NEW
 
 It supports **hierarchical Bayesian modelling**, efficient MCMC sampling, and flexible model definitions.
+
+## 🆕 What's New in Dev Branch
+
+- **CDM Support**: Full implementation of cognitive diagnostic models (DINA, DINO, RRUM, GDINA, LCDM)
+- **Dirichlet Priors**: Support for Dirichlet distribution on profile probabilities
+- **MVN Profile Probabilities**: Optional multivariate normal generation for skill profiles
+- **Improved Sorting**: C++ little-endian parameter ordering for consistency
+- **Enhanced Documentation**: Comprehensive test scripts and examples for CDM models
+- **Performance Optimizations**: Faster MCMC sampling with hierarchical models
 
 
 ## 🚀 Getting Started
 
 ### Installation
 
-From CRAN:
+**Stable version from CRAN:**
 ```r
 install.packages("ggdmc")
 ```
 
-From GitHub (development version):
+**Dev branch from GitHub (includes CDM support):**
+```r
+remotes::install_github("yxlin/ggdmc@dev")
+```
+
+**Main branch from GitHub:**
 ```r
 remotes::install_github("yxlin/ggdmc")
 ```
@@ -43,8 +60,14 @@ Key features include:
   - Model comparison 
 
 ### Currently supported models:
-- LBA (Linear Ballistic Accumulator)
-- DDM (Diffusion Decision Model)
+- **LBA** (Linear Ballistic Accumulator)
+- **DDM** (Diffusion Decision Model)
+- **CDM** (Cognitive Diagnostic Models) ✨ NEW
+  - DINA (Deterministic Inputs, Noisy "And" gate)
+  - DINO (Deterministic Inputs, Noisy "Or" gate)
+  - RRUM (Reduced Reparameterized Unified Model)
+  - GDINA (Generalized DINA)
+  - LCDM (Log-linear Cognitive Diagnosis Model)
 - Regular statistical models (via hyper-only route)
 - Extendable to user-defined models (e.g., pLBA, DDM with varying drift rates)
 
@@ -104,18 +127,18 @@ ggdmc::plot(post, pll=FALSE, den=TRUE)
 - Data handling: `data.table`, `matrixStats`
 - Plotting: `lattice`
 - Core `ggdmc` components: `ggdmcHeaders`, `ggdmcModel`, `ggdmcPrior`, `ggdmcLikelihood`
-- Model modules: `lbaModel`, `ddModel`
+- Model modules: `lbaModel`, `ddModel`, `cdModel` ✨ NEW
 
 
 Install all dependencies:
 
 ```r
 install.packages(c(
-  "Rcpp", "RcppArmadillo", "data.table", 
+  "Rcpp", "RcppArmadillo", "data.table",
   "matrixStats", "lattice",
-  "ggdmcHeaders", "ggdmcModel", 
+  "ggdmcHeaders", "ggdmcModel",
   "ggdmcPrior", "ggdmcLikelihood",
-  "lbaModel", "ddModel"
+  "lbaModel", "ddModel", "cdModel"
 ))
 ```
 
@@ -209,7 +232,39 @@ Key functions:
 ---
 
 ### Example 2: Minimal DDM Recovery
-- `tests/testthat/Group6/data/` – simulation data
-- `tests/testthat/Group6//` – fitting the data to find optimised parameters 
+- `tests/testthat/Group6_ddm_subjects/` – subject-level DDM fitting
+- `tests/testthat/Group8_hddm/` – hierarchical DDM examples
+
+---
+
+### Example 3: Cognitive Diagnostic Models (CDM) ✨ NEW
+
+**DINA Model Examples:**
+
+The DINA (Deterministic Inputs, Noisy "And" gate) model is a foundational CDM. See comprehensive examples in:
+
+- `tests/testthat/Group9_dina/01_subject_dina0.r` – Baseline DINA with 2 skills, no MVN
+- `tests/testthat/Group9_dina/02_subject_dina0_dirichlet.r` – DINA with Dirichlet priors on profile probabilities
+- `tests/testthat/Group9_dina/05_subject_dina0_2_skills_mean_sigma.r` – DINA with MVN profile probabilities (correlated skills)
+- `tests/testthat/Group9_dina/06_subject_dina0_3_skills_mean_sigma.r` – 3-skill DINA with MVN
+- `tests/testthat/Group9_dina/07_subject_dina0_ecpe.r` – DINA applied to ECPE dataset
+
+**DINO Model Examples:**
+
+- `tests/testthat/Group10_dino/01_dino0.r` – Baseline DINO model
+- `tests/testthat/Group10_dino/02_dino0_dirichlet.r` – DINO with Dirichlet priors
+- `tests/testthat/Group10_dino/03_dino0_2_skills_mean_sigma.r` – DINO with correlated skills
+- `tests/testthat/Group10_dino/04_dino0_3_skills_dirichlet.r` – 3-skill DINO with Dirichlet
+- `tests/testthat/Group10_dino/06_lcdm0.r` – LCDM model example
+
+**Key CDM Features:**
+- Q-matrix specification for item-skill relationships
+- Multiple CDM rules: DINA, DINO, RRUM, GDINA, LCDM
+- Dirichlet priors for profile probabilities (proper simplex constraint)
+- Optional MVN generation for correlated skill profiles
+- Parameter recovery validation with `compare()`
+- C++ little-endian parameter ordering for consistency
+
+---
 
 

@@ -8,7 +8,7 @@
 [![License: GPL-3](https://img.shields.io/badge/license-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![R-CMD-check](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/yxlin/ggdmc/actions/workflows/R-CMD-check.yaml)
 
-`ggdmc` (v0.2.8.9) is an R package for **Bayesian inference** on cognitive **choice response time models** and **cognitive diagnostic models**, including:
+`ggdmc` (v0.2.9.0) is an R package for **Bayesian inference** on cognitive **choice response time models** and **cognitive diagnostic models**, including:
 
 - **Linear Ballistic Accumulator (LBA)**
 - **Diffusion Decision Model (DDM)**
@@ -217,11 +217,10 @@ This example shows how to:
 
 See scripts under:
 
-- `tests/testthat/Group1/data/` – simulation data
-- `tests/testthat/Group1/0_5param_hyper.r` – hyper-level only model
-- `tests/testthat/Group1/1_6param_fit_subject.r` – single participant fitting
-- `tests/testthat/Group1/2_v_model_multiple_level.r` – hierarchical model with varying drift rates
-- `tests/testthat/Group1/3_B_model_中文.r` – hierarchical model with varying thresholds (Chinese example)
+- `tests/testthat/Group1_gen_lba/` – simulation data
+- `tests/testthat/Group1_lba_subject/` – single fixed-effect models 
+- `tests/testthat/Group1_lba_hyper/` – fitting only hyper-level (akin to standard statistical models)
+- `tests/testthat/Group1_hlba/` – hierarchical models
 
 Key functions:
 
